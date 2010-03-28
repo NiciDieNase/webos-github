@@ -1,0 +1,9 @@
+{
+	"id": "de.kingcrunch.github",
+	"version": "0.0.1",
+	"vendor": "Sebastian Krebs",
+	"type": "web",
+	"main": "index.html",
+	"title": "Github",
+	"icon": "icon.png"
+}
