@@ -46,7 +46,8 @@ AuthAssistant.prototype.setup = function(){
     });
     
     /* add event handlers to listen to events from widgets */
-    Mojo.Event.listen(this.controller.get('update'), Mojo.Event.tap, this.updateAuthorization.bind(this))
+	this.updateAuthorization = this.updateAuthorization.bind(this)
+    Mojo.Event.listen(this.controller.get('update'), Mojo.Event.tap, this.updateAuthorization)
 };
 
 AuthAssistant.prototype.activate = function(event){
@@ -62,6 +63,7 @@ AuthAssistant.prototype.deactivate = function(event){
 AuthAssistant.prototype.cleanup = function(event){
     /* this function should do any cleanup needed before the scene is destroyed as 
      a result of being popped off the scene stack */
+	Mojo.Event.stopListening(this.controller.get("update"),Mojo.Event.tap,this.updateAuthorization)
 };
 
 AuthAssistant.prototype.updateAuthorization = function(){

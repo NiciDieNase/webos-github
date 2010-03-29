@@ -61,6 +61,8 @@ RepositoriesAssistant.prototype.setup = function(){
     })
     
     /* add event handlers to listen to events from widgets */
+	this.openRepo = this.openRepo.bind(this)
+	Mojo.Event.listen(this.controller.get("repositories-list"), Mojo.Event.listTap, this.openRepo)
 };
 
 RepositoriesAssistant.prototype.activate = function(event, auth){
@@ -76,6 +78,7 @@ RepositoriesAssistant.prototype.deactivate = function(event){
 RepositoriesAssistant.prototype.cleanup = function(event){
     /* this function should do any cleanup needed before the scene is destroyed as 
      a result of being popped off the scene stack */
+	Mojo.Event.stopListening(this.controller.get("repositories-list"), Mojo.Event.listTap, this.openRepo)
 };
 
 RepositoriesAssistant.prototype.handleCommand = function(event){
@@ -106,4 +109,8 @@ RepositoriesAssistant.prototype.handleCommand = function(event){
 RepositoriesAssistant.prototype.updateRepositories = function (response) {
 	this.listModel.items = response.responseJSON.repositories
 	this.controller.modelChanged(this.listModel)
+}
+
+RepositoriesAssistant.prototype.openRepo = function (event) {
+	this.controller.get('repositories-debug').update(dump(event.item))
 }
