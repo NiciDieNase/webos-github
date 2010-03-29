@@ -61,7 +61,7 @@ StageAssistant.prototype.loadAuthorization = function (auth) {
 	if (auth == undefined) {
 		this.controller.pushScene("auth",this.depot)
 	} else {
-		this.controller.pushScene("userinfo",this.depot,auth)
+		this.controller.pushScene("userinfo",this.depot,auth,auth["username"])
 	}
 }
 

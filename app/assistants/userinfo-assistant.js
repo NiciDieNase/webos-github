@@ -1,16 +1,17 @@
-function UserinfoAssistant(depot, auth){
+function UserinfoAssistant(depot, auth,username){
     /* this is the creator function for your scene assistant object. It will be passed all the 
      additional parameters (after the scene name) that were passed to pushScene. The reference
      to the scene controller (this.controller) has not be established yet, so any initialization
      that needs the scene controller should be done in the setup function below. */
     this.depot = depot
     this.auth = auth
+	this.username = username
 }
 
 UserinfoAssistant.prototype.setup = function(){
     /* this function is for setup tasks that have to happen when the scene is first created */
     
-    var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + this.auth["username"], {
+    var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + this.username, {
         method: "post",
         evalJSON: "false",
         onSuccess: this.updateUserinfo.bind(this),
@@ -233,14 +234,14 @@ UserinfoAssistant.prototype.handleCommand = function(event){
                 Mojo.Controller.stageController.swapScene({
                     name: "social",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth)
+                }, this.depot, this.auth, this.username)
                 break;
             case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
                     name: "repositories",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth)
+                }, this.depot, this.auth, this.username)
                 break;
         }
     }

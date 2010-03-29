@@ -72,5 +72,5 @@ AuthAssistant.prototype.updateAuthorization = function(){
 
 AuthAssistant.prototype.proceed = function(){
 	Mojo.Controller.stageController.auth = this.model
-    Mojo.Controller.stageController.swapScene("userinfo", this.depot, this.model)
+    Mojo.Controller.stageController.swapScene("userinfo", this.depot, this.model,this.model["username"])
 }

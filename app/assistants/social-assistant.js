@@ -1,4 +1,4 @@
-function SocialAssistant(depot, auth){
+function SocialAssistant(depot, auth, username){
     /* this is the creator function for your scene assistant object. It will be passed all the 
      
      additional parameters (after the scene name) that were passed to pushScene. The reference
@@ -8,6 +8,7 @@ function SocialAssistant(depot, auth){
      that needs the scene controller should be done in the setup function below. */
     this.depot = depot
     this.auth = auth
+	this.username = username
 }
 
 SocialAssistant.prototype.setup = function(){
@@ -70,42 +71,21 @@ SocialAssistant.prototype.setup = function(){
         listTemplate: 'social/list-template'
     }, this.followingModel);
     
-    this.watchedReposModel = {
-        items: [{
-            key: 'info',
-            value: 'loading...'
-        }],
-        listTitle: "Repositories"
-    }
-    
-    // Set up the attributes & model for the List widget:
-    this.controller.setupWidget('watched-repos-list', {
-        itemTemplate: 'social/item-template',
-        listTemplate: 'social/list-template'
-    }, this.watchedReposModel);
-    
     /* add event handlers to listen to events from widgets */
 	
 	
     
-    var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + this.auth["username"] + "/followers", {
+    var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + this.username + "/followers", {
         method: "post",
         evalJSON: "false",
         onSuccess: this.updateFollowers.bind(this),
         postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
     })
     
-    var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + this.auth["username"] + "/following", {
+    var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + this.username + "/following", {
         method: "post",
         evalJSON: "false",
         onSuccess: this.updateFollowing.bind(this),
-        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
-    })
-    
-    var request = new Ajax.Request("https://github.com/api/v2/json/repos/watched/" + this.auth["username"], {
-        method: "post",
-        evalJSON: "false",
-        onSuccess: this.updateWatchedRepos.bind(this),
         postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
     })
 };
@@ -136,14 +116,14 @@ SocialAssistant.prototype.handleCommand = function(event){
                 Mojo.Controller.stageController.swapScene({
                     name: "repositories",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth)
+                }, this.depot, this.auth, this.username)
                 break;
             case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
                     name: "userinfo",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth)
+                }, this.depot, this.auth, this.username)
                 break;
         }
     }
@@ -155,11 +135,6 @@ SocialAssistant.prototype.updateFollowers = function (response) {
 		this.followersModel.items.push({name:response.responseJSON.users[i]})
 	}
 	this.controller.modelChanged(this.followersModel)
-}
-
-SocialAssistant.prototype.updateWatchedRepos = function (response) {
-	this.watchedReposModel.items = response.responseJSON.repositories
-	this.controller.modelChanged(this.watchedReposModel)
 }
 
 SocialAssistant.prototype.updateFollowing = function (response) {

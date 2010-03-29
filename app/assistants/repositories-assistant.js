@@ -1,4 +1,4 @@
-function RepositoriesAssistant(depot,auth){
+function RepositoriesAssistant(depot,auth, username){
     /* this is the creator function for your scene assistant object. It will be passed all the 
      
      additional parameters (after the scene name) that were passed to pushScene. The reference
@@ -8,6 +8,7 @@ function RepositoriesAssistant(depot,auth){
      that needs the scene controller should be done in the setup function below. */
 	this.depot = depot
 	this.auth = auth
+	this.username = username
 }
 
 RepositoriesAssistant.prototype.setup = function(){
@@ -52,11 +53,36 @@ RepositoriesAssistant.prototype.setup = function(){
         itemTemplate: 'repositories/item-template',
         listTemplate: 'repositories/list-template'
     }, this.listModel);
+	
+	
     
-    var request = new Ajax.Request("https://github.com/api/v2/json/repos/show/" + this.auth["username"], {
+    this.watchedReposModel = {
+        items: [{
+            key: 'info',
+            value: 'loading...'
+        }],
+        listTitle: "Repositories"
+    }
+    
+    // Set up the attributes & model for the List widget:
+    this.controller.setupWidget('watched-repos-list', {
+        itemTemplate: 'social/item-template',
+        listTemplate: 'social/list-template'
+    }, this.watchedReposModel);
+    
+    var request = new Ajax.Request("https://github.com/api/v2/json/repos/show/" + this.username, {
         method: "post",
         evalJSON: "false",
         onSuccess: this.updateRepositories.bind(this),
+        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
+    })
+	
+	
+    
+    var request = new Ajax.Request("https://github.com/api/v2/json/repos/watched/" + this.username, {
+        method: "post",
+        evalJSON: "false",
+        onSuccess: this.updateWatchedRepos.bind(this),
         postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
     })
     
@@ -93,14 +119,14 @@ RepositoriesAssistant.prototype.handleCommand = function(event){
                 Mojo.Controller.stageController.swapScene({
                     name: "userinfo",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth)
+                }, this.depot, this.auth, this.username)
                 break;
             case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
                     name: "social",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth)
+                }, this.depot, this.auth, this.username)
                 break;
         }
     }
@@ -113,4 +139,9 @@ RepositoriesAssistant.prototype.updateRepositories = function (response) {
 
 RepositoriesAssistant.prototype.openRepo = function (event) {
 	this.controller.get('repositories-debug').update(dump(event.item))
+}
+
+RepositoriesAssistant.prototype.updateWatchedRepos = function (response) {
+	this.watchedReposModel.items = response.responseJSON.repositories
+	this.controller.modelChanged(this.watchedReposModel)
 }
