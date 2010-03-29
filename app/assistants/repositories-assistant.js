@@ -135,7 +135,8 @@ RepositoriesAssistant.prototype.handleCommand = function(event){
 }
 
 RepositoriesAssistant.prototype.openRepo = function (event) {
-	this.controller.get('repositories-debug').update(dump(event.item))
+//	this.controller.get('repositories-debug').update(dump(event.item))
+	Mojo.Controller.stageController.pushScene("repodetail",this.depot,this.auth,event.item.owner,event.item.name)
 }
 
 RepositoriesAssistant.prototype.updateRepositories = function (response) {

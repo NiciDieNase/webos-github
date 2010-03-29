@@ -10,10 +10,6 @@
         "source": "app/assistants/userinfo-assistant.js"
     },
     {
-        "scenes": "main",
-        "source": "app/assistants/main-assistant.js"
-    },
-    {
         "scenes": "about",
         "source": "app/assistants/about-assistant.js"
     },
@@ -24,5 +20,9 @@
     {
         "scenes": "social",
         "source": "app/assistants/social-assistant.js"
+    },
+    {
+        "scenes": "repodetail",
+        "source": "app/assistants/repodetail-assistant.js"
     }
 ]
