@@ -1,22 +1,34 @@
-function UserinfoAssistant(depot, auth,username){
+function UserinfoAssistant(depot, auth, username){
     /* this is the creator function for your scene assistant object. It will be passed all the 
      additional parameters (after the scene name) that were passed to pushScene. The reference
      to the scene controller (this.controller) has not be established yet, so any initialization
      that needs the scene controller should be done in the setup function below. */
     this.depot = depot
     this.auth = auth
-	this.username = username
+    this.username = username
 }
 
 UserinfoAssistant.prototype.setup = function(){
     /* this function is for setup tasks that have to happen when the scene is first created */
-    
-    var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + this.username, {
-        method: "post",
-        evalJSON: "false",
-        onSuccess: this.updateUserinfo.bind(this),
-        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
-    })
+    this.updateUserinfo = this.updateUserinfo.bind(this)
+	this.updatePrivateUserinfo = this.updatePrivateUserinfo.bind(this)
+    if (this.auth["username"] == this.username) {
+        var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + escape(this.username), {
+            method: "post",
+            evalJSON: "false",
+            onSuccess: this.updatePrivateUserinfo,
+            onFailure: this.connectionFailed.bind(this),
+            postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
+        })
+    }
+    else {
+        var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + escape(this.username), {
+            method: "get",
+            evalJSON: "false",
+            onSuccess: this.updateUserinfo,
+            onFailure: this.connectionFailed.bind(this)
+        })
+    }
     
     /* use Mojo.View.render to render view templates and add them to the scene, if needed */
     
@@ -35,7 +47,7 @@ UserinfoAssistant.prototype.setup = function(){
             }, {
                 icon: "forward",
                 command: 'fwd',
-                label:$L("Forward")
+                label: $L("Forward")
             }]
         }]
     };
@@ -61,7 +73,10 @@ UserinfoAssistant.prototype.setup = function(){
     this.controller.setupWidget('discard-auth', {
         type: Mojo.Widget.activityButton
     }, {
-        buttonLabel: $L({key:'update-token',value:"Change API Token"}),
+        buttonLabel: $L({
+            key: 'update-token',
+            value: "Change API Token"
+        }),
         buttonClass: 'primary',
         disabled: false
     });
@@ -91,7 +106,7 @@ UserinfoAssistant.prototype.cleanup = function(event){
 };
 
 
-UserinfoAssistant.prototype.updateUserinfo = function(response){
+UserinfoAssistant.prototype.updatePrivateUserinfo = function(response){
     //	this.controller.get("debug").update(dump(response.responseJSON))
     //    this.controller.get("username").update(response.responseJSON.user.name)
     
@@ -131,7 +146,7 @@ UserinfoAssistant.prototype.updateUserinfo = function(response){
             key: 'blog',
             value: 'blog'
         }),
-        value: "<a href=\""+response.responseJSON.user.blog+"\">"+response.responseJSON.user.blog+"</a>"
+        value: "<a href=\"" + response.responseJSON.user.blog + "\">" + response.responseJSON.user.blog + "</a>"
     }, {
         key: $L({
             key: 'created_at',
@@ -218,6 +233,85 @@ UserinfoAssistant.prototype.updateUserinfo = function(response){
     this.controller.modelChanged(this.listModel)
 }
 
+UserinfoAssistant.prototype.updateUserinfo = function(response){
+    //	this.controller.get("debug").update(dump(response.responseJSON))
+    //    this.controller.get("username").update(response.responseJSON.user.name)
+    
+    this.listModel.items = [{
+        key: $L({
+            value: 'name',
+            key: 'name'
+        }),
+        value: response.responseJSON.user.name,
+        css: ' first'
+    }, {
+        key: $L({
+            key: 'login',
+            value: 'login'
+        }),
+        value: response.responseJSON.user.login
+    }, {
+        key: $L({
+            key: 'email',
+            value: 'email'
+        }),
+        value: response.responseJSON.user.email,
+    }, {
+        key: $L({
+            key: 'location',
+            value: 'location'
+        }),
+        value: response.responseJSON.user.location
+    }, {
+        key: $L({
+            key: 'company',
+            value: 'company'
+        }),
+        value: response.responseJSON.user.company,
+    }, {
+        key: $L({
+            key: 'blog',
+            value: 'blog'
+        }),
+        value: "<a href=\"" + response.responseJSON.user.blog + "\">" + response.responseJSON.user.blog + "</a>"
+    }, {
+        key: $L({
+            key: 'created_at',
+            value: 'created at'
+        }),
+        value: Mojo.Format.formatDate(new Date(response.responseJSON.user.created_at), {
+            date: 'medium'
+        })
+    }, {
+        key: $L({
+            key: 'public_gist_count',
+            value: 'public gists count'
+        }),
+        value: response.responseJSON.user.public_gist_count
+    }, {
+        key: $L({
+            key: 'public_repo_count',
+            value: 'public repo count'
+        }),
+        value: response.responseJSON.user.public_repo_count
+    }, {
+        key: $L({
+            key: 'following_count',
+            value: 'following count'
+        }),
+        value: response.responseJSON.user.following_count
+    }, {
+        key: $L({
+            key: 'followers_count',
+            value: 'followers count'
+        }),
+        value: response.responseJSON.user.followers_count,
+        css: ' last'
+    }]
+    
+    this.controller.modelChanged(this.listModel)
+}
+
 UserinfoAssistant.prototype.discardAuthorization = function(){
     Mojo.Controller.stageController.swapScene("auth", this.depot, this.auth)
 }
@@ -245,4 +339,8 @@ UserinfoAssistant.prototype.handleCommand = function(event){
                 break;
         }
     }
+}
+
+UserinfoAssistant.prototype.connectionFailed = function(response){
+    this.controller.get('userinfo-debug').update(dump(response.responseJSON))
 }
