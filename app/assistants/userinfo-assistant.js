@@ -27,14 +27,14 @@ UserinfoAssistant.prototype.setup = function(){
             items: [{
                 icon: "back",
                 command: 'back',
-                label: "Back"
+                label: $L("Back")
             }, {
-                label: "Userinfo",
+                label: $L("Userinfo"),
                 width: 200
             }, {
                 icon: "forward",
                 command: 'fwd',
-                label: "Forward"
+                label:$L("Forward")
             }]
         }]
     };
@@ -48,7 +48,7 @@ UserinfoAssistant.prototype.setup = function(){
             key: 'info',
             value: 'loading...'
         }],
-        listTitle: "Userinfo"
+        listTitle: $L("Userinfo")
     }
     
     // Set up the attributes & model for the List widget:
@@ -60,13 +60,14 @@ UserinfoAssistant.prototype.setup = function(){
     this.controller.setupWidget('discard-auth', {
         type: Mojo.Widget.activityButton
     }, {
-        buttonLabel: 'Update',
+        buttonLabel: $L({key:'update-token',value:"Change API Token"}),
         buttonClass: 'primary',
         disabled: false
     });
     
     /* add event handlers to listen to events from widgets */
-    Mojo.Event.listen(this.controller.get('discard-auth'), Mojo.Event.tap, this.discardAuthorization.bind(this))
+    this.discardAuthorization = this.discardAuthorization.bind(this)
+    Mojo.Event.listen(this.controller.get('discard-auth'), Mojo.Event.tap, this.discardAuthorization)
     
     
     /* add event handlers to listen to events from widgets */
@@ -85,6 +86,7 @@ UserinfoAssistant.prototype.deactivate = function(event){
 UserinfoAssistant.prototype.cleanup = function(event){
     /* this function should do any cleanup needed before the scene is destroyed as 
      a result of being popped off the scene stack */
+    Mojo.Event.stopListening(this.controller.get("discard-auth"), Mojo.Event.tap, this.discardAuthorization)
 };
 
 
@@ -93,62 +95,121 @@ UserinfoAssistant.prototype.updateUserinfo = function(response){
     //    this.controller.get("username").update(response.responseJSON.user.name)
     
     this.listModel.items = [{
-        key: 'name',
+        key: $L({
+            value: 'name',
+            key: 'name'
+        }),
         value: response.responseJSON.user.name,
         css: ' first'
     }, {
-        key: 'login',
+        key: $L({
+            key: 'login',
+            value: 'login'
+        }),
         value: response.responseJSON.user.login
     }, {
-        key: 'email',
+        key: $L({
+            key: 'email',
+            value: 'email'
+        }),
         value: response.responseJSON.user.email,
     }, {
-        key: 'location',
+        key: $L({
+            key: 'location',
+            value: 'location'
+        }),
         value: response.responseJSON.user.location
     }, {
-        key: 'company',
+        key: $L({
+            key: 'company',
+            value: 'company'
+        }),
         value: response.responseJSON.user.company,
     }, {
-        key: 'blog',
-        value: response.responseJSON.user.blog
+        key: $L({
+            key: 'blog',
+            value: 'blog'
+        }),
+        value: "<a href=\""+response.responseJSON.user.blog+"\">"+response.responseJSON.user.blog+"</a>"
     }, {
-        key: 'created_at',
-        value: Mojo.Format.formatDate(new Date(response.responseJSON.user.created_at),{date:'medium'})
+        key: $L({
+            key: 'created_at',
+            value: 'created at'
+        }),
+        value: Mojo.Format.formatDate(new Date(response.responseJSON.user.created_at), {
+            date: 'medium'
+        })
     }, {
-        key: 'public_gist_count',
+        key: $L({
+            key: 'public_gist_count',
+            value: 'public gists count'
+        }),
         value: response.responseJSON.user.public_gist_count
     }, {
-        key: 'public_repo_count',
+        key: $L({
+            key: 'public_repo_count',
+            value: 'public repo count'
+        }),
         value: response.responseJSON.user.public_repo_count
     }, {
-        key: 'totel_private_repot_count',
+        key: $L({
+            key: 'total_private_repo_count',
+            value: 'total private repo count'
+        }),
         value: response.responseJSON.user.total_private_repo_count,
     }, {
-        key: 'owned_private_repo_count',
+        key: $L({
+            key: 'owned_private_repo_count',
+            value: 'owned private repo count'
+        }),
         value: response.responseJSON.user.owned_private_repo_count,
     }, {
-        key: 'collaborators',
+        key: $L({
+            key: 'collaborators',
+            value: 'collaborators'
+        }),
         value: response.responseJSON.user.collaborators,
     }, {
-        key: 'disk-usage',
+        key: $L({
+            key: 'disk-usage',
+            value: 'disk usage'
+        }),
         value: response.responseJSON.user.disk_usage,
     }, {
-        key: 'following_count',
+        key: $L({
+            key: 'following_count',
+            value: 'following count'
+        }),
         value: response.responseJSON.user.following_count
     }, {
-        key: 'followers_count',
+        key: $L({
+            key: 'followers_count',
+            value: 'followers count'
+        }),
         value: response.responseJSON.user.followers_count
     }, {
-        key: 'plan.name',
+        key: $L({
+            key: 'plan.name',
+            value: 'plan: name'
+        }),
         value: response.responseJSON.user.plan.name,
     }, {
-        key: 'plan.collaborators',
+        key: $L({
+            key: 'plan.collaborators',
+            value: 'plan: collaborators'
+        }),
         value: response.responseJSON.user.plan.collaborators,
     }, {
-        key: 'plan.space',
+        key: $L({
+            key: 'plan.space',
+            value: 'pan: space'
+        }),
         value: response.responseJSON.user.plan.space,
     }, {
-        key: 'plan.private_repos',
+        key: $L({
+            key: 'plan.private_repos',
+            value: 'plan: private repos'
+        }),
         value: response.responseJSON.user.plan.private_repos,
         css: ' last'
     }]
@@ -162,7 +223,7 @@ UserinfoAssistant.prototype.discardAuthorization = function(){
 
 UserinfoAssistant.prototype.handleCommand = function(event){
 
-//    this.controller = Mojo.Controller.stageController.activeScene();
+    //    this.controller = Mojo.Controller.stageController.activeScene();
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
             // another built-in menu item, but we've enabled it (see below in this method)
