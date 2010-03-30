@@ -36,19 +36,30 @@ AuthAssistant.prototype.setup = function(){
     
     this.controller.setupWidget('auth-apikey', apikeyAttributes, this.model);
     
+    this.buttonModel = {
+        buttonLabel: 'Save',
+        buttonClass: 'primary',
+        disabled: true
+    }
     
     this.controller.setupWidget('update', {
         type: Mojo.Widget.activityButton
-    }, {
-        buttonLabel: 'Update',
-        buttonClass: 'primary',
-        disabled: false
-    });
+    }, this.buttonModel);
     
     /* add event handlers to listen to events from widgets */
-	this.updateAuthorization = this.updateAuthorization.bind(this)
+    this.updateAuthorization = this.updateAuthorization.bind(this)
     Mojo.Event.listen(this.controller.get('update'), Mojo.Event.tap, this.updateAuthorization)
+    
+    this.propertyChanged = this.propertyChanged.bind(this)
+    Mojo.Event.listen(this.controller.get("auth-username"), Mojo.Event.propertyChange, this.propertyChanged)
+    Mojo.Event.listen(this.controller.get('auth-apikey'), Mojo.Event.propertyChange, this.propertyChanged)
 };
+
+AuthAssistant.prototype.propertyChanged = function(event){
+    this.controller.get("auth-debug").update(dump(event.model) + "=>" + event.model.username.length+"+"+event.model.apikey.length)
+    this.buttonModel.disabled = !((event.model.username.length > 0) && (event.model.apikey.length == 32))
+    this.controller.modelChanged(this.buttonModel)
+}
 
 AuthAssistant.prototype.activate = function(event){
     /* put in event handlers here that should only be in effect when this scene is active. For
@@ -63,7 +74,9 @@ AuthAssistant.prototype.deactivate = function(event){
 AuthAssistant.prototype.cleanup = function(event){
     /* this function should do any cleanup needed before the scene is destroyed as 
      a result of being popped off the scene stack */
-	Mojo.Event.stopListening(this.controller.get("update"),Mojo.Event.tap,this.updateAuthorization)
+    Mojo.Event.stopListening(this.controller.get("update"), Mojo.Event.tap, this.updateAuthorization)
+    Mojo.Event.stopListening(this.controller.get("auth-username"), Mojo.Event.propertyChange, this.propertyChanged)
+    Mojo.Event.stopListening(this.controller.get('auth-apikey'), Mojo.Event.propertyChange, this.propertyChanged)
 };
 
 AuthAssistant.prototype.updateAuthorization = function(){
@@ -71,6 +84,6 @@ AuthAssistant.prototype.updateAuthorization = function(){
 }
 
 AuthAssistant.prototype.proceed = function(){
-	Mojo.Controller.stageController.auth = this.model
-    Mojo.Controller.stageController.swapScene("userinfo", this.depot, this.model,this.model["username"])
+    Mojo.Controller.stageController.auth = this.model
+    Mojo.Controller.stageController.swapScene("userinfo", this.depot, this.model, this.model["username"])
 }
