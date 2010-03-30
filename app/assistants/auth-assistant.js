@@ -3,6 +3,10 @@ function AuthAssistant(depot, auth){
      additional parameters (after the scene name) that were passed to pushScene. The reference
      to the scene controller (this.controller) has not be established yet, so any initialization
      that needs the scene controller should be done in the setup function below. */
+    this.updateAuthorization = this.updateAuthorization.bind(this)
+    this.verifyAuthorization = this.verifyAuthorization.bind(this)
+    this.propertyChanged = this.propertyChanged.bind(this)
+	
     this.depot = depot
     if (auth == undefined) {
         this.model = {
@@ -14,6 +18,8 @@ function AuthAssistant(depot, auth){
     else {
         this.model = auth
     }
+	
+	
 }
 
 AuthAssistant.prototype.setup = function(){
@@ -39,7 +45,7 @@ AuthAssistant.prototype.setup = function(){
     this.buttonModel = {
         buttonLabel: 'Save',
         buttonClass: 'primary',
-        disabled: true
+        disabled: !((this.model.username.length > 0) && (this.model.apikey.length == 32))
     }
     
     this.controller.setupWidget('update', {
@@ -47,16 +53,14 @@ AuthAssistant.prototype.setup = function(){
     }, this.buttonModel);
     
     /* add event handlers to listen to events from widgets */
-    this.updateAuthorization = this.updateAuthorization.bind(this)
-    Mojo.Event.listen(this.controller.get('update'), Mojo.Event.tap, this.updateAuthorization)
+    Mojo.Event.listen(this.controller.get('update'), Mojo.Event.tap, this.verifyAuthorization)
     
-    this.propertyChanged = this.propertyChanged.bind(this)
     Mojo.Event.listen(this.controller.get("auth-username"), Mojo.Event.propertyChange, this.propertyChanged)
     Mojo.Event.listen(this.controller.get('auth-apikey'), Mojo.Event.propertyChange, this.propertyChanged)
 };
 
 AuthAssistant.prototype.propertyChanged = function(event){
-    this.controller.get("auth-debug").update(dump(event.model) + "=>" + event.model.username.length+"+"+event.model.apikey.length)
+    this.controller.get("auth-debug").update(dump(event.model) + "=>" + event.model.username.length + "+" + event.model.apikey.length)
     this.buttonModel.disabled = !((event.model.username.length > 0) && (event.model.apikey.length == 32))
     this.controller.modelChanged(this.buttonModel)
 }
@@ -68,8 +72,33 @@ AuthAssistant.prototype.activate = function(event){
 
 AuthAssistant.prototype.deactivate = function(event){
     /* remove any event handlers you added in activate and do any other cleanup that should happen before
+    
      this scene is popped or another scene is pushed on top */
-};
+    
+}
+
+AuthAssistant.prototype.verifyAuthorization = function(){
+    // Test: valid auths?
+    var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + escape(this.model["username"]), {
+        method: "post",
+        evalJSON: "false",
+        onSuccess: this.updateAuthorization,
+        onFailure: function(response){
+            if ((response.responseJSON == undefined) || (response.responseJSON.error == undefined)) {
+				if (response.status == 401) {
+					Mojo.Controller.errorDialog("Username or API-Token invalid")
+				}
+				else {
+					Mojo.Controller.errorDialog(response.status + ": " + response.statusText)
+				}
+            }
+            else {
+                Mojo.Controller.errorDialog(response.responseJSON.error[0].error)
+            }
+        },
+        postBody: "login=" + escape(this.model['username']) + "&token=" + escape(this.model['apikey'])
+    })
+}
 
 AuthAssistant.prototype.cleanup = function(event){
     /* this function should do any cleanup needed before the scene is destroyed as 
@@ -85,5 +114,6 @@ AuthAssistant.prototype.updateAuthorization = function(){
 
 AuthAssistant.prototype.proceed = function(){
     Mojo.Controller.stageController.auth = this.model
-    Mojo.Controller.stageController.swapScene("userinfo", this.depot, this.model, this.model["username"])
+    Mojo.Controller.stageController.popScenesTo()
+    Mojo.Controller.stageController.pushScene("userinfo", this.depot, this.model, this.model["username"])
 }

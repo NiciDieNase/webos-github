@@ -72,6 +72,7 @@ StageAssistant.prototype.loadAuthorization = function(auth){
         this.controller.pushScene("auth", this.depot)
     }
     else {
+		this.auth = auth
         this.controller.pushScene("userinfo", this.depot, auth, auth["username"])
     }
 }
@@ -86,20 +87,8 @@ StageAssistant.prototype.handleCommand = function(event){
             case 'cmd-updateToken':
                 event.stopPropagation()
                 var top = Mojo.Controller.stageController.topScene
-                this.controller.popScenesTo()
-                this.controller.pushScene("auth", this.depot, this.sceneController.auth)
-                break;
-            case 'cmd-about':
-                this.sceneController.showAlertDialog({
-                    onChoose: function(value){
-                    },
-                    title: "WebOS - Github v0.0.1",
-                    message: "Copyright 2010 Sebastian \"KingCrunch\" Krebs <sebastian.krebs@kingcrunch.de>",
-                    choices: [{
-                        label: "OK",
-                        value: ""
-                    }]
-                });
+//                this.controller.popScenesTo()
+                this.controller.pushScene("auth", this.depot, this.auth)
                 break;
             case Mojo.Menu.helpItem.command:
                 this.controller.pushAppSupportInfoScene()
@@ -109,8 +98,8 @@ StageAssistant.prototype.handleCommand = function(event){
 }
 
 StageAssistant.connectionError = function(response){
-    if (response.responseJSON.error == undefined) {
-        Mojo.Controller.errorDialog("Connection failed")
+    if ((response.responseJSON == undefined) || (response.responseJSON.error == undefined)) {
+        Mojo.Controller.errorDialog(response.status + ": " + response.statusText)
     }
     else {
         Mojo.Controller.errorDialog(response.responseJSON.error[0].error)
