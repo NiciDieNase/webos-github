@@ -33,6 +33,7 @@ UserinfoAssistant.prototype.setup = function(){
     /* use Mojo.View.render to render view templates and add them to the scene, if needed */
     
     /* setup widgets here */
+	this.controller.setupWidget(Mojo.Menu.appMenu, {omitDefaultItems:true}, StageAssistant.appMenu); 
     
     this.feedMenuModel = {
         visible: true,

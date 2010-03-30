@@ -1,6 +1,6 @@
 function StageAssistant(){
     /* this is the creator function for your stage assistant object */
-	
+    
     var options = {
         name: "github", //Name used for the HTML5 database name. (required)
         version: 1, //Version number used for the HTML5 database. (optional, defaults to 1)	
@@ -9,23 +9,29 @@ function StageAssistant(){
         replace: false // open an existing depot
     };
     this.depot = new Mojo.Depot(options);
-	
+    
+    this.handleCommand = this.handleCommand.bind(this)
+    
 }
+
+StageAssistant.appMenu = {
+    visible: true,
+    items: [{
+        label: $L('Update Token'),
+        command: 'cmd-updateToken'
+    }, Mojo.Menu.editItem, Mojo.Menu.prefsItem, {
+        label: $L('About'),
+        command: 'cmd-about'
+    }, Mojo.Menu.helpItem]
+}
+
 
 StageAssistant.prototype.setup = function(){
     /* this function is for setup tasks that have to happen when the stage is first created */
     
     /* for a simple application, the stage assistant's only task is to push the scene, making it
      visible */
-    this.appMenuModel = {
-        items: [{
-            label: "Reset API Key",
-            command: "do-auth"
-        }]
-    };
-    
-    
-	this.depot.get("auth",this.loadAuthorization.bind(this))
+    this.depot.get("auth", this.loadAuthorization.bind(this))
 };
 
 function dump(arr, level){
@@ -57,24 +63,41 @@ function dump(arr, level){
     return dumped_text;
 }
 
-StageAssistant.prototype.loadAuthorization = function (auth) {
-	if (auth == undefined) {
-		this.controller.pushScene("auth",this.depot)
-	} else {
-		this.controller.pushScene("userinfo",this.depot,auth,auth["username"])
-	}
+StageAssistant.prototype.loadAuthorization = function(auth){
+    if (auth == undefined) {
+        this.controller.pushScene("auth", this.depot)
+    }
+    else {
+        this.controller.pushScene("userinfo", this.depot, auth, auth["username"])
+    }
 }
 
 StageAssistant.prototype.handleCommand = function(event){
 
-    this.controller = Mojo.Controller.stageController.activeScene();
+    this.sceneController = Mojo.Controller.stageController.activeScene();
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
             // another built-in menu item, but we've enabled it (see below in this method)
             // so now we have to handle it:
-            case 'do-auth':
-                this.resetAuthentification();
+            case 'cmd-updateToken':
+                event.stopPropagation()
+                var top = Mojo.Controller.stageController.topScene
+                this.controller.popScenesTo()
+                this.controller.pushScene("auth", this.depot, this.sceneController.auth)
                 break;
+            case 'cmd-about':
+                this.sceneController.showAlertDialog({
+                    onChoose: function(value){
+                    },
+                    title: "WebOS - Github v0.0.1",
+                    message: "Copyright 2010 Sebastian \"KingCrunch\" Krebs <sebastian.krebs@kingcrunch.de>",
+                    choices: [{
+                        label: "OK",
+                        value: ""
+                    }]
+                });
+                break;
+                
         }
     }
 }
