@@ -16,13 +16,17 @@ function StageAssistant(){
 
 StageAssistant.appMenu = {
     visible: true,
-    items: [{
+    items: [Mojo.Menu.editItem, {
         label: $L('Update Token'),
         command: 'cmd-updateToken'
-    }, Mojo.Menu.editItem, Mojo.Menu.prefsItem, {
-        label: $L('About'),
-        command: 'cmd-about'
-    }, Mojo.Menu.helpItem]
+    }, {
+        label: Mojo.Menu.prefsItem.label,
+        command: Mojo.Menu.prefsItem.command,
+        disabled: true
+    }, {
+        label: Mojo.Menu.helpItem.label,
+        command: Mojo.Menu.helpItem.command
+    }]
 }
 
 
@@ -97,15 +101,18 @@ StageAssistant.prototype.handleCommand = function(event){
                     }]
                 });
                 break;
-                
+            case Mojo.Menu.helpItem.command:
+                this.controller.pushAppSupportInfoScene()
+                break;
         }
     }
 }
 
-StageAssistant.connectionError = function (response) {
-	if (response.responseJSON.error == undefined) {
-		Mojo.Controller.errorDialog("Connection failed")
-	} else {
-		Mojo.Controller.errorDialog(response.responseJSON.error[0].error)
-	}
+StageAssistant.connectionError = function(response){
+    if (response.responseJSON.error == undefined) {
+        Mojo.Controller.errorDialog("Connection failed")
+    }
+    else {
+        Mojo.Controller.errorDialog(response.responseJSON.error[0].error)
+    }
 }
