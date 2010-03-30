@@ -14,6 +14,15 @@ IssuedetailAssistant.prototype.setup = function() {
 	/* this function is for setup tasks that have to happen when the scene is first created */
 		
 	/* use Mojo.View.render to render view templates and add them to the scene, if needed */
+    
+    
+	$("issuedetail-details").hide()
+	$("load-status").show()
+    this.controller.setupWidget("load-spinner", {
+        spinnerSize: "large"
+    }, {
+        spinning: true
+    })
 	
 	/* setup widgets here */
     this.feedMenuModel = {
@@ -40,7 +49,8 @@ IssuedetailAssistant.prototype.setup = function() {
     
     /* add event handlers to listen to events from widgets */
     
-	this.controller.get('issuedetail-debug').update(dump(this.repo))
+//	this.controller.get('issuedetail-debug').update(dump(this.repo))
+//	$("issuedetail-debug").update("https://github.com/api/v2/json/issues/show/" + escape(this.user) + "/" + escape(this.repo) + "/" + escape(this.number))
     var request = new Ajax.Request("https://github.com/api/v2/json/issues/show/" + escape(this.user) + "/" + escape(this.repo) + "/" + escape(this.number), {
         method: "post",
         evalJSON: "false",
@@ -61,7 +71,11 @@ IssuedetailAssistant.prototype.updateIssuedetail = function (response)	{
         object: response.responseJSON.issue,
         template: 'issuedetail/details'
     })
-    this.controller.get("issuedetail-details").update(content)
+	
+	$("load-status").hide()
+	$("load-spinner").mojo.stop()
+    $("issuedetail-details").update(content)
+	$("issuedetail-details").show()
 }
 
 

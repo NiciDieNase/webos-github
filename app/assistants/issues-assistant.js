@@ -10,9 +10,19 @@ function IssuesAssistant(depot, auth, user, repo){
 }
 
 IssuesAssistant.prototype.setup = function(){
+	this.handleCommand = this.handleCommand.bind(this)
     /* this function is for setup tasks that have to happen when the scene is first created */
     
     /* use Mojo.View.render to render view templates and add them to the scene, if needed */
+    
+    
+	$("issues-list").hide()
+	$("load-status").show()
+    this.controller.setupWidget("load-spinner", {
+        spinnerSize: "large"
+    }, {
+        spinning: true
+    })
     
     /* setup widgets here */
     this.controller.setupWidget(Mojo.Menu.appMenu, {
@@ -54,7 +64,7 @@ IssuesAssistant.prototype.setup = function(){
     }, this.listModel);
     
     /* add event handlers to listen to events from widgets */
-    this.controller.get("issues-debug").update(this.user + "/" + this.repo)
+//    this.controller.get("issues-debug").update(this.user + "/" + this.repo)
     var request = new Ajax.Request("https://github.com/api/v2/json/issues/list/" + this.user + "/" + this.repo + "/open", {
         method: "post",
         evalJSON: "false",
@@ -69,8 +79,10 @@ IssuesAssistant.prototype.setup = function(){
 
 IssuesAssistant.prototype.updateIssues = function(response){
     this.listModel.items = response.responseJSON.issues
-    
+    $("load-status").hide()
+	$("load-spinner").mojo.stop()
     this.controller.modelChanged(this.listModel)
+	$("issues-list").show()
 }
 
 IssuesAssistant.prototype.failedUpdate = function(response){
@@ -97,7 +109,7 @@ IssuesAssistant.prototype.cleanup = function(event){
     Mojo.Event.stopListening(this.controller.get("issues-list"), Mojo.Event.listTap, this.openIssue)
 };
 
-RepodetailAssistant.prototype.handleCommand = function(event){
+IssuesAssistant.prototype.handleCommand = function(event){
 
     //    this.controllesr = Mojo.Controller.stageController.activeScene();
     if (event.type == Mojo.Event.command) {

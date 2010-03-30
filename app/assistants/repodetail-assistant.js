@@ -14,6 +14,15 @@ RepodetailAssistant.prototype.setup = function(){
     
     /* use Mojo.View.render to render view templates and add them to the scene, if needed */
     
+    
+	$("repodetail-details").hide()
+	$("load-status").show()
+    this.controller.setupWidget("load-spinner", {
+        spinnerSize: "large"
+    }, {
+        spinning: true
+    })
+    
     /* setup widgets here */
     this.feedMenuModel = {
         visible: true,
@@ -68,7 +77,11 @@ RepodetailAssistant.prototype.updateRepodetail = function(response){
         object: response.responseJSON.repository,
         template: 'repodetail/details'
     })
+	
+	$("load-status").hide()
+	$("load-spinner").mojo.stop()
     this.controller.get("repodetail-details").update(content)
+	$("repodetail-details").show()
 }
 
 

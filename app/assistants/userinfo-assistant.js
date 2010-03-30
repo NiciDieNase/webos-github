@@ -11,20 +11,33 @@ function UserinfoAssistant(depot, auth, username){
 UserinfoAssistant.prototype.setup = function(){
     /* this function is for setup tasks that have to happen when the scene is first created */
     this.updateUserinfo = this.updateUserinfo.bind(this)
-	var conAttr = {
-            evalJSON: "false",
-            onSuccess: this.updateUserinfo,
-            onFailure: StageAssistant.connectionError,
-		
-	}
+    
+    
+	$("content").hide()
+	$("load-status").show()
+    this.controller.setupWidget("load-spinner", {
+        spinnerSize: "large"
+    }, {
+        spinning: true
+    })
+	
+	
+    var conAttr = {
+        evalJSON: "false",
+        onSuccess: this.updateUserinfo,
+        onFailure: StageAssistant.connectionError,
+    
+    }
+    
+    
     if (this.auth["username"] == this.username) {
-		conAttr.method = "post"
-		conAttr.postBody = "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
+        conAttr.method = "post"
+        conAttr.postBody = "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
     }
     else {
-		conAttr.method = "get"
+        conAttr.method = "get"
     }
-	var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + escape(this.username),conAttr)
+    var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + escape(this.username), conAttr)
     
     /* use Mojo.View.render to render view templates and add them to the scene, if needed */
     
@@ -79,7 +92,7 @@ UserinfoAssistant.prototype.cleanup = function(event){
 UserinfoAssistant.prototype.updateUserinfo = function(response){
     //	this.controller.get("debug").update(dump(response.responseJSON))
     //    this.controller.get("username").update(response.responseJSON.user.name)
-	var tmpl = (response.responseJSON.user.login === this.auth["username"]) ? "userinfo/private-details" : "userinfo/public-details"
+    var tmpl = (response.responseJSON.user.login === this.auth["username"]) ? "userinfo/private-details" : "userinfo/public-details"
     var content = Mojo.View.render({
         object: response.responseJSON.user,
         template: tmpl,
@@ -91,7 +104,10 @@ UserinfoAssistant.prototype.updateUserinfo = function(response){
             },
         }
     })
-    this.controller.get("userinfo-details").update(content)
+	$("load-status").hide()
+	$("load-spinner").mojo.stop()
+    $("content").update(content)
+	$("content").show()
 }
 
 

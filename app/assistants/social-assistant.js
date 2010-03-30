@@ -16,6 +16,16 @@ SocialAssistant.prototype.setup = function(){
     
     /* use Mojo.View.render to render view templates and add them to the scene, if needed */
     
+    
+	$("following-list").hide()
+	$("load-status").show()
+    this.controller.setupWidget("load-spinner", {
+        spinnerSize: "large"
+    }, {
+        spinning: true
+    })
+	
+    
     /* setup widgets here */
 	this.controller.setupWidget(Mojo.Menu.appMenu, {omitDefaultItems:true}, StageAssistant.appMenu); 
     this.feedMenuModel = {
@@ -149,7 +159,12 @@ SocialAssistant.prototype.updateFollowing = function (response) {
 	for (var i=0; i < response.responseJSON.users.length; i++) {
 		this.followingModel.items.push({name:response.responseJSON.users[i]})
 	}
+	
+	$("load-status").hide()
+	$("load-spinner").mojo.stop()
+	
 	this.controller.modelChanged(this.followingModel)
+	$("following-list").show()
 }
 
 SocialAssistant.prototype.openUserinfo = function (event) {
