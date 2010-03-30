@@ -101,3 +101,11 @@ StageAssistant.prototype.handleCommand = function(event){
         }
     }
 }
+
+StageAssistant.connectionError = function (response) {
+	if (response.responseJSON.error == undefined) {
+		Mojo.Controller.errorDialog("Connection failed")
+	} else {
+		Mojo.Controller.errorDialog(response.responseJSON.error[0].error)
+	}
+}

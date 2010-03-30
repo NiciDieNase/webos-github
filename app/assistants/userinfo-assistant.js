@@ -11,33 +11,20 @@ function UserinfoAssistant(depot, auth, username){
 UserinfoAssistant.prototype.setup = function(){
     /* this function is for setup tasks that have to happen when the scene is first created */
     this.updateUserinfo = this.updateUserinfo.bind(this)
-    this.updatePrivateUserinfo = this.updatePrivateUserinfo.bind(this)
-    
-    //for more on what each attribute means, see the Spinner widget API docs
-    var spinnerCAttrs = {
-        mainFrameCount: 11,
-        finalFrameCount: 7,
-        fps: 10
-    };
-    
-    
-    if (this.auth["username"] == this.username) {
-        var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + escape(this.username), {
-            method: "post",
-            evalJSON: "false",
-            onSuccess: this.updatePrivateUserinfo,
-            onFailure: this.connectionFailed.bind(this),
-            postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
-        })
-    }
-    else {
-        var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + escape(this.username), {
-            method: "get",
+	var conAttr = {
             evalJSON: "false",
             onSuccess: this.updateUserinfo,
-            onFailure: this.connectionFailed.bind(this)
-        })
+            onFailure: StageAssistant.connectionError,
+		
+	}
+    if (this.auth["username"] == this.username) {
+		conAttr.method = "post"
+		conAttr.postBody = "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
     }
+    else {
+		conAttr.method = "get"
+    }
+	var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + escape(this.username),conAttr)
     
     /* use Mojo.View.render to render view templates and add them to the scene, if needed */
     
@@ -68,36 +55,8 @@ UserinfoAssistant.prototype.setup = function(){
         menuClass: 'no-fade'
     }, this.feedMenuModel);
     
-    this.listModel = {
-        items: [{
-            key: 'info',
-            value: 'loading...'
-        }],
-        listTitle: $L("Userinfo")
-    }
-    
-    // Set up the attributes & model for the List widget:
-    this.controller.setupWidget('userinfo-list', {
-        itemTemplate: 'userinfo/item-template',
-        listTemplate: 'userinfo/list-template'
-    }, this.listModel);
-    
-    this.controller.setupWidget('discard-auth', {
-        type: Mojo.Widget.activityButton
-    }, {
-        buttonLabel: $L({
-            key: 'update-token',
-            value: "Change API Token"
-        }),
-        buttonClass: 'primary',
-        disabled: false
-    });
-    
     /* add event handlers to listen to events from widgets */
-    this.discardAuthorization = this.discardAuthorization.bind(this)
-    Mojo.Event.listen(this.controller.get('discard-auth'), Mojo.Event.tap, this.discardAuthorization)
-    
-    
+
     /* add event handlers to listen to events from widgets */
 };
 
@@ -114,219 +73,27 @@ UserinfoAssistant.prototype.deactivate = function(event){
 UserinfoAssistant.prototype.cleanup = function(event){
     /* this function should do any cleanup needed before the scene is destroyed as 
      a result of being popped off the scene stack */
-    Mojo.Event.stopListening(this.controller.get("discard-auth"), Mojo.Event.tap, this.discardAuthorization)
 };
 
-
-UserinfoAssistant.prototype.updatePrivateUserinfo = function(response){
-    //	this.controller.get("debug").update(dump(response.responseJSON))
-    //    this.controller.get("username").update(response.responseJSON.user.name)
-    
-    this.listModel.items = [{
-        key: $L({
-            value: 'name',
-            key: 'name'
-        }),
-        value: response.responseJSON.user.name,
-        css: ' first'
-    }, {
-        key: $L({
-            key: 'login',
-            value: 'login'
-        }),
-        value: response.responseJSON.user.login
-    }, {
-        key: $L({
-            key: 'email',
-            value: 'email'
-        }),
-        value: response.responseJSON.user.email,
-    }, {
-        key: $L({
-            key: 'location',
-            value: 'location'
-        }),
-        value: response.responseJSON.user.location
-    }, {
-        key: $L({
-            key: 'company',
-            value: 'company'
-        }),
-        value: response.responseJSON.user.company,
-    }, {
-        key: $L({
-            key: 'blog',
-            value: 'blog'
-        }),
-        value: "<a href=\"" + response.responseJSON.user.blog + "\">" + response.responseJSON.user.blog + "</a>"
-    }, {
-        key: $L({
-            key: 'created_at',
-            value: 'created at'
-        }),
-        value: Mojo.Format.formatDate(new Date(response.responseJSON.user.created_at), {
-            date: 'medium'
-        })
-    }, {
-        key: $L({
-            key: 'public_gist_count',
-            value: 'public gists count'
-        }),
-        value: response.responseJSON.user.public_gist_count
-    }, {
-        key: $L({
-            key: 'public_repo_count',
-            value: 'public repo count'
-        }),
-        value: response.responseJSON.user.public_repo_count
-    }, {
-        key: $L({
-            key: 'total_private_repo_count',
-            value: 'total private repo count'
-        }),
-        value: response.responseJSON.user.total_private_repo_count,
-    }, {
-        key: $L({
-            key: 'owned_private_repo_count',
-            value: 'owned private repo count'
-        }),
-        value: response.responseJSON.user.owned_private_repo_count,
-    }, {
-        key: $L({
-            key: 'collaborators',
-            value: 'collaborators'
-        }),
-        value: response.responseJSON.user.collaborators,
-    }, {
-        key: $L({
-            key: 'disk-usage',
-            value: 'disk usage'
-        }),
-        value: response.responseJSON.user.disk_usage,
-    }, {
-        key: $L({
-            key: 'following_count',
-            value: 'following count'
-        }),
-        value: response.responseJSON.user.following_count
-    }, {
-        key: $L({
-            key: 'followers_count',
-            value: 'followers count'
-        }),
-        value: response.responseJSON.user.followers_count
-    }, {
-        key: $L({
-            key: 'plan.name',
-            value: 'plan: name'
-        }),
-        value: response.responseJSON.user.plan.name,
-    }, {
-        key: $L({
-            key: 'plan.collaborators',
-            value: 'plan: collaborators'
-        }),
-        value: response.responseJSON.user.plan.collaborators,
-    }, {
-        key: $L({
-            key: 'plan.space',
-            value: 'pan: space'
-        }),
-        value: response.responseJSON.user.plan.space,
-    }, {
-        key: $L({
-            key: 'plan.private_repos',
-            value: 'plan: private repos'
-        }),
-        value: response.responseJSON.user.plan.private_repos,
-        css: ' last'
-    }]
-    
-    this.controller.modelChanged(this.listModel)
-}
 
 UserinfoAssistant.prototype.updateUserinfo = function(response){
     //	this.controller.get("debug").update(dump(response.responseJSON))
     //    this.controller.get("username").update(response.responseJSON.user.name)
-    
-    this.listModel.items = [{
-        key: $L({
-            value: 'name',
-            key: 'name'
-        }),
-        value: response.responseJSON.user.name,
-        css: ' first'
-    }, {
-        key: $L({
-            key: 'login',
-            value: 'login'
-        }),
-        value: response.responseJSON.user.login
-    }, {
-        key: $L({
-            key: 'email',
-            value: 'email'
-        }),
-        value: response.responseJSON.user.email,
-    }, {
-        key: $L({
-            key: 'location',
-            value: 'location'
-        }),
-        value: response.responseJSON.user.location
-    }, {
-        key: $L({
-            key: 'company',
-            value: 'company'
-        }),
-        value: response.responseJSON.user.company,
-    }, {
-        key: $L({
-            key: 'blog',
-            value: 'blog'
-        }),
-        value: "<a href=\"" + response.responseJSON.user.blog + "\">" + response.responseJSON.user.blog + "</a>"
-    }, {
-        key: $L({
-            key: 'created_at',
-            value: 'created at'
-        }),
-        value: Mojo.Format.formatDate(new Date(response.responseJSON.user.created_at), {
-            date: 'medium'
-        })
-    }, {
-        key: $L({
-            key: 'public_gist_count',
-            value: 'public gists count'
-        }),
-        value: response.responseJSON.user.public_gist_count
-    }, {
-        key: $L({
-            key: 'public_repo_count',
-            value: 'public repo count'
-        }),
-        value: response.responseJSON.user.public_repo_count
-    }, {
-        key: $L({
-            key: 'following_count',
-            value: 'following count'
-        }),
-        value: response.responseJSON.user.following_count
-    }, {
-        key: $L({
-            key: 'followers_count',
-            value: 'followers count'
-        }),
-        value: response.responseJSON.user.followers_count,
-        css: ' last'
-    }]
-    
-    this.controller.modelChanged(this.listModel)
+	var tmpl = (response.responseJSON.user.login === this.auth["username"]) ? "userinfo/private-details" : "userinfo/public-details"
+    var content = Mojo.View.render({
+        object: response.responseJSON.user,
+        template: tmpl,
+        formatters: {
+            created_at: function(value, model){
+                model.created_at = Mojo.Format.formatDate(new Date(value), {
+                    date: 'medium'
+                })
+            },
+        }
+    })
+    this.controller.get("userinfo-details").update(content)
 }
 
-UserinfoAssistant.prototype.discardAuthorization = function(){
-    Mojo.Controller.stageController.swapScene("auth", this.depot, this.auth)
-}
 
 UserinfoAssistant.prototype.handleCommand = function(event){
 
@@ -351,8 +118,4 @@ UserinfoAssistant.prototype.handleCommand = function(event){
                 break;
         }
     }
-}
-
-UserinfoAssistant.prototype.connectionFailed = function(response){
-    this.controller.get('userinfo-debug').update(dump(response.responseJSON))
 }

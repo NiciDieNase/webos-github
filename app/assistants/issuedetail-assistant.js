@@ -38,20 +38,6 @@ IssuedetailAssistant.prototype.setup = function() {
         menuClass: 'no-fade'
     }, this.feedMenuModel);
     
-    this.issuedetailModel = {
-        items: [{
-            key: 'info',
-            value: 'loading...'
-        }],
-        listTitle: $L("Issuedetail")
-    }
-    
-    // Set up the attributes & model for the List widget:
-    this.controller.setupWidget('issuedetail-list', {
-        itemTemplate: 'issuedetail/item-template',
-        listTemplate: 'issuedetail/list-template'
-    }, this.issuedetailModel);
-    
     /* add event handlers to listen to events from widgets */
     
 	this.controller.get('issuedetail-debug').update(dump(this.repo))
@@ -59,7 +45,7 @@ IssuedetailAssistant.prototype.setup = function() {
         method: "post",
         evalJSON: "false",
         onSuccess: this.updateIssuedetail.bind(this),
-        onFailure: this.connectionFailed.bind(this),
+        onFailure: StageAssistant.connectionError,
         postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
     })
 	
@@ -70,62 +56,12 @@ IssuedetailAssistant.prototype.connectionFailed = function(response){
 	this.controller.get('issuedetail-debug').update(dump(response.responseJSON))
 }
 
-IssuedetailAssistant.prototype.updateIssuedetail = function (response)	{
-	this.issuedetailModel.items = [
-	{
-        key: $L({
-            key: "number",
-            value: "Number"
-        }),
-        value: response.responseJSON.issue.number
-    },{
-        key: $L({
-            key: "title",
-            value: "Title"
-        }),
-        value: response.responseJSON.issue.title
-    },{
-        key: $L({
-            key: "body",
-            value: "Body"
-        }),
-        value: response.responseJSON.issue.body
-    },{
-        key: $L({
-            key: "votes",
-            value: "Votes"
-        }),
-        value: response.responseJSON.issue.votes
-    },{
-        key: $L({
-            key: "created_at",
-            value: "Created at"
-        }),
-        value: response.responseJSON.issue.created_at
-    },{
-        key: $L({
-            key: "updated_at",
-            value: "Updated at"
-        }),
-        value: response.responseJSON.issue.updated_at
-    },{
-        key: $L({
-            key: "user",
-            value: "User"
-        }),
-        value: response.responseJSON.issue.user
-    },{
-        key: $L({
-            key: "state",
-            value: "State"
-        }),
-        value: response.responseJSON.issue.state
-    }
-	]
-	
-	// issue.labels
-	
-	this.controller.modelChanged(this.issuedetailModel)
+IssuedetailAssistant.prototype.updateIssuedetail = function (response)	{ 
+	var content = Mojo.View.render({
+        object: response.responseJSON.issue,
+        template: 'issuedetail/details'
+    })
+    this.controller.get("issuedetail-details").update(content)
 }
 
 

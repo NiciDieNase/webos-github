@@ -37,27 +37,13 @@ RepodetailAssistant.prototype.setup = function(){
         menuClass: 'no-fade'
     }, this.feedMenuModel);
     
-    this.repodetailModel = {
-        items: [{
-            key: 'info',
-            value: 'loading...'
-        }],
-        listTitle: $L("Repodetail")
-    }
-    
-    // Set up the attributes & model for the List widget:
-    this.controller.setupWidget('repodetail-list', {
-        itemTemplate: 'repodetail/item-template',
-        listTemplate: 'repodetail/list-template'
-    }, this.repodetailModel);
-    
     /* add event handlers to listen to events from widgets */
     
     var request = new Ajax.Request("https://github.com/api/v2/json/repos/show/" + escape(this.username) + "/" + escape(this.repo), {
         method: "post",
         evalJSON: "false",
         onSuccess: this.updateRepodetail.bind(this),
-        onFailure: this.connectionFailed.bind(this),
+        onFailure: StageAssistant.connectionError,
         postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
     })
 };
@@ -77,68 +63,12 @@ RepodetailAssistant.prototype.cleanup = function(event){
      a result of being popped off the scene stack */
 };
 
-RepodetailAssistant.prototype.updateRepodetail = function(response){
-    this.repodetailModel.items = [{
-        key: $L({
-            key: "name",
-            value: "Name"
-        }),
-        value: response.responseJSON.repository.name
-    }, {
-        key: $L({
-            key: "description",
-            value: "Description"
-        }),
-        value: response.responseJSON.repository.description
-    }, {
-        key: $L({
-            key: "owner",
-            value: "Owner"
-        }),
-        value: response.responseJSON.repository.owner
-    }, {
-        key: $L({
-            key: "url",
-            value: "URL"
-        }),
-        value: response.responseJSON.repository.url
-    }, {
-        key: $L({
-            key: "homepage",
-            value: "Homepage"
-        }),
-        value: response.responseJSON.repository.homepage
-    }, {
-        key: $L({
-            key: "open_issues",
-            value: "open Issues"
-        }),
-        value: response.responseJSON.repository.open_issues
-    }, {
-        key: $L({
-            key: "private",
-            value: "Private"
-        }),
-        value: response.responseJSON.repository.private ? "yes" : "no"
-    }, {
-        key: $L({
-            key: "forks",
-            value: "Forks"
-        }),
-        value: response.responseJSON.repository.forks
-    }, {
-        key: $L({
-            key: "form",
-            value: "Is fork"
-        }),
-        value: response.responseJSON.repository.fork ? "yes" : "no"
-    }]
-    
-    this.controller.modelChanged(this.repodetailModel)
-}
-
-RepodetailAssistant.prototype.connectionFailed = function(response){
-    this.controller.get('repodetail-debug').update(dump(response.responseJSON))
+RepodetailAssistant.prototype.updateRepodetail = function(response){    
+	var content = Mojo.View.render({
+        object: response.responseJSON.repository,
+        template: 'repodetail/details'
+    })
+    this.controller.get("repodetail-details").update(content)
 }
 
 
