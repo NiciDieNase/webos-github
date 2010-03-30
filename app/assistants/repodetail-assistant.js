@@ -52,7 +52,7 @@ RepodetailAssistant.prototype.setup = function(){
     }, this.repodetailModel);
     
     /* add event handlers to listen to events from widgets */
-	
+    
     var request = new Ajax.Request("https://github.com/api/v2/json/repos/show/" + escape(this.username) + "/" + escape(this.repo), {
         method: "post",
         evalJSON: "false",
@@ -80,63 +80,89 @@ RepodetailAssistant.prototype.cleanup = function(event){
 RepodetailAssistant.prototype.updateRepodetail = function(response){
     this.repodetailModel.items = [{
         key: $L({
-			key: "name",
-			value: "Name"
-		}),
+            key: "name",
+            value: "Name"
+        }),
         value: response.responseJSON.repository.name
     }, {
         key: $L({
-			key: "description",
-			value: "Description"
-		}),
+            key: "description",
+            value: "Description"
+        }),
         value: response.responseJSON.repository.description
     }, {
         key: $L({
-			key: "owner",
-			value: "Owner"
-		}),
+            key: "owner",
+            value: "Owner"
+        }),
         value: response.responseJSON.repository.owner
     }, {
         key: $L({
-			key: "url",
-			value: "URL"
-		}),
+            key: "url",
+            value: "URL"
+        }),
         value: response.responseJSON.repository.url
     }, {
         key: $L({
-			key: "homepage",
-			value: "Homepage"
-		}),
+            key: "homepage",
+            value: "Homepage"
+        }),
         value: response.responseJSON.repository.homepage
     }, {
         key: $L({
-			key: "open_issues",
-			value: "open Issues"
-		}),
+            key: "open_issues",
+            value: "open Issues"
+        }),
         value: response.responseJSON.repository.open_issues
     }, {
         key: $L({
-			key: "private",
-			value: "Private"
-		}),
+            key: "private",
+            value: "Private"
+        }),
         value: response.responseJSON.repository.private ? "yes" : "no"
     }, {
         key: $L({
-			key: "forks",
-			value: "Forks"
-		}),
+            key: "forks",
+            value: "Forks"
+        }),
         value: response.responseJSON.repository.forks
     }, {
         key: $L({
-			key: "form",
-			value: "Is fork"
-		}),
+            key: "form",
+            value: "Is fork"
+        }),
         value: response.responseJSON.repository.fork ? "yes" : "no"
     }]
-	
+    
     this.controller.modelChanged(this.repodetailModel)
 }
 
 RepodetailAssistant.prototype.connectionFailed = function(response){
     this.controller.get('repodetail-debug').update(dump(response.responseJSON))
+}
+
+
+RepodetailAssistant.prototype.handleCommand = function(event){
+
+    //    this.controllesr = Mojo.Controller.stageController.activeScene();
+    if (event.type == Mojo.Event.command) {
+        switch (event.command) {
+            // another built-in menu item, but we've enabled it (see below in this method)
+            // so now we have to handle it:
+            case 'back':
+                event.stopPropagation()
+                Mojo.Controller.stageController.swapScene({
+                    name: "issues",
+                    transition: Mojo.Transition.crossFade
+                }, this.depot, this.auth, this.username, this.repo)
+                break;
+            case 'fwd':
+                event.stopPropagation()
+                Mojo.Controller.stageController.swapScene({
+                    name: "issues",
+                    transition: Mojo.Transition.crossFade
+                }, this.depot, this.auth, this.username, this.repo)
+                break;
+        }
+    }
 }

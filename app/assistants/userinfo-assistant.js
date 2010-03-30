@@ -11,7 +11,16 @@ function UserinfoAssistant(depot, auth, username){
 UserinfoAssistant.prototype.setup = function(){
     /* this function is for setup tasks that have to happen when the scene is first created */
     this.updateUserinfo = this.updateUserinfo.bind(this)
-	this.updatePrivateUserinfo = this.updatePrivateUserinfo.bind(this)
+    this.updatePrivateUserinfo = this.updatePrivateUserinfo.bind(this)
+    
+    //for more on what each attribute means, see the Spinner widget API docs
+    var spinnerCAttrs = {
+        mainFrameCount: 11,
+        finalFrameCount: 7,
+        fps: 10
+    };
+    
+    
     if (this.auth["username"] == this.username) {
         var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + escape(this.username), {
             method: "post",
@@ -33,7 +42,9 @@ UserinfoAssistant.prototype.setup = function(){
     /* use Mojo.View.render to render view templates and add them to the scene, if needed */
     
     /* setup widgets here */
-	this.controller.setupWidget(Mojo.Menu.appMenu, {omitDefaultItems:true}, StageAssistant.appMenu); 
+    this.controller.setupWidget(Mojo.Menu.appMenu, {
+        omitDefaultItems: true
+    }, StageAssistant.appMenu);
     
     this.feedMenuModel = {
         visible: true,

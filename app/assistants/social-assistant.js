@@ -76,23 +76,23 @@ SocialAssistant.prototype.setup = function(){
 	
 	
     
-    var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + this.username + "/followers", {
-        method: "post",
-        evalJSON: "false",
-        onSuccess: this.updateFollowers.bind(this),
-        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
-    })
-    
-//    var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + this.username + "/following", {
+//    var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + this.username + "/followers", {
 //        method: "post",
 //        evalJSON: "false",
-//        onSuccess: this.updateFollowing.bind(this),
+//        onSuccess: this.updateFollowers.bind(this),
 //        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
 //    })
+    
+    var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + this.username + "/following", {
+        method: "post",
+        evalJSON: "false",
+        onSuccess: this.updateFollowing.bind(this),
+        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
+    })
 	
 	this.openUserinfo = this.openUserinfo.bind(this)
-	Mojo.Event.listen(this.controller.get("followers-list"),Mojo.Event.listTap,this.openUserinfo)
-//	Mojo.Event.listen(this.controller.get("following-list"),Mojo.Event.listTap,this.openUserinfo)
+//	Mojo.Event.listen(this.controller.get("followers-list"),Mojo.Event.listTap,this.openUserinfo)
+	Mojo.Event.listen(this.controller.get("following-list"),Mojo.Event.listTap,this.openUserinfo)
 };
 
 SocialAssistant.prototype.activate = function(event){
@@ -108,7 +108,7 @@ SocialAssistant.prototype.deactivate = function(event){
 SocialAssistant.prototype.cleanup = function(event){
     /* this function should do any cleanup needed before the scene is destroyed as 
      a result of being popped off the scene stack */
-	Mojo.Event.stopListening(this.controller.get("followers-list"),Mojo.Event.listTap,this.openUserinfo)
+//	Mojo.Event.stopListening(this.controller.get("followers-list"),Mojo.Event.listTap,this.openUserinfo)
 	Mojo.Event.stopListening(this.controller.get("following-list"),Mojo.Event.listTap,this.openUserinfo)
 };
 

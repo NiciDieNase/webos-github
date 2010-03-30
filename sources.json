@@ -24,5 +24,13 @@
     {
         "scenes": "repodetail",
         "source": "app/assistants/repodetail-assistant.js"
+    },
+    {
+        "scenes": "issues",
+        "source": "app/assistants/issues-assistant.js"
+    },
+    {
+        "scenes": "issuedetail",
+        "source": "app/assistants/issuedetail-assistant.js"
     }
 ]
