@@ -83,16 +83,16 @@ SocialAssistant.prototype.setup = function(){
         postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
     })
     
-    var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + this.username + "/following", {
-        method: "post",
-        evalJSON: "false",
-        onSuccess: this.updateFollowing.bind(this),
-        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
-    })
+//    var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + this.username + "/following", {
+//        method: "post",
+//        evalJSON: "false",
+//        onSuccess: this.updateFollowing.bind(this),
+//        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
+//    })
 	
 	this.openUserinfo = this.openUserinfo.bind(this)
 	Mojo.Event.listen(this.controller.get("followers-list"),Mojo.Event.listTap,this.openUserinfo)
-	Mojo.Event.listen(this.controller.get("following-list"),Mojo.Event.listTap,this.openUserinfo)
+//	Mojo.Event.listen(this.controller.get("following-list"),Mojo.Event.listTap,this.openUserinfo)
 };
 
 SocialAssistant.prototype.activate = function(event){

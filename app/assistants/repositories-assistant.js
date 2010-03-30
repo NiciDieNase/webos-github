@@ -80,17 +80,17 @@ RepositoriesAssistant.prototype.setup = function(){
 	
 	
     
-    var request = new Ajax.Request("https://github.com/api/v2/json/repos/watched/" + this.username, {
-        method: "post",
-        evalJSON: "false",
-        onSuccess: this.updateWatchedRepos.bind(this),
-        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
-    })
+//    var request = new Ajax.Request("https://github.com/api/v2/json/repos/watched/" + this.username, {
+//        method: "post",
+//        evalJSON: "false",
+//        onSuccess: this.updateWatchedRepos.bind(this),
+//        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
+//    })
     
     /* add event handlers to listen to events from widgets */
 	this.openRepo = this.openRepo.bind(this)
 	Mojo.Event.listen(this.controller.get("repositories-list"), Mojo.Event.listTap, this.openRepo)
-	Mojo.Event.listen(this.controller.get("watched-repos-list"), Mojo.Event.listTap, this.openRepo)
+//	Mojo.Event.listen(this.controller.get("watched-repos-list"), Mojo.Event.listTap, this.openRepo)
 };
 
 RepositoriesAssistant.prototype.activate = function(event, auth){
