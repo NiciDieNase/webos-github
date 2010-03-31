@@ -48,7 +48,7 @@ RepoListAssistant.prototype.setup = function(){
                 command: 'back',
                 label: "Back"
             }, {
-                label: "Repositories",
+                label: "Repository List",
                 width: 200
             }, {
                 icon: "forward",

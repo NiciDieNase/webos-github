@@ -38,7 +38,7 @@ RepoDetailsAssistant.prototype.setup = function(){
                 command: 'back',
                 label: $L("Back")
             }, {
-                label: $L("Repodetail") + ": " + this.repo,
+                label: $L("Repository Details"),
                 width: 200
             }, {
                 icon: "forward",

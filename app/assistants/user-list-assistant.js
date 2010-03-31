@@ -49,7 +49,7 @@ UserListAssistant.prototype.setup = function(){
                 command: 'back',
                 label: "Back"
             }, {
-                label: "Social",
+                label: "Users",
                 width: 200
             }, {
                 icon: "forward",

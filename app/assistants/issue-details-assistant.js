@@ -43,7 +43,7 @@ IssueDetailsAssistant.prototype.setup = function() {
                 command: 'back',
                 label: $L("Back")
             }, {
-                label: $L("Issuedetail") + ": " + this.repo,
+                label: $L("Issue Details"),
                 width: 200
             }, {
                 icon: "forward",

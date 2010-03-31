@@ -44,7 +44,7 @@ IssueListAssistant.prototype.setup = function(){
                 command: 'back',
                 label: "Back"
             }, {
-                label: "Issues",
+                label: "Issue List",
                 width: 200
             }, {
                 icon: "forward",

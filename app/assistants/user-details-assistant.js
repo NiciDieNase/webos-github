@@ -41,7 +41,7 @@ UserDetailsAssistant.prototype.setup = function(){
                 command: 'back',
                 label: $L("Back")
             }, {
-                label: $L("Userinfo"),
+                label: $L("User Details"),
                 width: 200
             }, {
                 icon: "forward",
