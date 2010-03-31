@@ -86,7 +86,7 @@ RepoListAssistant.prototype.deactivate = function(event){
 };
 
 RepoListAssistant.prototype.cleanup = function(event){
-    Mojo.Event.stopListening($("repositories-list"), Mojo.Event.listTap, this.openRepo)
+    Mojo.Event.stopListening($("content"), Mojo.Event.listTap, this.openRepo)
 };
 
 RepoListAssistant.prototype.handleCommand = function(event){

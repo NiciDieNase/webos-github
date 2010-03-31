@@ -94,7 +94,7 @@ IssueListAssistant.prototype.deactivate = function(event){
 };
 
 IssueListAssistant.prototype.cleanup = function(event){
-    Mojo.Event.stopListening($("issues-list"), Mojo.Event.listTap, this.openIssue)
+    Mojo.Event.stopListening($("content"), Mojo.Event.listTap, this.openIssue)
 };
 
 IssueListAssistant.prototype.handleCommand = function(event){
