@@ -6,7 +6,7 @@
 	"type": "web",
 	"main": "index.html",
 	"title": "Github",
-	"icon": "icon.png",
+	"icon": "icon-64x64.png",
 	"smallicon": "icon-small.png",
 	"copyright": "2010 Sebastian \"KingCrunch\" Krebs",
 	"support": {
