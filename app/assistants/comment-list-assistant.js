@@ -1,22 +1,25 @@
-function RepoDetailsAssistant(depot, auth, username, repo){
+function CommentListAssistant(depot,auth,user,repo,number) {
     this.depot = depot
     this.auth = auth
-    this.username = username
+    this.user = user
     this.repo = repo
+	this.number = number
 }
 
-RepoDetailsAssistant.prototype.setup = function(){
+CommentListAssistant.prototype.setup = function() {
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
     /* --- Bindings --- */
-    this.refreshRepoinfo = this.refreshRepoinfo.bind(this)
+    this.handleCommand = this.handleCommand.bind(this)
+    this.refreshCommentlist = this.refreshCommentlist.bind(this)
     
     
     /* --- Status widgets --- */
+    $("load-spinner").hide()
     this.controller.setupWidget("load-spinner", {
         spinnerSize: "large"
     }, {
-        spinning: true
+        spinning: false
     })
     
     
@@ -34,14 +37,14 @@ RepoDetailsAssistant.prototype.setup = function(){
             items: [{
                 icon: "back",
                 command: 'back',
-                label: $L("Back")
+                label: "Back"
             }, {
-                label: $L("Repository Details"),
+                label: "Comment List",
                 width: 200
             }, {
                 icon: "forward",
                 command: 'fwd',
-                label: $L("Forward")
+                label: "Forward"
             }]
         }]
     });
@@ -50,7 +53,7 @@ RepoDetailsAssistant.prototype.setup = function(){
         visible: true,
         items: [{
             visible: false
-        }, {
+        },{
             label: $L('Refresh'),
             icon: 'refresh',
             command: 'do-refresh'
@@ -58,67 +61,68 @@ RepoDetailsAssistant.prototype.setup = function(){
     });
     
     
-    /* --- Load --- */
+    /* --- UI widgets --- */
+    this.controller.setupWidget('content', {
+        itemTemplate: 'comment-list/item-template',
+        listTemplate: 'comment-list/list-template'
+    }, this.listModel = {
+        items: [],
+        listTitle: "Comments"
+    });
 };
-
-RepoDetailsAssistant.prototype.activate = function(event){
-	this.refreshRepoinfo()
-};
-
-RepoDetailsAssistant.prototype.deactivate = function(event){
-};
-
-RepoDetailsAssistant.prototype.cleanup = function(event){
-};
-
-RepoDetailsAssistant.prototype.refreshRepoinfo = function(){
-    var request = new Ajax.Request("https://github.com/api/v2/json/repos/show/" + escape(this.username) + "/" + escape(this.repo), {
+CommentListAssistant.prototype.refreshCommentlist = function(){
+    new Ajax.Request("https://github.com/api/v2/json/issues/comments/" + this.user + "/" + this.repo + "/" + this.number, {
         method: "post",
         evalJSON: "false",
         onSuccess: function(response){
-            var content = Mojo.View.render({
-                object: response.responseJSON.repository,
-                template: 'repo-details/details'
-            })
-            
-            $("details").update(content)
-        }.bind(this),
-		onCreate: function (x) {
-			$("load-spinner").mojo.start()
-            $("details").hide()
-            $("load-status").show()
-		},
-		onComplete: function (x) {
-            $("load-status").hide()
+            this.listModel.items = response.responseJSON.comments
+            this.controller.modelChanged(this.listModel)
+        }
+.bind(this)        ,
+        onComplete: function(x){
             $("load-spinner").mojo.stop()
-            $("details").show()
-		},
+            $("load-status").hide()
+            $("content").show()
+        },
+        onCreate: function(x){
+            $("load-spinner").mojo.start()
+            $("content").hide()
+            $("load-status").show()
+        },
         onFailure: StageAssistant.connectionError,
         postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
     })
 }
+CommentListAssistant.prototype.activate = function(event) {
+	this.refreshCommentlist()
+};
 
+CommentListAssistant.prototype.deactivate = function(event) {
+};
 
-RepoDetailsAssistant.prototype.handleCommand = function(event){
+CommentListAssistant.prototype.cleanup = function(event) {
+};
+
+CommentListAssistant.prototype.handleCommand = function(event){
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
             case 'back':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
-                    name: "issue-list",
+                    name: "issue-details",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.username, this.repo)
+                }, this.depot, this.auth, this.user, this.repo,this.number)
                 break;
             case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
-                    name: "ref-list",
+                    name: "issue-details",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.username, this.repo)
+                }, this.depot, this.auth, this.user, this.repo,this.number)
                 break;
             case 'do-refresh':
                 event.stopPropagation()
-                this.refreshRepoinfo()
+                this.refreshCommentlist()
                 break;
         }
     }

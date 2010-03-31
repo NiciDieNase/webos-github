@@ -32,5 +32,21 @@
     {
         "scenes": "ref-list",
         "source": "app/assistants/ref-list-assistant.js"
+    },
+    {
+        "scenes": "comment-list",
+        "source": "app/assistants/comment-list-assistant.js"
+    },
+    {
+        "scenes": "comment-details",
+        "source": "app/assistants/comment-details-assistant.js"
+    },
+    {
+        "scenes": "commit-list",
+        "source": "app/assistants/commit-list-assistant.js"
+    },
+    {
+        "scenes": "commit-details",
+        "source": "app/assistants/commit-details-assistant.js"
     }
 ]

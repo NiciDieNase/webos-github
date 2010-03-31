@@ -1,18 +1,21 @@
-function RepoDetailsAssistant(depot, auth, username, repo){
-    this.depot = depot
-    this.auth = auth
-    this.username = username
-    this.repo = repo
+function CommitDetailsAssistant(depot,auth,user,repo,sha) {
+	this.depot = depot
+	this.auth = auth
+	this.user = user
+	this.repo = repo
+	this.sha = sha
 }
 
-RepoDetailsAssistant.prototype.setup = function(){
+CommitDetailsAssistant.prototype.setup = function() {
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
     /* --- Bindings --- */
-    this.refreshRepoinfo = this.refreshRepoinfo.bind(this)
+    this.refreshCommiteinfo = this.refreshCommitinfo.bind(this)
+    this.handleCommand = this.handleCommand.bind(this)
     
     
     /* --- Status widgets --- */
+    $("load-status").hide()
     this.controller.setupWidget("load-spinner", {
         spinnerSize: "large"
     }, {
@@ -36,7 +39,7 @@ RepoDetailsAssistant.prototype.setup = function(){
                 command: 'back',
                 label: $L("Back")
             }, {
-                label: $L("Repository Details"),
+                label: $L("Commit Details"),
                 width: 200
             }, {
                 icon: "forward",
@@ -56,69 +59,65 @@ RepoDetailsAssistant.prototype.setup = function(){
             command: 'do-refresh'
         }]
     });
-    
-    
-    /* --- Load --- */
 };
 
-RepoDetailsAssistant.prototype.activate = function(event){
-	this.refreshRepoinfo()
-};
-
-RepoDetailsAssistant.prototype.deactivate = function(event){
-};
-
-RepoDetailsAssistant.prototype.cleanup = function(event){
-};
-
-RepoDetailsAssistant.prototype.refreshRepoinfo = function(){
-    var request = new Ajax.Request("https://github.com/api/v2/json/repos/show/" + escape(this.username) + "/" + escape(this.repo), {
+CommitDetailsAssistant.prototype.refreshCommitinfo = function(){
+    new Ajax.Request("https://github.com/api/v2/json/commits/show/" + escape(this.user) + "/" + escape(this.repo) + "/" + escape(this.sha), {
         method: "post",
         evalJSON: "false",
         onSuccess: function(response){
             var content = Mojo.View.render({
-                object: response.responseJSON.repository,
-                template: 'repo-details/details'
+                object: response.responseJSON.commit,
+                template: 'commit-details/details'
             })
-            
             $("details").update(content)
-        }.bind(this),
-		onCreate: function (x) {
-			$("load-spinner").mojo.start()
-            $("details").hide()
-            $("load-status").show()
-		},
-		onComplete: function (x) {
+        }
+.bind(this)        ,
+        onComplete: function(x){
+        
             $("load-status").hide()
             $("load-spinner").mojo.stop()
             $("details").show()
-		},
+        },
+        onCreate: function(x){
+            $("details").hide()
+            $("load-status").show()
+        },
         onFailure: StageAssistant.connectionError,
         postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
     })
 }
 
+CommitDetailsAssistant.prototype.activate = function(event) {
+	this.refreshCommiteinfo()
+};
 
-RepoDetailsAssistant.prototype.handleCommand = function(event){
+CommitDetailsAssistant.prototype.deactivate = function(event) {
+};
+
+CommitDetailsAssistant.prototype.cleanup = function(event) {
+};
+
+CommitDetailsAssistant.prototype.handleCommand = function(event){
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
             case 'back':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
-                    name: "issue-list",
+                    name: "commit-details",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.username, this.repo)
+                }, this.depot, this.auth, this.user, this.repo,this.sha)
                 break;
             case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
-                    name: "ref-list",
+                    name: "commit-details",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.username, this.repo)
+                }, this.depot, this.auth, this.user, this.repo,this.sha)
                 break;
             case 'do-refresh':
                 event.stopPropagation()
-                this.refreshRepoinfo()
+                this.refreshCommitinfo()
                 break;
         }
     }

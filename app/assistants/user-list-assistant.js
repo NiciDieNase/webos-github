@@ -9,27 +9,27 @@ function UserListAssistant(depot, auth, username){
     this.depot = depot
     this.auth = auth
     this.username = username
+    
+    this.direction = "following"
 }
 
 UserListAssistant.prototype.setup = function(){
-	this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
-	
-    /* --- Bindings --- */
-    this.updateUsers = this.updateUsers.bind(this)
-    this.openUserinfo = this.openUserinfo.bind(this)
+    this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
-	
+    /* --- Bindings --- */
+    this.openUserinfo = this.openUserinfo.bind(this)
+    this.refreshUsers = this.refreshUsers.bind(this)
+    
     /* --- Loader-Status --- */
-    $("content").hide()
-    $("load-status").show()
+	$("load-spinner").hide()
     this.controller.setupWidget("load-spinner", {
         spinnerSize: "large"
     }, {
-        spinning: true
+        spinning: false
     })
-	
-	
-	/* --- Event Listeners --- */
+    
+    
+    /* --- Event Listeners --- */
     Mojo.Event.listen($("content"), Mojo.Event.listTap, this.openUserinfo)
     
     
@@ -37,7 +37,7 @@ UserListAssistant.prototype.setup = function(){
     this.controller.setupWidget(Mojo.Menu.appMenu, {
         omitDefaultItems: true
     }, StageAssistant.appMenu);
-	
+    
     this.controller.setupWidget(Mojo.Menu.viewMenu, {
         spacerHeight: 00,
         menuClass: 'no-fade'
@@ -59,6 +59,26 @@ UserListAssistant.prototype.setup = function(){
         }]
     });
     
+    this.controller.setupWidget(Mojo.Menu.commandMenu, undefined, {
+        visible: true,
+        items: [{
+            visible: false
+        }, {
+            items: [{
+                label: $L('Following'),
+                command: 'cmd-showFollowing',
+            }, {
+                label: $L('Followers'),
+                command: 'cmd-showFollowers',
+            }],
+            toggleCmd: "cmd-showFollowing"
+        }, {
+            label: $L('Refresh'),
+            icon: 'refresh',
+            command: 'do-refresh'
+        }]
+    });
+    
     
     /* --- UI widgets --- */
     this.controller.setupWidget('content', {
@@ -68,20 +88,10 @@ UserListAssistant.prototype.setup = function(){
         listTitle: "Following",
         items: []
     })
-    
-    
-    
-	/* --- Load --- */    
-    request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + this.username + "/following", {
-        method: "post",
-        evalJSON: "false",
-        onSuccess: this.updateUsers,
-        onFailure: StageAssistant.connectionError,
-        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
-    })
 };
 
 UserListAssistant.prototype.activate = function(event){
+    this.refreshUsers(this.direction)
 };
 
 UserListAssistant.prototype.deactivate = function(event){
@@ -91,23 +101,39 @@ UserListAssistant.prototype.cleanup = function(event){
     Mojo.Event.stopListening(this.controller.get("content"), Mojo.Event.listTap, this.openUserinfo)
 };
 
-UserListAssistant.prototype.updateUsers = function(response){
-    $("load-spinner").mojo.stop()
-    
-    this.listModel.items = response.responseJSON.users.collect(function(value){
-        return {
-            name: value
-        }
+UserListAssistant.prototype.refreshUsers = function(direction){
+    this.direction = direction
+    /* --- Load --- */
+    new Ajax.Request("https://github.com/api/v2/json/user/show/" + this.username + "/" + direction, {
+        method: "post",
+        evalJSON: "false",
+        onSuccess: function(response){
+        
+            this.listModel.items = response.responseJSON.users.collect(function(value){
+                return {
+                    name: value
+                }
+            })
+            
+            this.controller.modelChanged(this.listModel)
+        }.bind(this),
+        onComplete: function(x){
+            $("load-spinner").mojo.stop()
+            $("load-status").hide()
+            $("content").show()
+        },
+        onCreate: function(x){
+            $("content").hide()
+            $("load-status").show()
+        },
+        onFailure: StageAssistant.connectionError,
+        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
     })
-    
-    this.controller.modelChanged(this.listModel)
-    
-    $("load-status").hide()
-    $("content").show()
 }
 
 UserListAssistant.prototype.openUserinfo = function(event){
     Mojo.Controller.stageController.pushScene("user-details", this.depot, this.auth, event.item.name)
+    
 }
 
 UserListAssistant.prototype.handleCommand = function(event){
@@ -126,6 +152,18 @@ UserListAssistant.prototype.handleCommand = function(event){
                     name: "user-details",
                     transition: Mojo.Transition.crossFade
                 }, this.depot, this.auth, this.username)
+                break;
+            case 'do-refresh':
+                event.stopPropagation()
+                this.refreshUsers(this.direction)
+                break;
+            case "cmd-showFollowers":
+                event.stopPropagation()
+                this.refreshUsers("followers")
+                break;
+            case "cmd-showFollowing":
+                event.stopPropagation()
+                this.refreshUsers("following")
                 break;
         }
     }

@@ -1,19 +1,21 @@
-function IssueListAssistant(depot, auth, user, repo){
-    this.depot = depot
-    this.auth = auth
-    this.user = user
-    this.repo = repo
-    
-    this.state = "open"
+function CommitListAssistant(depot,auth,user,repo,ref) {
+	this.depot = depot
+	this.auth = auth
+	this.user = user
+	this.repo = repo
+	this.ref = ref
 }
 
-IssueListAssistant.prototype.setup = function(){
+CommitListAssistant.prototype.setup = function() {
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
     /* --- Bindings --- */
     this.handleCommand = this.handleCommand.bind(this)
-    this.refreshIssuelist = this.refreshIssuelist.bind(this)
-    this.openIssue = this.openIssue.bind(this)
+    this.refreshCommizlist = this.refreshCommitlist.bind(this)
+	this.openCommit = this.openCommit.bind(this)
+	
+	
+    Mojo.Event.listen($("content"), Mojo.Event.listTap, this.openCommit)
     
     
     /* --- Status widgets --- */
@@ -23,10 +25,6 @@ IssueListAssistant.prototype.setup = function(){
     }, {
         spinning: false
     })
-    
-    
-    /* --- Event Listener --- */
-    Mojo.Event.listen($("content"), Mojo.Event.listTap, this.openIssue)
     
     
     /* --- App widgets --- */
@@ -45,7 +43,7 @@ IssueListAssistant.prototype.setup = function(){
                 command: 'back',
                 label: "Back"
             }, {
-                label: "Issue List",
+                label: "Commit List",
                 width: 200
             }, {
                 icon: "forward",
@@ -59,16 +57,7 @@ IssueListAssistant.prototype.setup = function(){
         visible: true,
         items: [{
             visible: false
-        }, {
-            items: [{
-                label: $L('Open'),
-                command: 'cmd-showOpen',
-            }, {
-                label: $L('Closed'),
-                command: 'cmd-showClosed',
-            }],
-            toggleCmd: "cmd-showOpen"
-        }, {
+        },{
             label: $L('Refresh'),
             icon: 'refresh',
             command: 'do-refresh'
@@ -78,22 +67,35 @@ IssueListAssistant.prototype.setup = function(){
     
     /* --- UI widgets --- */
     this.controller.setupWidget('content', {
-        itemTemplate: 'issue-list/item-template',
-        listTemplate: 'issue-list/list-template'
+        itemTemplate: 'commit-list/item-template',
+        listTemplate: 'commit-list/list-template'
     }, this.listModel = {
         items: [],
-        listTitle: "Issues"
+        listTitle: "Commit List"
     });
 };
 
+CommitListAssistant.prototype.activate = function(event) {
+	this.refreshCommitlist()
+};
 
-IssueListAssistant.prototype.refreshIssuelist = function(state){
-    this.state = state
-    new Ajax.Request("https://github.com/api/v2/json/issues/list/" + this.user + "/" + this.repo + "/" + state, {
+CommitListAssistant.prototype.deactivate = function(event) {
+};
+
+CommitListAssistant.prototype.cleanup = function(event) {
+    Mojo.Event.stopListening($("content"), Mojo.Event.listTap, this.openCommit)
+};
+
+CommitListAssistant.prototype.openCommit = function(event){
+    Mojo.Controller.stageController.pushScene("commit-details", this.depot, this.auth, this.user, this.repo, event.item.id)
+}
+
+CommitListAssistant.prototype.refreshCommitlist = function(){
+    new Ajax.Request("https://github.com/api/v2/json/commits/list/" + this.user + "/" + this.repo + "/" + this.ref, {
         method: "post",
         evalJSON: "false",
         onSuccess: function(response){
-            this.listModel.items = response.responseJSON.issues
+            this.listModel.items = response.responseJSON.commits
             this.controller.modelChanged(this.listModel)
         }
 .bind(this)        ,
@@ -112,51 +114,27 @@ IssueListAssistant.prototype.refreshIssuelist = function(state){
     })
 }
 
-IssueListAssistant.prototype.openIssue = function(event){
-    Mojo.Controller.stageController.pushScene("issue-details", this.depot, this.auth, this.user, this.repo, event.item.number)
-}
-
-IssueListAssistant.prototype.activate = function(event){
-    this.refreshIssuelist(this.state)
-};
-
-IssueListAssistant.prototype.deactivate = function(event){
-};
-
-IssueListAssistant.prototype.cleanup = function(event){
-    Mojo.Event.stopListening($("content"), Mojo.Event.listTap, this.openIssue)
-};
-
-IssueListAssistant.prototype.handleCommand = function(event){
+CommitListAssistant.prototype.handleCommand = function(event){
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
             case 'back':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
-                    name: "ref-list",
+                    name: "commit-list",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.user, this.repo)
+                }, this.depot, this.auth, this.user, this.repo, this.ref)
                 break;
             case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
-                    name: "repo-details",
+                    name: "commit-list",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.user, this.repo)
+                }, this.depot, this.auth, this.user, this.repo,this.ref)
                 break;
             case 'do-refresh':
                 event.stopPropagation()
-                this.refreshIssuelist(this.state)
-                break;
-            case "cmd-showOpen":
-                event.stopPropagation()
-                this.refreshIssuelist("open")
-                break;
-            case "cmd-showClosed":
-                event.stopPropagation()
-                this.refreshIssuelist("closed")
+                this.refreshCommitlist()
                 break;
         }
     }
 }
-

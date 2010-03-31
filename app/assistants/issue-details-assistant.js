@@ -1,8 +1,4 @@
 function IssueDetailsAssistant(depot, auth, user, repo, number){
-    /* this is the creator function for your scene assistant object. It will be passed all the 
-     additional parameters (after the scene name) that were passed to pushScene. The reference
-     to the scene controller (this.controller) has not be established yet, so any initialization
-     that needs the scene controller should be done in the setup function below. */
     this.depot = depot
     this.auth = auth
     this.user = user
@@ -65,17 +61,14 @@ IssueDetailsAssistant.prototype.setup = function(){
     });
 };
 
-IssueDetailsAssistant.prototype.connectionFailed = function(response){
-}
-
-IssueDetailsAssistant.prototype.refreshIssueinfo = function(response){
+IssueDetailsAssistant.prototype.refreshIssueinfo = function(){
     new Ajax.Request("https://github.com/api/v2/json/issues/show/" + escape(this.user) + "/" + escape(this.repo) + "/" + escape(this.number), {
         method: "post",
         evalJSON: "false",
         onSuccess: function(response){
             var content = Mojo.View.render({
                 object: response.responseJSON.issue,
-                template: 'issue-details/details'
+                template: 'commit-details/details'
             })
             $("details").update(content)
         }
@@ -112,16 +105,16 @@ IssueDetailsAssistant.prototype.handleCommand = function(event){
             case 'back':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
-                    name: "issue-details",
+                    name: "comment-list",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.user, this.repo)
+                }, this.depot, this.auth, this.user, this.repo,this.number)
                 break;
             case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
-                    name: "issue-details",
+                    name: "comment-list",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.user, this.repo)
+                }, this.depot, this.auth, this.user, this.repo,this.number)
                 break;
             case 'do-refresh':
                 event.stopPropagation()

@@ -1,19 +1,23 @@
-function IssueListAssistant(depot, auth, user, repo){
+function RefListAssistant(depot, auth, user, repo){
+    /* this is the creator function for your scene assistant object. It will be passed all the 
+     additional parameters (after the scene name) that were passed to pushScene. The reference
+     to the scene controller (this.controller) has not be established yet, so any initialization
+     that needs the scene controller should be done in the setup function below. */
     this.depot = depot
     this.auth = auth
     this.user = user
     this.repo = repo
     
-    this.state = "open"
+    this.ref = "branches"
 }
 
-IssueListAssistant.prototype.setup = function(){
+RefListAssistant.prototype.setup = function(){
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
     /* --- Bindings --- */
     this.handleCommand = this.handleCommand.bind(this)
-    this.refreshIssuelist = this.refreshIssuelist.bind(this)
-    this.openIssue = this.openIssue.bind(this)
+    this.refreshReflist = this.refreshReflist.bind(this)
+    this.openRef = this.openRef.bind(this)
     
     
     /* --- Status widgets --- */
@@ -26,7 +30,7 @@ IssueListAssistant.prototype.setup = function(){
     
     
     /* --- Event Listener --- */
-    Mojo.Event.listen($("content"), Mojo.Event.listTap, this.openIssue)
+    Mojo.Event.listen($("content"), Mojo.Event.listTap, this.openRef)
     
     
     /* --- App widgets --- */
@@ -45,7 +49,7 @@ IssueListAssistant.prototype.setup = function(){
                 command: 'back',
                 label: "Back"
             }, {
-                label: "Issue List",
+                label: "Ref List",
                 width: 200
             }, {
                 icon: "forward",
@@ -61,13 +65,13 @@ IssueListAssistant.prototype.setup = function(){
             visible: false
         }, {
             items: [{
-                label: $L('Open'),
-                command: 'cmd-showOpen',
+                label: $L('Branches'),
+                command: 'cmd-showBranches',
             }, {
-                label: $L('Closed'),
-                command: 'cmd-showClosed',
+                label: $L('Tags'),
+                command: 'cmd-showTags',
             }],
-            toggleCmd: "cmd-showOpen"
+            toggleCmd: "cmd-showBranches"
         }, {
             label: $L('Refresh'),
             icon: 'refresh',
@@ -78,22 +82,28 @@ IssueListAssistant.prototype.setup = function(){
     
     /* --- UI widgets --- */
     this.controller.setupWidget('content', {
-        itemTemplate: 'issue-list/item-template',
-        listTemplate: 'issue-list/list-template'
+        itemTemplate: 'ref-list/item-template',
+        listTemplate: 'ref-list/list-template'
     }, this.listModel = {
         items: [],
-        listTitle: "Issues"
+        listTitle: "Ref List"
     });
 };
-
-
-IssueListAssistant.prototype.refreshIssuelist = function(state){
-    this.state = state
-    new Ajax.Request("https://github.com/api/v2/json/issues/list/" + this.user + "/" + this.repo + "/" + state, {
+RefListAssistant.prototype.refreshReflist = function(ref){
+    this.ref = ref
+    new Ajax.Request("https://github.com/api/v2/json/repos/show/" + this.user + "/" + this.repo + "/" + ref, {
         method: "post",
         evalJSON: "false",
         onSuccess: function(response){
-            this.listModel.items = response.responseJSON.issues
+            this.listModel.items = (response.responseJSON.branches == undefined) ? $H(response.responseJSON.tags).keys().collect(function(value){
+                return {
+                    name: value
+                }
+            }) : $H(response.responseJSON.branches).keys().collect(function(value){
+                return {
+                    name: value
+                }
+            })
             this.controller.modelChanged(this.listModel)
         }
 .bind(this)        ,
@@ -112,51 +122,48 @@ IssueListAssistant.prototype.refreshIssuelist = function(state){
     })
 }
 
-IssueListAssistant.prototype.openIssue = function(event){
-    Mojo.Controller.stageController.pushScene("issue-details", this.depot, this.auth, this.user, this.repo, event.item.number)
+RefListAssistant.prototype.openRef = function(event){
+    Mojo.Controller.stageController.pushScene("commit-list", this.depot, this.auth, this.user, this.repo, event.item.name)
 }
 
-IssueListAssistant.prototype.activate = function(event){
-    this.refreshIssuelist(this.state)
+RefListAssistant.prototype.activate = function(event){
+    this.refreshReflist(this.ref)
 };
 
-IssueListAssistant.prototype.deactivate = function(event){
+RefListAssistant.prototype.deactivate = function(event){
 };
 
-IssueListAssistant.prototype.cleanup = function(event){
-    Mojo.Event.stopListening($("content"), Mojo.Event.listTap, this.openIssue)
+RefListAssistant.prototype.cleanup = function(event){
 };
-
-IssueListAssistant.prototype.handleCommand = function(event){
+RefListAssistant.prototype.handleCommand = function(event){
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
             case 'back':
-                event.stopPropagation()
-                Mojo.Controller.stageController.swapScene({
-                    name: "ref-list",
-                    transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.user, this.repo)
-                break;
-            case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
                     name: "repo-details",
                     transition: Mojo.Transition.crossFade
                 }, this.depot, this.auth, this.user, this.repo)
                 break;
+            case 'fwd':
+                event.stopPropagation()
+                Mojo.Controller.stageController.swapScene({
+                    name: "issue-list",
+                    transition: Mojo.Transition.crossFade
+                }, this.depot, this.auth, this.user, this.repo)
+                break;
             case 'do-refresh':
                 event.stopPropagation()
-                this.refreshIssuelist(this.state)
+                this.refreshReflist(this.ref)
                 break;
-            case "cmd-showOpen":
+            case "cmd-showTags":
                 event.stopPropagation()
-                this.refreshIssuelist("open")
+                this.refreshReflist("tags")
                 break;
-            case "cmd-showClosed":
+            case "cmd-showBranches":
                 event.stopPropagation()
-                this.refreshIssuelist("closed")
+                this.refreshReflist("branches")
                 break;
         }
     }
 }
-
