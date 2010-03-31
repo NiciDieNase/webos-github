@@ -1,5 +1,6 @@
 Contribute
 ====
+This application is Open-Source. You can copy, distribute, or whatever (as long as you will follow the terms of the LGPL) this application, as you like.
 
 Project page
 ---
