@@ -7,7 +7,7 @@
 	"main": "index.html",
 	"title": "Github",
 	"icon": "icon.png",
-	"smallicon": "icon-small-png",
+	"smallicon": "icon-small.png",
 	"copyright": "2010 Sebastian \"KingCrunch\" Krebs",
 	"support": {
 		"url":"http://github.com/KingCrunch/webos-github",

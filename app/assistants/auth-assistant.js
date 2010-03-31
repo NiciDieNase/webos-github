@@ -3,10 +3,6 @@ function AuthAssistant(depot, auth){
      additional parameters (after the scene name) that were passed to pushScene. The reference
      to the scene controller (this.controller) has not be established yet, so any initialization
      that needs the scene controller should be done in the setup function below. */
-    this.updateAuthorization = this.updateAuthorization.bind(this)
-    this.verifyAuthorization = this.verifyAuthorization.bind(this)
-    this.propertyChanged = this.propertyChanged.bind(this)
-	
     this.depot = depot
     if (auth == undefined) {
         this.model = {
@@ -18,67 +14,72 @@ function AuthAssistant(depot, auth){
     else {
         this.model = auth
     }
-	
-	
 }
 
 AuthAssistant.prototype.setup = function(){
-    /* this function is for setup tasks that have to happen when the scene is first created */
+	this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
+	
+	/* --- Bindings --- */
+    this.updateAuthorization = this.updateAuthorization.bind(this)
+    this.verifyAuthorization = this.verifyAuthorization.bind(this)
+    this.propertyChanged = this.propertyChanged.bind(this)
+	
+	
+	/* --- Status widgets --- */
+	
+	
+	/* --- Event Listeners --- */
+    Mojo.Event.listen($('update'), Mojo.Event.tap, this.verifyAuthorization)
+    Mojo.Event.listen($('cancel'), Mojo.Event.tap, this.cancelAction)
+    Mojo.Event.listen($("login"), Mojo.Event.propertyChange, this.propertyChanged)
+    Mojo.Event.listen($('token'), Mojo.Event.propertyChange, this.propertyChanged)
+
+	
+    /* --- App widgets --- */
+    this.controller.setupWidget(Mojo.Menu.appMenu, {
+        omitDefaultItems: true
+    }, StageAssistant.appMenu);
+	
     
-    /* use Mojo.View.render to render view templates and add them to the scene, if needed */
-    
-    /* setup widgets here */
-    var usernameAttributes = {
+
+    /* --- UI widgets --- */
+    this.controller.setupWidget('login', usernameAttributes = {
         hintText: 'Username',
         modelProperty: 'username'
-    };
-    
-    this.controller.setupWidget('auth-username', usernameAttributes, this.model);
-    
-    var apikeyAttributes = {
+    }, this.model);
+    this.controller.setupWidget('token', apikeyAttributes = {
         hintText: 'API Key',
         modelProperty: 'apikey'
-    };
-    
-    this.controller.setupWidget('auth-apikey', apikeyAttributes, this.model);
-    
-    this.buttonModel = {
-        buttonLabel: 'Save',
-        buttonClass: 'primary',
-        disabled: !((this.model.username.length > 0) && (this.model.apikey.length == 32))
-    }
+    }, this.model);
     
     this.controller.setupWidget('update', {
         type: Mojo.Widget.activityButton
-    }, this.buttonModel);
-    
-    /* add event handlers to listen to events from widgets */
-    Mojo.Event.listen(this.controller.get('update'), Mojo.Event.tap, this.verifyAuthorization)
-    
-    Mojo.Event.listen(this.controller.get("auth-username"), Mojo.Event.propertyChange, this.propertyChanged)
-    Mojo.Event.listen(this.controller.get('auth-apikey'), Mojo.Event.propertyChange, this.propertyChanged)
+    }, this.buttonModel = {
+        buttonLabel: 'Save',
+        buttonClass: 'primary',
+        disabled: !((this.model.username.length > 0) && (this.model.apikey.length == 32))
+    });
+    this.controller.setupWidget('cancel', {
+        type: Mojo.Widget.defaultButton
+    }, this.cancelButtonModel = {
+        buttonLabel: 'Cancel',
+        buttonClass: 'primary',
+		disabled: (this.model.username == "")
+    });
 };
 
 AuthAssistant.prototype.propertyChanged = function(event){
-    this.controller.get("auth-debug").update(dump(event.model) + "=>" + event.model.username.length + "+" + event.model.apikey.length)
     this.buttonModel.disabled = !((event.model.username.length > 0) && (event.model.apikey.length == 32))
     this.controller.modelChanged(this.buttonModel)
 }
 
 AuthAssistant.prototype.activate = function(event){
-    /* put in event handlers here that should only be in effect when this scene is active. For
-     example, key handlers that are observing the document */
 };
 
 AuthAssistant.prototype.deactivate = function(event){
-    /* remove any event handlers you added in activate and do any other cleanup that should happen before
-    
-     this scene is popped or another scene is pushed on top */
-    
 }
 
 AuthAssistant.prototype.verifyAuthorization = function(){
-    // Test: valid auths?
     var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + escape(this.model["username"]), {
         method: "post",
         evalJSON: "false",
@@ -101,11 +102,10 @@ AuthAssistant.prototype.verifyAuthorization = function(){
 }
 
 AuthAssistant.prototype.cleanup = function(event){
-    /* this function should do any cleanup needed before the scene is destroyed as 
-     a result of being popped off the scene stack */
-    Mojo.Event.stopListening(this.controller.get("update"), Mojo.Event.tap, this.updateAuthorization)
-    Mojo.Event.stopListening(this.controller.get("auth-username"), Mojo.Event.propertyChange, this.propertyChanged)
-    Mojo.Event.stopListening(this.controller.get('auth-apikey'), Mojo.Event.propertyChange, this.propertyChanged)
+    Mojo.Event.stopListening($("update"), Mojo.Event.tap, this.updateAuthorization)
+    Mojo.Event.stopListening($('cancel'), Mojo.Event.tap, this.cancelAction)
+    Mojo.Event.stopListening($("login"), Mojo.Event.propertyChange, this.propertyChanged)
+    Mojo.Event.stopListening($('token'), Mojo.Event.propertyChange, this.propertyChanged)
 };
 
 AuthAssistant.prototype.updateAuthorization = function(){
@@ -115,5 +115,9 @@ AuthAssistant.prototype.updateAuthorization = function(){
 AuthAssistant.prototype.proceed = function(){
     Mojo.Controller.stageController.auth = this.model
     Mojo.Controller.stageController.popScenesTo()
-    Mojo.Controller.stageController.pushScene("userinfo", this.depot, this.model, this.model["username"])
+    Mojo.Controller.stageController.pushScene("user-details", this.depot, this.model, this.model["username"])
+}
+
+AuthAssistant.prototype.cancelAction = function () {
+	Mojo.Controller.stageController.popScene()
 }

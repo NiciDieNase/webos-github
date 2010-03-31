@@ -1,36 +1,32 @@
 [
-    {"source": "app/models/user.js"},
+    {"source": "resources/utils.js"},
     {"source": "app/assistants/stage-assistant.js"},
     {
         "scenes": "auth",
         "source": "app/assistants/auth-assistant.js"
     },
     {
-        "scenes": "userinfo",
-        "source": "app/assistants/userinfo-assistant.js"
+        "scenes": "user-details",
+        "source": "app/assistants/user-details-assistant.js"
     },
     {
-        "scenes": "about",
-        "source": "app/assistants/about-assistant.js"
+        "scenes": "repo-list",
+        "source": "app/assistants/repo-list-assistant.js"
     },
     {
-        "scenes": "repositories",
-        "source": "app/assistants/repositories-assistant.js"
+        "scenes": "user-list",
+        "source": "app/assistants/user-list-assistant.js"
     },
     {
-        "scenes": "social",
-        "source": "app/assistants/social-assistant.js"
+        "scenes": "repo-details",
+        "source": "app/assistants/repo-details-assistant.js"
     },
     {
-        "scenes": "repodetail",
-        "source": "app/assistants/repodetail-assistant.js"
+        "scenes": "issue-list",
+        "source": "app/assistants/issue-list-assistant.js"
     },
     {
-        "scenes": "issues",
-        "source": "app/assistants/issues-assistant.js"
-    },
-    {
-        "scenes": "issuedetail",
-        "source": "app/assistants/issuedetail-assistant.js"
+        "scenes": "issue-details",
+        "source": "app/assistants/issue-details-assistant.js"
     }
 ]
