@@ -37,6 +37,10 @@ StageAssistant.prototype.handleCommand = function(event){
             case Mojo.Menu.helpItem.command:
                 this.controller.pushAppSupportInfoScene()
                 break;
+				case "do-search":
+				case "do-refresh":
+				Mojo.Controller.errorDialog("Sorry, but it seems, " + event.command + " is not implemented yet.")
+				break;
         }
     }
 }

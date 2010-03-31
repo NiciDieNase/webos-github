@@ -9,27 +9,28 @@ function RepoListAssistant(depot, auth, username){
     this.depot = depot
     this.auth = auth
     this.username = username
+	
+	this.direction = "show"
 }
 
 RepoListAssistant.prototype.setup = function(){
-	this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
-	
-	/* --- Bindings --- */
-    this.updateRepositories = this.updateRepositories.bind(this)
+    this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
+    
+    /* --- Bindings --- */
+    this.refreshRepos = this.refreshRepos.bind(this)
     this.openRepo = this.openRepo.bind(this)
     
-	
+    
     /* --- Status widgets --- */
-    $("content").hide()
-    $("load-status").show()
+	$("load-spinner").hide()
     this.controller.setupWidget("load-spinner", {
         spinnerSize: "large"
     }, {
-        spinning: true
+        spinning: false
     })
     
     
-	/* --- Event Listener --- */
+    /* --- Event Listener --- */
     Mojo.Event.listen($("content"), Mojo.Event.listTap, this.openRepo)
     
     
@@ -58,8 +59,28 @@ RepoListAssistant.prototype.setup = function(){
         }]
     });
     
+    this.controller.setupWidget(Mojo.Menu.commandMenu, undefined, {
+        visible: true,
+        items: [{
+            visible:false
+        }, {
+            items: [{
+                label: $L('Own'),
+                command: 'cmd-showOwn',
+            }, {
+                label: $L('Watched'),
+                command: 'cmd-showWatched',
+            }],
+            toggleCmd: "cmd-showOwn"
+        }, {
+            label: $L('Refresh'),
+            icon: 'refresh',
+            command: 'do-refresh'
+        }]
+    });
     
-    /* --- UI widget --- */ 
+    
+    /* --- UI widget --- */
     this.controller.setupWidget('content', {
         itemTemplate: 'repo-list/item-template',
         listTemplate: 'repo-list/list-template'
@@ -67,19 +88,10 @@ RepoListAssistant.prototype.setup = function(){
         items: [],
         listTitle: "Repositories"
     });
-    
-	
-    /* --- Load ---*/
-    var request = new Ajax.Request("https://github.com/api/v2/json/repos/show/" + this.username, {
-        method: "post",
-        evalJSON: "false",
-        onSuccess: this.updateRepositories,
-        onFailure: StageAssistant.connectionError,
-        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
-    })
 };
 
 RepoListAssistant.prototype.activate = function(event, auth){
+	this.refreshRepos(this.direction)
 };
 
 RepoListAssistant.prototype.deactivate = function(event){
@@ -106,18 +118,46 @@ RepoListAssistant.prototype.handleCommand = function(event){
                     transition: Mojo.Transition.crossFade
                 }, this.depot, this.auth, this.username)
                 break;
+            case 'do-refresh':
+                event.stopPropagation()
+                this.refreshRepos(this.direction)
+                break;
+            case "cmd-showOwn":
+                event.stopPropagation()
+                this.refreshRepos("show")
+                break;
+            case "cmd-showWatched":
+                event.stopPropagation()
+                this.refreshRepos("watched")
+                break;
         }
     }
+}
+
+RepoListAssistant.prototype.refreshRepos = function(direction){
+	this.direction = direction
+    new Ajax.Request("https://github.com/api/v2/json/repos/"+direction+"/" + this.username, {
+        method: "post",
+        evalJSON: "false",
+        onSuccess: function(response){
+            this.listModel.items = response.responseJSON.repositories
+            this.controller.modelChanged(this.listModel)
+        }.bind(this),
+		onComplete: function (x) {
+            $("load-spinner").mojo.stop()
+            $("load-status").hide()
+            $("content").show()
+		},
+		onCreate: function (x) {
+            $("content").hide()
+            $("load-status").show()
+		},
+        onFailure: StageAssistant.connectionError,
+        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
+    })
 }
 
 RepoListAssistant.prototype.openRepo = function(event){
     Mojo.Controller.stageController.pushScene("repo-details", this.depot, this.auth, event.item.owner, event.item.name)
 }
 
-RepoListAssistant.prototype.updateRepositories = function(response){
-    this.listModel.items = response.responseJSON.repositories
-    $("load-spinner").mojo.stop()
-    this.controller.modelChanged(this.listModel)
-    $("load-status").hide()
-    $("content").show()
-}

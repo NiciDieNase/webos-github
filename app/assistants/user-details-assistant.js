@@ -9,21 +9,19 @@ function UserDetailsAssistant(depot, auth, username){
 }
 
 UserDetailsAssistant.prototype.setup = function(){
-	this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
-	
-    /* --- Bindings --- */
-    this.updateUserinfo = this.updateUserinfo.bind(this)
+    this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
-    /* --- Loader-Status --- */
-    $("content").hide()
-    $("load-status").show()
+    /* --- Bindings --- */
+    this.refreshUserinfo = this.refreshUserinfo.bind(this)
+    
+    /* --- Main widgets --- */
+	$("load-spinner").hide()
     this.controller.setupWidget("load-spinner", {
         spinnerSize: "large"
     }, {
-        spinning: true
+        spinning: false
     })
     
-    /* --- Main widgets --- */
     // App Menu
     this.controller.setupWidget(Mojo.Menu.appMenu, {
         omitDefaultItems: true
@@ -50,18 +48,22 @@ UserDetailsAssistant.prototype.setup = function(){
             }]
         }]
     });
+	
+	this.controller.setupWidget(Mojo.Menu.commandMenu, undefined, {
+        visible: true,
+        items: [{
+			visible:false
+        },{
+            label: $L('Refresh'),
+            icon: 'refresh',
+            command: 'do-refresh'
+        }]
+    });
     
-    /* --- Load --- */
-    new Ajax.Request("https://github.com/api/v2/json/user/show/" + escape(this.username), {
-        evalJSON: "false",
-        onSuccess: this.updateUserinfo,
-        onFailure: StageAssistant.connectionError,
-        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey']),
-        method: (this.auth.username === this.username) ? "post" : "get"
-    })
 };
 
 UserDetailsAssistant.prototype.activate = function(event){
+    this.refreshUserinfo()
 };
 
 UserDetailsAssistant.prototype.deactivate = function(event){
@@ -71,22 +73,40 @@ UserDetailsAssistant.prototype.cleanup = function(event){
 };
 
 
-UserDetailsAssistant.prototype.updateUserinfo = function(response){
-    $("load-spinner").mojo.stop()
-    $("content").update(Mojo.View.render({
-        object: response.responseJSON.user,
-        template: (response.responseJSON.user.login === this.auth["username"]) ? "user-details/private-details" : "user-details/public-details",
-        formatters: {
-            created_at: function(value, model){
-                model.created_at = Mojo.Format.formatDate(new Date(value), {
-                    date: 'medium'
-                })
-            },
-        }
-    }))
-	
-    $("load-status").hide()
-    $("content").show()
+UserDetailsAssistant.prototype.refreshUserinfo = function(){
+    /* --- Loader-Status --- */
+    
+    /* --- Load --- */
+    new Ajax.Request("https://github.com/api/v2/json/user/show/" + escape(this.username), {
+        evalJSON: "false",
+        onSuccess: function(response){
+            $("content").update(Mojo.View.render({
+                object: response.responseJSON.user,
+                template: (response.responseJSON.user.login === this.auth["username"]) ? "user-details/private-details" : "user-details/public-details",
+                formatters: {
+                    created_at: function(value, model){
+                        model.created_at = Mojo.Format.formatDate(new Date(value), {
+                            date: 'medium'
+                        })
+                    },
+                }
+            }))
+            
+        }.bind(this),
+        onFailure: StageAssistant.connectionError,
+		onComplete: function (x) {
+            $("load-status").hide()
+            $("load-spinner").mojo.stop()
+            $("content").show()
+		},
+		onCreate: function (x) {
+            $("content").hide()
+			$("load-spinner").mojo.start()
+            $("load-status").show()
+		},
+        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey']),
+        method: (this.auth.username === this.username) ? "post" : "get"
+    })
 }
 
 
@@ -106,6 +126,10 @@ UserDetailsAssistant.prototype.handleCommand = function(event){
                     name: "repo-list",
                     transition: Mojo.Transition.crossFade
                 }, this.depot, this.auth, this.username)
+                break;
+            case 'do-refresh':
+                event.stopPropagation()
+                this.refreshUserinfo()
                 break;
         }
     }

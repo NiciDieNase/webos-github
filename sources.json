@@ -28,5 +28,9 @@
     {
         "scenes": "issue-details",
         "source": "app/assistants/issue-details-assistant.js"
+    },
+    {
+        "scenes": "ref-list",
+        "source": "app/assistants/ref-list-assistant.js"
     }
 ]

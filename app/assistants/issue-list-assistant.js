@@ -3,31 +3,32 @@ function IssueListAssistant(depot, auth, user, repo){
     this.auth = auth
     this.user = user
     this.repo = repo
+    
+    this.state = "open"
 }
 
 IssueListAssistant.prototype.setup = function(){
-	this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
-	
-	/* --- Bindings --- */
-	this.handleCommand = this.handleCommand.bind(this)
-	this.updateIssues = this.updateIssues.bind(this)
+    this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
+    
+    /* --- Bindings --- */
+    this.handleCommand = this.handleCommand.bind(this)
+    this.refreshIssuelist = this.refreshIssuelist.bind(this)
     this.openIssue = this.openIssue.bind(this)
     
     
-	/* --- Status widgets --- */
-	$("content").hide()
-	$("load-status").show()
+    /* --- Status widgets --- */
+    $("load-spinner").hide()
     this.controller.setupWidget("load-spinner", {
         spinnerSize: "large"
     }, {
-        spinning: true
+        spinning: false
     })
-	
-	
-	/* --- Event Listener --- */
+    
+    
+    /* --- Event Listener --- */
     Mojo.Event.listen($("content"), Mojo.Event.listTap, this.openIssue)
     
-	
+    
     /* --- App widgets --- */
     this.controller.setupWidget(Mojo.Menu.appMenu, {
         omitDefaultItems: true
@@ -54,6 +55,26 @@ IssueListAssistant.prototype.setup = function(){
         }]
     });
     
+    this.controller.setupWidget(Mojo.Menu.commandMenu, undefined, {
+        visible: true,
+        items: [{
+            visible: false
+        }, {
+            items: [{
+                label: $L('Open'),
+                command: 'cmd-showOpen',
+            }, {
+                label: $L('Closed'),
+                command: 'cmd-showClosed',
+            }],
+            toggleCmd: "cmd-showOpen"
+        }, {
+            label: $L('Refresh'),
+            icon: 'refresh',
+            command: 'do-refresh'
+        }]
+    });
+    
     
     /* --- UI widgets --- */
     this.controller.setupWidget('content', {
@@ -63,24 +84,35 @@ IssueListAssistant.prototype.setup = function(){
         items: [],
         listTitle: "Issues"
     });
-
+    
     
     /* --- Load --- */
-    new Ajax.Request("https://github.com/api/v2/json/issues/list/" + this.user + "/" + this.repo + "/open", {
+};
+
+
+IssueListAssistant.prototype.refreshIssuelist = function(state){
+    this.state = state
+    new Ajax.Request("https://github.com/api/v2/json/issues/list/" + this.user + "/" + this.repo + "/" + state, {
         method: "post",
         evalJSON: "false",
-        onSuccess: this.updateIssues,
+        onSuccess: function(response){
+            this.listModel.items = response.responseJSON.issues
+            this.controller.modelChanged(this.listModel)
+        }
+.bind(this)        ,
+        onComplete: function(x){
+            $("load-spinner").mojo.stop()
+            $("load-status").hide()
+            $("content").show()
+        },
+        onCreate: function(x){
+            $("load-spinner").mojo.start()
+            $("content").hide()
+            $("load-status").show()
+        },
         onFailure: StageAssistant.connectionError,
         postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
     })
-};
-
-IssueListAssistant.prototype.updateIssues = function(response){
-    this.listModel.items = response.responseJSON.issues
-	$("load-spinner").mojo.stop()
-    this.controller.modelChanged(this.listModel)
-    $("load-status").hide()
-	$("content").show()
 }
 
 IssueListAssistant.prototype.openIssue = function(event){
@@ -88,6 +120,7 @@ IssueListAssistant.prototype.openIssue = function(event){
 }
 
 IssueListAssistant.prototype.activate = function(event){
+    this.refreshIssuelist(this.state)
 };
 
 IssueListAssistant.prototype.deactivate = function(event){
@@ -114,6 +147,17 @@ IssueListAssistant.prototype.handleCommand = function(event){
                     transition: Mojo.Transition.crossFade
                 }, this.depot, this.auth, this.user, this.repo)
                 break;
+            case 'do-refresh':
+                event.stopPropagation()
+                this.refreshIssuelist(this.state)
+                break;
+            case "cmd-showOpen":
+                event.stopPropagation()
+                this.refreshIssuelist("open")
+                break;
+            case "cmd-showClosed":
+                event.stopPropagation()
+                this.refreshIssuelist("closed")
                 break;
         }
     }

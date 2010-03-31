@@ -6,22 +6,20 @@ function RepoDetailsAssistant(depot, auth, username, repo){
 }
 
 RepoDetailsAssistant.prototype.setup = function(){
-	this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
-	
-    /* --- Bindings --- */
-    this.updateRepodetail = this.updateRepodetail.bind(this)
+    this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
-	
+    /* --- Bindings --- */
+    this.refreshRepoinfo = this.refreshRepoinfo.bind(this)
+    
+    
     /* --- Status widgets --- */
-    $("details").hide()
-    $("load-status").show()
     this.controller.setupWidget("load-spinner", {
         spinnerSize: "large"
     }, {
         spinning: true
     })
     
-	
+    
     /* --- App widgets --- */
     this.controller.setupWidget(Mojo.Menu.appMenu, {
         omitDefaultItems: true
@@ -48,18 +46,23 @@ RepoDetailsAssistant.prototype.setup = function(){
         }]
     });
     
+    this.controller.setupWidget(Mojo.Menu.commandMenu, undefined, {
+        visible: true,
+        items: [{
+            visible: false
+        }, {
+            label: $L('Refresh'),
+            icon: 'refresh',
+            command: 'do-refresh'
+        }]
+    });
+    
     
     /* --- Load --- */
-    var request = new Ajax.Request("https://github.com/api/v2/json/repos/show/" + escape(this.username) + "/" + escape(this.repo), {
-        method: "post",
-        evalJSON: "false",
-        onSuccess: this.updateRepodetail,
-        onFailure: StageAssistant.connectionError,
-        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
-    })
 };
 
 RepoDetailsAssistant.prototype.activate = function(event){
+	this.refreshRepoinfo()
 };
 
 RepoDetailsAssistant.prototype.deactivate = function(event){
@@ -68,16 +71,31 @@ RepoDetailsAssistant.prototype.deactivate = function(event){
 RepoDetailsAssistant.prototype.cleanup = function(event){
 };
 
-RepoDetailsAssistant.prototype.updateRepodetail = function(response){
-    var content = Mojo.View.render({
-        object: response.responseJSON.repository,
-        template: 'repo-details/details'
+RepoDetailsAssistant.prototype.refreshRepoinfo = function(){
+    var request = new Ajax.Request("https://github.com/api/v2/json/repos/show/" + escape(this.username) + "/" + escape(this.repo), {
+        method: "post",
+        evalJSON: "false",
+        onSuccess: function(response){
+            var content = Mojo.View.render({
+                object: response.responseJSON.repository,
+                template: 'repo-details/details'
+            })
+            
+            $("details").update(content)
+        }.bind(this),
+		onCreate: function (x) {
+			$("load-spinner").mojo.start()
+            $("details").hide()
+            $("load-status").show()
+		},
+		onComplete: function (x) {
+            $("load-status").hide()
+            $("load-spinner").mojo.stop()
+            $("details").show()
+		},
+        onFailure: StageAssistant.connectionError,
+        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
     })
-    
-    $("load-spinner").mojo.stop()
-    $("details").update(content)
-    $("load-status").hide()
-    $("details").show()
 }
 
 
@@ -97,6 +115,10 @@ RepoDetailsAssistant.prototype.handleCommand = function(event){
                     name: "issue-list",
                     transition: Mojo.Transition.crossFade
                 }, this.depot, this.auth, this.username, this.repo)
+                break;
+            case 'do-refresh':
+                event.stopPropagation()
+                this.refreshRepoinfo()
                 break;
         }
     }
