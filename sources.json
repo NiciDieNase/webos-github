@@ -1,0 +1,32 @@
+[
+    {"source": "resources/utils.js"},
+    {"source": "app/assistants/stage-assistant.js"},
+    {
+        "scenes": "auth",
+        "source": "app/assistants/auth-assistant.js"
+    },
+    {
+        "scenes": "user-details",
+        "source": "app/assistants/user-details-assistant.js"
+    },
+    {
+        "scenes": "repo-list",
+        "source": "app/assistants/repo-list-assistant.js"
+    },
+    {
+        "scenes": "user-list",
+        "source": "app/assistants/user-list-assistant.js"
+    },
+    {
+        "scenes": "repo-details",
+        "source": "app/assistants/repo-details-assistant.js"
+    },
+    {
+        "scenes": "issue-list",
+        "source": "app/assistants/issue-list-assistant.js"
+    },
+    {
+        "scenes": "issue-details",
+        "source": "app/assistants/issue-details-assistant.js"
+    }
+]

@@ -1,0 +1,26 @@
+{
+	"id": "de.kingcrunch.github",
+	"version": "0.0.1",
+	"vendor": "Sebastian Krebs",
+	"vendorurl":"http://www.kingcrunch.de/",
+	"type": "web",
+	"main": "index.html",
+	"title": "Github",
+	"icon": "icon.png",
+	"smallicon": "icon-small.png",
+	"copyright": "2010 Sebastian \"KingCrunch\" Krebs",
+	"support": {
+		"url":"http://github.com/KingCrunch/webos-github",
+		"email": {
+			"address":"sebastian.krebs@kingcrunch.de",
+			"subject":"[WebOS-Github Support]"
+		},
+		"resources": [
+			{
+				"type":"web",
+				"label":"Issue Tracker",
+				"url":"http://github.com/KingCrunch/webos-github/issues"
+			}
+		]
+	}
+}

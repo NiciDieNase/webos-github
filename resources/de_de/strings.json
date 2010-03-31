@@ -1,0 +1,27 @@
+{
+	'Userinfo':'Benutzer',
+	'Back':'Zurück',
+	'Forward':'Vor',
+	
+	"name":"Name",
+	"login":"Login",
+	"email":"E-Mail",
+	"location":"Ort",
+	"company":"Unternehmen",
+	"blog":"Blog",
+	'created_at':'erstellt',
+	"public_gist_count":"#Gists",
+	"public_repo_count":"#Öffentl. Repos",
+	"total_private_repo_count":"#Private Repos",
+	"owned_private_repo_count":"#Eigene Priv. Repos",
+	"collaborators":"#Collaborators",
+	"disk_usage":"Verw. Speicher",
+	"following_count":"#Folgend",
+	"followers_count":"#Folgende",
+	"plan.name":"Plan Name",
+	"plan.collaboratos":"#Plan Collaborators",
+	"plan.space":"Plan Speicherplatz",
+	"plan.private_repos":"#Plan Repos",
+	
+	"update-token":"API-Token ändern"
+}
