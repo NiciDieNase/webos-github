@@ -1,12 +1,15 @@
 function IssueDetailsAssistant(depot, auth, user, repo, number){
+    Mojo.Log.info("[IssueDetailsAssistant] ==> Construct")
     this.depot = depot
     this.auth = auth
     this.user = user
     this.repo = repo
     this.number = number
+    Mojo.Log.info("[IssueDetailsAssistant] <== Construct")
 }
 
 IssueDetailsAssistant.prototype.setup = function(){
+    Mojo.Log.info("[IssueDetailsAssistant] <== setup")
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
     /* --- Bindings --- */
@@ -59,16 +62,17 @@ IssueDetailsAssistant.prototype.setup = function(){
             command: 'do-refresh'
         }]
     });
+    Mojo.Log.info("[IssueDetailsAssistant] <== setup")
 };
 
 IssueDetailsAssistant.prototype.refreshIssueinfo = function(){
-    new Ajax.Request("https://github.com/api/v2/json/issues/show/" + escape(this.user) + "/" + escape(this.repo) + "/" + escape(this.number), {
-        method: "post",
-        evalJSON: "false",
+    Mojo.Log.info("[IssueDetailsAssistant] ==> refreshIssueinfo")
+	
+    Github.request("/issues/show/#{user}/#{repo}/#{number}",{user:this.user,repo:this.repo,number:this.number}, {
         onSuccess: function(response){
             var content = Mojo.View.render({
                 object: response.responseJSON.issue,
-                template: 'commit-details/details'
+                template: 'issue-details/details'
             })
             $("details").update(content)
         }
@@ -83,23 +87,28 @@ IssueDetailsAssistant.prototype.refreshIssueinfo = function(){
             $("details").hide()
             $("load-status").show()
         },
-        onFailure: StageAssistant.connectionError,
-        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
     })
+	
+    Mojo.Log.info("[IssueDetailsAssistant] <== refreshIssueinfo")
 }
 
 
 IssueDetailsAssistant.prototype.activate = function(event){
+    Mojo.Log.info("[IssueDetailsAssistant] ==> activate")
     this.refreshIssueinfo()
+    Mojo.Log.info("[IssueDetailsAssistant] <== activate")
 };
 
 IssueDetailsAssistant.prototype.deactivate = function(event){
+    Mojo.Log.info("[IssueDetailsAssistant] <=> deactivate")
 };
 
 IssueDetailsAssistant.prototype.cleanup = function(event){
+    Mojo.Log.info("[IssueDetailsAssistant] <=> cleanup")
 };
 
 IssueDetailsAssistant.prototype.handleCommand = function(event){
+    Mojo.Log.info("[IssueDetailsAssistant] ==> handleCommand")
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
             case 'back':
@@ -122,4 +131,5 @@ IssueDetailsAssistant.prototype.handleCommand = function(event){
                 break;
         }
     }
+    Mojo.Log.info("[IssueDetailsAssistant] <== handleCommand")
 }

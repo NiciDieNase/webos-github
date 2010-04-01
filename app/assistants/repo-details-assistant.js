@@ -1,11 +1,14 @@
 function RepoDetailsAssistant(depot, auth, username, repo){
+    Mojo.Log.info("[RepoDetailsAssistant] ==> Construct")
     this.depot = depot
     this.auth = auth
     this.username = username
     this.repo = repo
+    Mojo.Log.info("[RepoDetailsAssistant] <== Construct")
 }
 
 RepoDetailsAssistant.prototype.setup = function(){
+    Mojo.Log.info("[RepoDetailsAssistant] ==> setup")
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
     /* --- Bindings --- */
@@ -57,24 +60,28 @@ RepoDetailsAssistant.prototype.setup = function(){
         }]
     });
     
-    
-    /* --- Load --- */
+    Mojo.Log.info("[RepoDetailsAssistant] <== setup")
 };
 
 RepoDetailsAssistant.prototype.activate = function(event){
+    Mojo.Log.info("[RepoDetailsAssistant] ==> activate")
 	this.refreshRepoinfo()
+    Mojo.Log.info("[RepoDetailsAssistant] <== activate")
 };
 
 RepoDetailsAssistant.prototype.deactivate = function(event){
+    Mojo.Log.info("[RepoDetailsAssistant] <=> Construct")
 };
 
 RepoDetailsAssistant.prototype.cleanup = function(event){
+    Mojo.Log.info("[RepoDetailsAssistant] <=> Construct")
 };
 
 RepoDetailsAssistant.prototype.refreshRepoinfo = function(){
-    var request = new Ajax.Request("https://github.com/api/v2/json/repos/show/" + escape(this.username) + "/" + escape(this.repo), {
-        method: "post",
-        evalJSON: "false",
+    Mojo.Log.info("[RepoDetailsAssistant] ==> refreshRepoinfo")
+	
+	
+    Github.request("/repos/show/#{user}/#{repo}",{user:this.username,repo:this.repo}, {
         onSuccess: function(response){
             var content = Mojo.View.render({
                 object: response.responseJSON.repository,
@@ -93,13 +100,14 @@ RepoDetailsAssistant.prototype.refreshRepoinfo = function(){
             $("load-spinner").mojo.stop()
             $("details").show()
 		},
-        onFailure: StageAssistant.connectionError,
-        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
     })
+	
+    Mojo.Log.info("[RepoDetailsAssistant] <== refreshRepoinfo")
 }
 
 
 RepoDetailsAssistant.prototype.handleCommand = function(event){
+    Mojo.Log.info("[RepoDetailsAssistant] ==> handleCommand")
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
             case 'back':
@@ -122,4 +130,5 @@ RepoDetailsAssistant.prototype.handleCommand = function(event){
                 break;
         }
     }
+    Mojo.Log.info("[RepoDetailsAssistant] <== handleCommand")
 }

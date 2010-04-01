@@ -1,13 +1,16 @@
 function IssueListAssistant(depot, auth, user, repo){
+    Mojo.Log.info("[IssueListAssistant] ==> Construct")
     this.depot = depot
     this.auth = auth
     this.user = user
     this.repo = repo
     
     this.state = "open"
+    Mojo.Log.info("[IssueListAssistant] <== Construct")
 }
 
 IssueListAssistant.prototype.setup = function(){
+    Mojo.Log.info("[IssueListAssistant] ==> setup")
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
     /* --- Bindings --- */
@@ -84,14 +87,18 @@ IssueListAssistant.prototype.setup = function(){
         items: [],
         listTitle: "Issues"
     });
+    Mojo.Log.info("[IssueListAssistant] <== setup")
 };
 
 
 IssueListAssistant.prototype.refreshIssuelist = function(state){
+    Mojo.Log.info("[IssueListAssistant] ==> refreshIssuelist")
     this.state = state
-    new Ajax.Request("https://github.com/api/v2/json/issues/list/" + this.user + "/" + this.repo + "/" + state, {
-        method: "post",
-        evalJSON: "false",
+    Github.request("/issues/list/#{user}/#{repo}/#{state}", {
+        user: this.user,
+        repo: this.repo,
+        state: state
+    }, {
         onSuccess: function(response){
             this.listModel.items = response.responseJSON.issues
             this.controller.modelChanged(this.listModel)
@@ -107,27 +114,35 @@ IssueListAssistant.prototype.refreshIssuelist = function(state){
             $("content").hide()
             $("load-status").show()
         },
-        onFailure: StageAssistant.connectionError,
-        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
     })
+    
+    Mojo.Log.info("[IssueListAssistant] <== refreshIssuelist")
 }
 
 IssueListAssistant.prototype.openIssue = function(event){
+    Mojo.Log.info("[IssueListAssistant] ==> openIssue")
     Mojo.Controller.stageController.pushScene("issue-details", this.depot, this.auth, this.user, this.repo, event.item.number)
+    Mojo.Log.info("[IssueListAssistant] <== openIssue")
 }
 
 IssueListAssistant.prototype.activate = function(event){
+    Mojo.Log.info("[IssueListAssistant] ==> activate")
     this.refreshIssuelist(this.state)
+    Mojo.Log.info("[IssueListAssistant] <== activate")
 };
 
 IssueListAssistant.prototype.deactivate = function(event){
+    Mojo.Log.info("[IssueListAssistant] <=> deactivate")
 };
 
 IssueListAssistant.prototype.cleanup = function(event){
+    Mojo.Log.info("[IssueListAssistant] ==> clean")
     Mojo.Event.stopListening($("content"), Mojo.Event.listTap, this.openIssue)
+    Mojo.Log.info("[IssueListAssistant] <== cleanup")
 };
 
 IssueListAssistant.prototype.handleCommand = function(event){
+    Mojo.Log.info("[IssueListAssistant] ==> handleCommand")
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
             case 'back':
@@ -158,5 +173,6 @@ IssueListAssistant.prototype.handleCommand = function(event){
                 break;
         }
     }
+    Mojo.Log.info("[IssueListAssistant] <== handleCommand")
 }
 

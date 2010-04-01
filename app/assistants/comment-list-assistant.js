@@ -1,12 +1,15 @@
 function CommentListAssistant(depot,auth,user,repo,number) {
+    Mojo.Log.info("[CommentListAssistant] ==> Construct")
     this.depot = depot
     this.auth = auth
     this.user = user
     this.repo = repo
 	this.number = number
+    Mojo.Log.info("[CommentListAssistant] <== Construct")
 }
 
 CommentListAssistant.prototype.setup = function() {
+    Mojo.Log.info("[CommentListAssistant] ==> setup")
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
     /* --- Bindings --- */
@@ -69,11 +72,13 @@ CommentListAssistant.prototype.setup = function() {
         items: [],
         listTitle: "Comments"
     });
+    Mojo.Log.info("[CommentListAssistant] <== setup")
 };
+
 CommentListAssistant.prototype.refreshCommentlist = function(){
-    new Ajax.Request("https://github.com/api/v2/json/issues/comments/" + this.user + "/" + this.repo + "/" + this.number, {
-        method: "post",
-        evalJSON: "false",
+    Mojo.Log.info("[CommentListAssistant] ==> refreshCommentlist")
+	
+    Github.request("/issues/comments/#{user}/#{repo}/#{number}",{user:this.user,repo:this.repo,number:this.number}, {
         onSuccess: function(response){
             this.listModel.items = response.responseJSON.comments
             this.controller.modelChanged(this.listModel)
@@ -89,21 +94,27 @@ CommentListAssistant.prototype.refreshCommentlist = function(){
             $("content").hide()
             $("load-status").show()
         },
-        onFailure: StageAssistant.connectionError,
-        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
     })
+	
+    Mojo.Log.info("[CommentListAssistant] <== refreshCommentlist")
 }
+
 CommentListAssistant.prototype.activate = function(event) {
+    Mojo.Log.info("[CommentListAssistant] ==> activate")
 	this.refreshCommentlist()
+    Mojo.Log.info("[CommentListAssistant] <== activate")
 };
 
 CommentListAssistant.prototype.deactivate = function(event) {
+    Mojo.Log.info("[CommentListAssistant] <=> deactivate")
 };
 
 CommentListAssistant.prototype.cleanup = function(event) {
+    Mojo.Log.info("[CommentListAssistant] <=> cleanup")
 };
 
 CommentListAssistant.prototype.handleCommand = function(event){
+    Mojo.Log.info("[CommentListAssistant] ==> handleCommand")
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
             case 'back':
@@ -126,4 +137,5 @@ CommentListAssistant.prototype.handleCommand = function(event){
                 break;
         }
     }
+    Mojo.Log.info("[CommentListAssistant] <== handleCommand")
 }

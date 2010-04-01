@@ -1,17 +1,16 @@
 function RefListAssistant(depot, auth, user, repo){
-    /* this is the creator function for your scene assistant object. It will be passed all the 
-     additional parameters (after the scene name) that were passed to pushScene. The reference
-     to the scene controller (this.controller) has not be established yet, so any initialization
-     that needs the scene controller should be done in the setup function below. */
+    Mojo.Log.info("[RefListAssistant] ==> Construct")
     this.depot = depot
     this.auth = auth
     this.user = user
     this.repo = repo
     
     this.ref = "branches"
+    Mojo.Log.info("[RefListAssistant] <== Construct")
 }
 
 RefListAssistant.prototype.setup = function(){
+    Mojo.Log.info("[RefListAssistant] ==> setup")
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
     /* --- Bindings --- */
@@ -88,12 +87,19 @@ RefListAssistant.prototype.setup = function(){
         items: [],
         listTitle: "Ref List"
     });
+    Mojo.Log.info("[RefListAssistant] <== setup")
 };
+
+
 RefListAssistant.prototype.refreshReflist = function(ref){
+    Mojo.Log.info("[RefListAssistant] ==> refreshReflist")
     this.ref = ref
-    new Ajax.Request("https://github.com/api/v2/json/repos/show/" + this.user + "/" + this.repo + "/" + ref, {
-        method: "post",
-        evalJSON: "false",
+    
+    Github.request("/repos/show/#{user}/#{repo}/#{ref}", {
+        user: this.user,
+        repo: this.repo,
+        ref: ref
+    }, {
         onSuccess: function(response){
             this.listModel.items = (response.responseJSON.branches == undefined) ? $H(response.responseJSON.tags).keys().collect(function(value){
                 return {
@@ -117,25 +123,33 @@ RefListAssistant.prototype.refreshReflist = function(ref){
             $("content").hide()
             $("load-status").show()
         },
-        onFailure: StageAssistant.connectionError,
-        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
     })
+	
+    Mojo.Log.info("[RefListAssistant] <== refreshReflist")
 }
 
 RefListAssistant.prototype.openRef = function(event){
+    Mojo.Log.info("[RefListAssistant] ==> openRef")
     Mojo.Controller.stageController.pushScene("commit-list", this.depot, this.auth, this.user, this.repo, event.item.name)
+    Mojo.Log.info("[RefListAssistant] <== openRef")
 }
 
 RefListAssistant.prototype.activate = function(event){
+    Mojo.Log.info("[RefListAssistant] ==> acitvate")
     this.refreshReflist(this.ref)
+    Mojo.Log.info("[RefListAssistant] <== activate")
 };
 
 RefListAssistant.prototype.deactivate = function(event){
+    Mojo.Log.info("[RefListAssistant] <=> deactivate")
 };
 
 RefListAssistant.prototype.cleanup = function(event){
+    Mojo.Log.info("[RefListAssistant] <=> cleanup")
 };
+
 RefListAssistant.prototype.handleCommand = function(event){
+    Mojo.Log.info("[RefListAssistant] ==> handleCommand")
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
             case 'back':
@@ -166,4 +180,5 @@ RefListAssistant.prototype.handleCommand = function(event){
                 break;
         }
     }
+    Mojo.Log.info("[RefListAssistant] <== handleCommand")
 }

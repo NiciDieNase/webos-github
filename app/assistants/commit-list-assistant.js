@@ -1,12 +1,15 @@
 function CommitListAssistant(depot,auth,user,repo,ref) {
+    Mojo.Log.info("[CommitListAssistant] ==> Construct")
 	this.depot = depot
 	this.auth = auth
 	this.user = user
 	this.repo = repo
 	this.ref = ref
+    Mojo.Log.info("[CommitListAssistant] <== Construct")
 }
 
 CommitListAssistant.prototype.setup = function() {
+    Mojo.Log.info("[CommitListAssistant] ==> setup")
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
     /* --- Bindings --- */
@@ -73,27 +76,35 @@ CommitListAssistant.prototype.setup = function() {
         items: [],
         listTitle: "Commit List"
     });
+    Mojo.Log.info("[CommitListAssistant] <== setup")
 };
 
 CommitListAssistant.prototype.activate = function(event) {
+    Mojo.Log.info("[CommitListAssistant] ==> activate")
 	this.refreshCommitlist()
+    Mojo.Log.info("[CommitListAssistant] <== activate")
 };
 
 CommitListAssistant.prototype.deactivate = function(event) {
+    Mojo.Log.info("[CommitListAssistant] <=> deactivate")
 };
 
 CommitListAssistant.prototype.cleanup = function(event) {
+    Mojo.Log.info("[CommitListAssistant] ==> cleanup")
     Mojo.Event.stopListening($("content"), Mojo.Event.listTap, this.openCommit)
+    Mojo.Log.info("[CommitListAssistant] <== cleanup")
 };
 
 CommitListAssistant.prototype.openCommit = function(event){
+    Mojo.Log.info("[CommitListAssistant] ==> openCommit")
     Mojo.Controller.stageController.pushScene("commit-details", this.depot, this.auth, this.user, this.repo, event.item.id)
+    Mojo.Log.info("[CommitListAssistant] <== openCommit")
 }
 
 CommitListAssistant.prototype.refreshCommitlist = function(){
-    new Ajax.Request("https://github.com/api/v2/json/commits/list/" + this.user + "/" + this.repo + "/" + this.ref, {
-        method: "post",
-        evalJSON: "false",
+    Mojo.Log.info("[CommitListAssistant] ==> refreshCommitlist")
+	
+    Github.request("/commits/list/#{user}/#{repo}/#{ref}",{user:this.user,repo:this.repo,ref:this.ref}, {
         onSuccess: function(response){
             this.listModel.items = response.responseJSON.commits
             this.controller.modelChanged(this.listModel)
@@ -109,12 +120,13 @@ CommitListAssistant.prototype.refreshCommitlist = function(){
             $("content").hide()
             $("load-status").show()
         },
-        onFailure: StageAssistant.connectionError,
-        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
     })
+	
+    Mojo.Log.info("[CommitListAssistant] <== refreshCommitlist")
 }
 
 CommitListAssistant.prototype.handleCommand = function(event){
+    Mojo.Log.info("[CommitListAssistant] ==> handleCommand")
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
             case 'back':
@@ -137,4 +149,5 @@ CommitListAssistant.prototype.handleCommand = function(event){
                 break;
         }
     }
+    Mojo.Log.info("[CommitListAssistant] <== handleCommand")
 }

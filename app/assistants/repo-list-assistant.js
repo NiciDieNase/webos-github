@@ -1,19 +1,15 @@
 function RepoListAssistant(depot, auth, username){
-    /* this is the creator function for your scene assistant object. It will be passed all the 
-     
-     additional parameters (after the scene name) that were passed to pushScene. The reference
-     
-     to the scene controller (this.controller) has not be established yet, so any initialization
-     
-     that needs the scene controller should be done in the setup function below. */
+    Mojo.Log.info("[RepoListAssistant] ==> Construct")
     this.depot = depot
     this.auth = auth
     this.username = username
 	
 	this.direction = "show"
+    Mojo.Log.info("[RepoListAssistant] ==> Construct")
 }
 
 RepoListAssistant.prototype.setup = function(){
+    Mojo.Log.info("[RepoListAssistant] ==> setup")
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
     /* --- Bindings --- */
@@ -88,20 +84,27 @@ RepoListAssistant.prototype.setup = function(){
         items: [],
         listTitle: "Repositories"
     });
+    Mojo.Log.info("[RepoListAssistant] <== setup")
 };
 
 RepoListAssistant.prototype.activate = function(event, auth){
+    Mojo.Log.info("[RepoListAssistant] ==> activate")
 	this.refreshRepos(this.direction)
+    Mojo.Log.info("[RepoListAssistant] <== activate")
 };
 
 RepoListAssistant.prototype.deactivate = function(event){
+    Mojo.Log.info("[RepoListAssistant] <=> deactive")
 };
 
 RepoListAssistant.prototype.cleanup = function(event){
+    Mojo.Log.info("[RepoListAssistant] ==> cleanup")
     Mojo.Event.stopListening($("content"), Mojo.Event.listTap, this.openRepo)
+    Mojo.Log.info("[RepoListAssistant] <== clean")
 };
 
 RepoListAssistant.prototype.handleCommand = function(event){
+    Mojo.Log.info("[RepoListAssistant] ==> handleCommand")
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
             case 'back':
@@ -132,13 +135,18 @@ RepoListAssistant.prototype.handleCommand = function(event){
                 break;
         }
     }
+    Mojo.Log.info("[RepoListAssistant] <== handleCommand")
 }
 
 RepoListAssistant.prototype.refreshRepos = function(direction){
+    Mojo.Log.info("[RepoListAssistant] ==> refreshRepos")
 	this.direction = direction
-    new Ajax.Request("https://github.com/api/v2/json/repos/"+direction+"/" + this.username, {
-        method: "post",
-        evalJSON: "false",
+	
+	
+    Github.request("/repos/#{direction}/#{user}",{
+		direction: direction,
+		user:this.username
+	}, {
         onSuccess: function(response){
             this.listModel.items = response.responseJSON.repositories
             this.controller.modelChanged(this.listModel)
@@ -150,14 +158,17 @@ RepoListAssistant.prototype.refreshRepos = function(direction){
 		},
 		onCreate: function (x) {
             $("content").hide()
+            $("load-spinner").mojo.start()
             $("load-status").show()
 		},
-        onFailure: StageAssistant.connectionError,
-        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
     })
+	
+    Mojo.Log.info("[RepoListAssistant] <== refreshRepos")
 }
 
 RepoListAssistant.prototype.openRepo = function(event){
+    Mojo.Log.info("[RepoListAssistant] ==> openRepo")
     Mojo.Controller.stageController.pushScene("repo-details", this.depot, this.auth, event.item.owner, event.item.name)
+    Mojo.Log.info("[RepoListAssistant] <== openRepo")
 }
 

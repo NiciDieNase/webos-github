@@ -1,19 +1,15 @@
 function UserListAssistant(depot, auth, username){
-    /* this is the creator function for your scene assistant object. It will be passed all the 
-     
-     additional parameters (after the scene name) that were passed to pushScene. The reference
-     
-     to the scene controller (this.controller) has not be established yet, so any initialization
-     
-     that needs the scene controller should be done in the setup function below. */
+    Mojo.Log.info("[UserListAssistant] ==> Construct")
     this.depot = depot
     this.auth = auth
     this.username = username
     
     this.direction = "following"
+    Mojo.Log.info("[UserListAssistant] <== Construct")
 }
 
 UserListAssistant.prototype.setup = function(){
+    Mojo.Log.info("[UserListAssistant] ==> setup")
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
     /* --- Bindings --- */
@@ -88,25 +84,32 @@ UserListAssistant.prototype.setup = function(){
         listTitle: "Following",
         items: []
     })
+    Mojo.Log.info("[UserListAssistant] <== setup")
 };
 
 UserListAssistant.prototype.activate = function(event){
+    Mojo.Log.info("[UserListAssistant] ==> activate")
     this.refreshUsers(this.direction)
+    Mojo.Log.info("[UserListAssistant] <== activate")
 };
 
 UserListAssistant.prototype.deactivate = function(event){
+    Mojo.Log.info("[UserListAssistant] <=> deactive")
 };
 
 UserListAssistant.prototype.cleanup = function(event){
+    Mojo.Log.info("[UserListAssistant] ==> cleanup")
     Mojo.Event.stopListening(this.controller.get("content"), Mojo.Event.listTap, this.openUserinfo)
+    Mojo.Log.info("[UserListAssistant] <== cleanup")
 };
 
 UserListAssistant.prototype.refreshUsers = function(direction){
+    Mojo.Log.info("[UserListAssistant] ==> refreshUsers")
     this.direction = direction
+	
+	
     /* --- Load --- */
-    new Ajax.Request("https://github.com/api/v2/json/user/show/" + this.username + "/" + direction, {
-        method: "post",
-        evalJSON: "false",
+    Github.request("/user/show/#{user}/#{direction}",{user:this.username,direction:direction}, {
         onSuccess: function(response){
         
             this.listModel.items = response.responseJSON.users.collect(function(value){
@@ -124,19 +127,21 @@ UserListAssistant.prototype.refreshUsers = function(direction){
         },
         onCreate: function(x){
             $("content").hide()
+            $("load-spinner").mojo.start()
             $("load-status").show()
         },
-        onFailure: StageAssistant.connectionError,
-        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
     })
+    Mojo.Log.info("[UserListAssistant] <== refreshUsers")
 }
 
 UserListAssistant.prototype.openUserinfo = function(event){
+    Mojo.Log.info("[UserListAssistant] ==> openUserinfo")
     Mojo.Controller.stageController.pushScene("user-details", this.depot, this.auth, event.item.name)
-    
+    Mojo.Log.info("[UserListAssistant] <== openUserinfo")
 }
 
 UserListAssistant.prototype.handleCommand = function(event){
+    Mojo.Log.info("[UserListAssistant] ==> handleCommand")
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
             case 'back':
@@ -167,4 +172,5 @@ UserListAssistant.prototype.handleCommand = function(event){
                 break;
         }
     }
+    Mojo.Log.info("[UserListAssistant] <== handleCommand")
 }

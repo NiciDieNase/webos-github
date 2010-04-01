@@ -1,5 +1,6 @@
 [
     {"source": "resources/utils.js"},
+	{"source": "app/models/github.js"},
     {"source": "app/assistants/stage-assistant.js"},
     {
         "scenes": "auth",
@@ -36,10 +37,6 @@
     {
         "scenes": "comment-list",
         "source": "app/assistants/comment-list-assistant.js"
-    },
-    {
-        "scenes": "comment-details",
-        "source": "app/assistants/comment-details-assistant.js"
     },
     {
         "scenes": "commit-list",

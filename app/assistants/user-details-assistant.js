@@ -1,14 +1,13 @@
 function UserDetailsAssistant(depot, auth, username){
-    /* this is the creator function for your scene assistant object. It will be passed all the 
-     additional parameters (after the scene name) that were passed to pushScene. The reference
-     to the scene controller (this.controller) has not be established yet, so any initialization
-     that needs the scene controller should be done in the setup function below. */
+    Mojo.Log.info("[UserDetailsAssistant] ==> Construct")
     this.depot = depot
     this.auth = auth
     this.username = username
+    Mojo.Log.info("[UserDetailsAssistant] <=== Construct")
 }
 
 UserDetailsAssistant.prototype.setup = function(){
+    Mojo.Log.info("[UserDetailsAssistant] ==> setup")
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
     /* --- Bindings --- */
@@ -60,25 +59,29 @@ UserDetailsAssistant.prototype.setup = function(){
         }]
     });
     
+    Mojo.Log.info("[UserDetailsAssistant] <== setup")
 };
 
 UserDetailsAssistant.prototype.activate = function(event){
+    Mojo.Log.info("[UserDetailsAssistant] ==> activate")
     this.refreshUserinfo()
+    Mojo.Log.info("[UserDetailsAssistant] <== activate")
 };
 
 UserDetailsAssistant.prototype.deactivate = function(event){
+    Mojo.Log.info("[UserDetailsAssistant] <=> deactivate")
 };
 
 UserDetailsAssistant.prototype.cleanup = function(event){
+    Mojo.Log.info("[UserDetailsAssistant] <=> cleanup")
 };
 
 
 UserDetailsAssistant.prototype.refreshUserinfo = function(){
-    /* --- Loader-Status --- */
+    Mojo.Log.info("[UserDetailsAssistant] ==> refreshUserinfo")
     
     /* --- Load --- */
-    new Ajax.Request("https://github.com/api/v2/json/user/show/" + escape(this.username), {
-        evalJSON: "false",
+    Github.request("/user/show/#{user}", {user:this.username},{
         onSuccess: function(response){
             $("content").update(Mojo.View.render({
                 object: response.responseJSON.user,
@@ -104,13 +107,14 @@ UserDetailsAssistant.prototype.refreshUserinfo = function(){
 			$("load-spinner").mojo.start()
             $("load-status").show()
 		},
-        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey']),
         method: (this.auth.username === this.username) ? "post" : "get"
     })
+    Mojo.Log.info("[UserDetailsAssistant] <== refreshUserinfo")
 }
 
 
 UserDetailsAssistant.prototype.handleCommand = function(event){
+    Mojo.Log.info("[UserDetailsAssistant] ==> handleCommand")
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
             case 'back':
@@ -133,4 +137,5 @@ UserDetailsAssistant.prototype.handleCommand = function(event){
                 break;
         }
     }
+    Mojo.Log.info("[UserDetailsAssistant] <== handleCommand")
 }

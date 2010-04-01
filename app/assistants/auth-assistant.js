@@ -1,8 +1,5 @@
 function AuthAssistant(depot, auth){
-    /* this is the creator function for your scene assistant object. It will be passed all the 
-     additional parameters (after the scene name) that were passed to pushScene. The reference
-     to the scene controller (this.controller) has not be established yet, so any initialization
-     that needs the scene controller should be done in the setup function below. */
+    Mojo.Log.info("[AuthAssistant] ==> Construct")
     this.depot = depot
     if (auth == undefined) {
         this.model = {
@@ -14,9 +11,11 @@ function AuthAssistant(depot, auth){
     else {
         this.model = auth
     }
+    Mojo.Log.info("[AuthAssistant] <== Construct")
 }
 
 AuthAssistant.prototype.setup = function(){
+    Mojo.Log.info("[AuthAssistant] ==> setup")
 	this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
 	
 	/* --- Bindings --- */
@@ -66,23 +65,29 @@ AuthAssistant.prototype.setup = function(){
         buttonClass: 'primary',
 		disabled: (this.model.username == "")
     });
+    Mojo.Log.info("[AuthAssistant] <== setup")
 };
 
 AuthAssistant.prototype.propertyChanged = function(event){
+    Mojo.Log.info("[AuthAssistant] ==> propertyChanged")
     this.buttonModel.disabled = !((event.model.username.length > 0) && (event.model.apikey.length == 32))
     this.controller.modelChanged(this.buttonModel)
+    Mojo.Log.info("[AuthAssistant] <== propertyChanged")
 }
 
 AuthAssistant.prototype.activate = function(event){
+    Mojo.Log.info("[AuthAssistant] <=> activate")
 };
 
 AuthAssistant.prototype.deactivate = function(event){
+    Mojo.Log.info("[AuthAssistant] <=> deactivate")
 }
 
 AuthAssistant.prototype.verifyAuthorization = function(){
-    var request = new Ajax.Request("https://github.com/api/v2/json/user/show/" + escape(this.model["username"]), {
-        method: "post",
-        evalJSON: "false",
+    Mojo.Log.info("[AuthAssistant] ==> verifyAuthorization")
+	
+	Github.authorize(this.model.username,this.model.apikey)
+    Github.request("/user/show/#{user}",{user:this.model.username}, {
         onSuccess: this.updateAuthorization,
         onFailure: function(response){
             if ((response.responseJSON == undefined) || (response.responseJSON.error == undefined)) {
@@ -97,27 +102,36 @@ AuthAssistant.prototype.verifyAuthorization = function(){
                 Mojo.Controller.errorDialog(response.responseJSON.error[0].error)
             }
         },
-        postBody: "login=" + escape(this.model['username']) + "&token=" + escape(this.model['apikey'])
     })
+	
+    Mojo.Log.info("[AuthAssistant] <== verifyAuthorization")
 }
 
 AuthAssistant.prototype.cleanup = function(event){
+    Mojo.Log.info("[AuthAssistant] ==> cleanup")
     Mojo.Event.stopListening($("update"), Mojo.Event.tap, this.updateAuthorization)
     Mojo.Event.stopListening($('cancel'), Mojo.Event.tap, this.cancelAction)
     Mojo.Event.stopListening($("login"), Mojo.Event.propertyChange, this.propertyChanged)
     Mojo.Event.stopListening($('token'), Mojo.Event.propertyChange, this.propertyChanged)
+    Mojo.Log.info("[AuthAssistant] <== ckeanup")
 };
 
 AuthAssistant.prototype.updateAuthorization = function(){
+    Mojo.Log.info("[AuthAssistant] ==> updateAuthorization")
     this.depot.add("auth", this.model, this.proceed.bind(this));
+    Mojo.Log.info("[AuthAssistant] <== updateAuthorization")
 }
 
 AuthAssistant.prototype.proceed = function(){
+    Mojo.Log.info("[AuthAssistant] ==> proceed")
     Mojo.Controller.stageController.auth = this.model
     Mojo.Controller.stageController.popScenesTo()
     Mojo.Controller.stageController.pushScene("user-details", this.depot, this.model, this.model["username"])
+    Mojo.Log.info("[AuthAssistant] <== proceed")
 }
 
 AuthAssistant.prototype.cancelAction = function () {
+    Mojo.Log.info("[AuthAssistant] ==> cancelAction")
 	Mojo.Controller.stageController.popScene()
+    Mojo.Log.info("[AuthAssistant] <== cancelAction")
 }
