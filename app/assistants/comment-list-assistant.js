@@ -1,14 +1,14 @@
-function CommentListAssistant(depot,auth,user,repo,number) {
+function CommentListAssistant(depot, auth, user, repo, number){
     Mojo.Log.info("[CommentListAssistant] ==> Construct")
     this.depot = depot
     this.auth = auth
     this.user = user
     this.repo = repo
-	this.number = number
+    this.number = number
     Mojo.Log.info("[CommentListAssistant] <== Construct")
 }
 
-CommentListAssistant.prototype.setup = function() {
+CommentListAssistant.prototype.setup = function(){
     Mojo.Log.info("[CommentListAssistant] ==> setup")
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
@@ -56,7 +56,7 @@ CommentListAssistant.prototype.setup = function() {
         visible: true,
         items: [{
             visible: false
-        },{
+        }, {
             label: $L('Refresh'),
             icon: 'refresh',
             command: 'do-refresh'
@@ -69,7 +69,7 @@ CommentListAssistant.prototype.setup = function() {
         itemTemplate: 'comment-list/item-template',
         listTemplate: 'comment-list/list-template'
     }, this.listModel = {
-        items: [],
+        items: undefined,
         listTitle: "Comments"
     });
     Mojo.Log.info("[CommentListAssistant] <== setup")
@@ -77,13 +77,18 @@ CommentListAssistant.prototype.setup = function() {
 
 CommentListAssistant.prototype.refreshCommentlist = function(){
     Mojo.Log.info("[CommentListAssistant] ==> refreshCommentlist")
-	
-    Github.request("/issues/comments/#{user}/#{repo}/#{number}",{user:this.user,repo:this.repo,number:this.number}, {
-        onSuccess: function(response){
+    
+    Github.request("/issues/comments/#{user}/#{repo}/#{number}", {
+        user: this.user,
+        repo: this.repo,
+        number: this.number
+    }, {
+        onSuccess: function(params, response){
             this.listModel.items = response.responseJSON.comments
+			this.listModel.listTitle = "Comments for Issue ##{number} on #{user}/#{repo}".interpolate(params)
             this.controller.modelChanged(this.listModel)
         }
-.bind(this)        ,
+.bind(this,{user:this.user,repo:this.repo,number:this.number})        ,
         onComplete: function(x){
             $("load-spinner").mojo.stop()
             $("load-status").hide()
@@ -95,21 +100,22 @@ CommentListAssistant.prototype.refreshCommentlist = function(){
             $("load-status").show()
         },
     })
-	
+    
     Mojo.Log.info("[CommentListAssistant] <== refreshCommentlist")
 }
 
-CommentListAssistant.prototype.activate = function(event) {
+CommentListAssistant.prototype.activate = function(event){
     Mojo.Log.info("[CommentListAssistant] ==> activate")
-	this.refreshCommentlist()
+    if (this.listModel.items == undefined) 
+        this.refreshCommentlist()
     Mojo.Log.info("[CommentListAssistant] <== activate")
 };
 
-CommentListAssistant.prototype.deactivate = function(event) {
+CommentListAssistant.prototype.deactivate = function(event){
     Mojo.Log.info("[CommentListAssistant] <=> deactivate")
 };
 
-CommentListAssistant.prototype.cleanup = function(event) {
+CommentListAssistant.prototype.cleanup = function(event){
     Mojo.Log.info("[CommentListAssistant] <=> cleanup")
 };
 
@@ -122,14 +128,14 @@ CommentListAssistant.prototype.handleCommand = function(event){
                 Mojo.Controller.stageController.swapScene({
                     name: "issue-details",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.user, this.repo,this.number)
+                }, this.depot, this.auth, this.user, this.repo, this.number)
                 break;
             case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
                     name: "issue-details",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.user, this.repo,this.number)
+                }, this.depot, this.auth, this.user, this.repo, this.number)
                 break;
             case 'do-refresh':
                 event.stopPropagation()

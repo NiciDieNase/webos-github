@@ -20,11 +20,12 @@ Github.authorize = function(login, token){
 Github.request = function(uriTemplate, params, options){
     Mojo.Log.info("[Github] ==> request")
     var uri = new Template(uriTemplate).evaluate(params)
-    Mojo.Log.info("[Github] = request: Called: " + uri)
+    Mojo.Log.info("[Github] === request: Called: " + uri)
 	
 	// Try here, if uri is called sometimes before
 	
     options.postBody = (options.postBody == undefined) ? $H(Github.auth).toQueryString() : $(options.postBody).merge($H(Github.auth)).toQueryString()
+	Mojo.Log.info("[Github] === request: Auth state " + options.postBody)
     if (options.method == undefined) {
         options.method = "post"
     }
@@ -34,7 +35,7 @@ Github.request = function(uriTemplate, params, options){
     }
 .bind(undefined, options.onSuccess)
     if (options.onFailure == undefined) {
-        options.onFailue = StageAssistant.connectionError
+        options.onFailure = StageAssistant.connectionError
     }
     options.onCreate = function(target, response){
         target(response)

@@ -65,7 +65,7 @@ RepoDetailsAssistant.prototype.setup = function(){
 
 RepoDetailsAssistant.prototype.activate = function(event){
     Mojo.Log.info("[RepoDetailsAssistant] ==> activate")
-	this.refreshRepoinfo()
+    this.refreshRepoinfo()
     Mojo.Log.info("[RepoDetailsAssistant] <== activate")
 };
 
@@ -79,29 +79,40 @@ RepoDetailsAssistant.prototype.cleanup = function(event){
 
 RepoDetailsAssistant.prototype.refreshRepoinfo = function(){
     Mojo.Log.info("[RepoDetailsAssistant] ==> refreshRepoinfo")
-	
-	
-    Github.request("/repos/show/#{user}/#{repo}",{user:this.username,repo:this.repo}, {
+    
+    
+    Github.request("/repos/show/#{user}/#{repo}", {
+        user: this.username,
+        repo: this.repo
+    }, {
         onSuccess: function(response){
+            Mojo.Log.info("[RepoDetailsAssistant] === refreshRepoinfo -> onSuccess")
             var content = Mojo.View.render({
                 object: response.responseJSON.repository,
                 template: 'repo-details/details'
             })
             
             $("details").update(content)
-        }.bind(this),
-		onCreate: function (x) {
-			$("load-spinner").mojo.start()
+            Mojo.Log.info("[RepoDetailsAssistant] === refreshRepoinfo <- onSuccess")
+        }
+.bind(this)        ,
+        onCreate: function(x){
+            Mojo.Log.info("[RepoDetailsAssistant] === refreshRepoinfo -> onCreate")
+            $("load-spinner").mojo.start()
             $("details").hide()
             $("load-status").show()
-		},
-		onComplete: function (x) {
+            Mojo.Log.info("[RepoDetailsAssistant] === refreshRepoinfo <- onCreate")
+        },
+        onComplete: function(x){
+            Mojo.Log.info("[RepoDetailsAssistant] === refreshRepoinfo -> onComplete")
             $("load-status").hide()
             $("load-spinner").mojo.stop()
             $("details").show()
-		},
+            Mojo.Log.info("[RepoDetailsAssistant] === refreshRepoinfo <- onComplete")
+        },
+		method:"get" // TODO find out, if this is really a problem (get not authorized else)
     })
-	
+    
     Mojo.Log.info("[RepoDetailsAssistant] <== refreshRepoinfo")
 }
 

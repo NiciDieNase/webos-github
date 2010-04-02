@@ -17,7 +17,6 @@ UserListAssistant.prototype.setup = function(){
     this.refreshUsers = this.refreshUsers.bind(this)
     
     /* --- Loader-Status --- */
-	$("load-spinner").hide()
     this.controller.setupWidget("load-spinner", {
         spinnerSize: "large"
     }, {
@@ -81,14 +80,17 @@ UserListAssistant.prototype.setup = function(){
         itemTemplate: 'user-list/item-template',
         listTemplate: 'user-list/list-template'
     }, this.listModel = {
-        listTitle: "Following",
-        items: []
+        listTitle: "User List",
+        items: undefined
     })
+    
+    
     Mojo.Log.info("[UserListAssistant] <== setup")
 };
 
 UserListAssistant.prototype.activate = function(event){
     Mojo.Log.info("[UserListAssistant] ==> activate")
+	if (this.listModel.items == undefined)
     this.refreshUsers(this.direction)
     Mojo.Log.info("[UserListAssistant] <== activate")
 };
@@ -106,31 +108,45 @@ UserListAssistant.prototype.cleanup = function(event){
 UserListAssistant.prototype.refreshUsers = function(direction){
     Mojo.Log.info("[UserListAssistant] ==> refreshUsers")
     this.direction = direction
-	
-	
+    
+    
     /* --- Load --- */
-    Github.request("/user/show/#{user}/#{direction}",{user:this.username,direction:direction}, {
-        onSuccess: function(response){
-        
+    Github.request("/user/show/#{user}/#{direction}", {
+        user: this.username,
+        direction: direction
+    }, {
+        onSuccess: function(params, response){
+			Mojo.Log.info("[UserListAssistant] === refreshUsers -> onSuccess")
             this.listModel.items = response.responseJSON.users.collect(function(value){
                 return {
                     name: value
                 }
             })
-            
+            this.listModel.listTitle = ((params.direction == "following") ? "#{user} follows" : "Following #{user}").interpolate(params)
             this.controller.modelChanged(this.listModel)
-        }.bind(this),
+            Mojo.Log.info("[UserListAssistant] === refreshUsers <- onSuccess")
+        }.bind(this, {
+            user: this.username,
+			direction: direction
+			
+        }),
         onComplete: function(x){
+            Mojo.Log.info("[UserListAssistant] === refreshUsers -> onComplete")
             $("load-spinner").mojo.stop()
             $("load-status").hide()
             $("content").show()
+            Mojo.Log.info("[UserListAssistant] === refreshUsers <- onComplete")
         },
         onCreate: function(x){
+            Mojo.Log.info("[UserListAssistant] === refreshUsers -> onCreate")
             $("content").hide()
             $("load-spinner").mojo.start()
             $("load-status").show()
+            Mojo.Log.info("[UserListAssistant] === refreshUsers <- onCreate")
         },
     })
+    
+    
     Mojo.Log.info("[UserListAssistant] <== refreshUsers")
 }
 

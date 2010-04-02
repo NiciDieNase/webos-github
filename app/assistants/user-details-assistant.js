@@ -14,7 +14,6 @@ UserDetailsAssistant.prototype.setup = function(){
     this.refreshUserinfo = this.refreshUserinfo.bind(this)
     
     /* --- Main widgets --- */
-	$("load-spinner").hide()
     this.controller.setupWidget("load-spinner", {
         spinnerSize: "large"
     }, {
@@ -64,6 +63,7 @@ UserDetailsAssistant.prototype.setup = function(){
 
 UserDetailsAssistant.prototype.activate = function(event){
     Mojo.Log.info("[UserDetailsAssistant] ==> activate")
+    $("load-spinner").hide()
     this.refreshUserinfo()
     Mojo.Log.info("[UserDetailsAssistant] <== activate")
 };

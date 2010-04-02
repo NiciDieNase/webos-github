@@ -84,7 +84,7 @@ IssueListAssistant.prototype.setup = function(){
         itemTemplate: 'issue-list/item-template',
         listTemplate: 'issue-list/list-template'
     }, this.listModel = {
-        items: [],
+        items: undefined,
         listTitle: "Issues"
     });
     Mojo.Log.info("[IssueListAssistant] <== setup")
@@ -99,11 +99,12 @@ IssueListAssistant.prototype.refreshIssuelist = function(state){
         repo: this.repo,
         state: state
     }, {
-        onSuccess: function(response){
+        onSuccess: function(params,response){
             this.listModel.items = response.responseJSON.issues
+			this.listModel.listTitle = "#{state} Issues for #{user}/#{repo}".interpolate(params)
             this.controller.modelChanged(this.listModel)
         }
-.bind(this)        ,
+.bind(this,{user:this.user,repo:this.repo,state:this.state})        ,
         onComplete: function(x){
             $("load-spinner").mojo.stop()
             $("load-status").hide()
@@ -127,6 +128,7 @@ IssueListAssistant.prototype.openIssue = function(event){
 
 IssueListAssistant.prototype.activate = function(event){
     Mojo.Log.info("[IssueListAssistant] ==> activate")
+    if (this.listModel.items == undefined)
     this.refreshIssuelist(this.state)
     Mojo.Log.info("[IssueListAssistant] <== activate")
 };

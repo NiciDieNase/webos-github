@@ -81,14 +81,15 @@ RepoListAssistant.prototype.setup = function(){
         itemTemplate: 'repo-list/item-template',
         listTemplate: 'repo-list/list-template'
     }, this.listModel = {
-        items: [],
-        listTitle: "Repositories"
+        items: undefined,
+        listTitle: "Repo List"
     });
     Mojo.Log.info("[RepoListAssistant] <== setup")
 };
 
 RepoListAssistant.prototype.activate = function(event, auth){
     Mojo.Log.info("[RepoListAssistant] ==> activate")
+    if (this.listModel.items == undefined)
 	this.refreshRepos(this.direction)
     Mojo.Log.info("[RepoListAssistant] <== activate")
 };
@@ -147,10 +148,11 @@ RepoListAssistant.prototype.refreshRepos = function(direction){
 		direction: direction,
 		user:this.username
 	}, {
-        onSuccess: function(response){
+        onSuccess: function(params,response){
             this.listModel.items = response.responseJSON.repositories
+			this.listModel.listTitle = ((params.direction == 'show') ? "#{user} Repos" : "Watched by #{user}").interpolate(params)
             this.controller.modelChanged(this.listModel)
-        }.bind(this),
+        }.bind(this,{user:this.username,direction:direction}),
 		onComplete: function (x) {
             $("load-spinner").mojo.stop()
             $("load-status").hide()

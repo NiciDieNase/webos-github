@@ -1,23 +1,23 @@
-function CommitListAssistant(depot,auth,user,repo,ref) {
+function CommitListAssistant(depot, auth, user, repo, ref){
     Mojo.Log.info("[CommitListAssistant] ==> Construct")
-	this.depot = depot
-	this.auth = auth
-	this.user = user
-	this.repo = repo
-	this.ref = ref
+    this.depot = depot
+    this.auth = auth
+    this.user = user
+    this.repo = repo
+    this.ref = ref
     Mojo.Log.info("[CommitListAssistant] <== Construct")
 }
 
-CommitListAssistant.prototype.setup = function() {
+CommitListAssistant.prototype.setup = function(){
     Mojo.Log.info("[CommitListAssistant] ==> setup")
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
     /* --- Bindings --- */
     this.handleCommand = this.handleCommand.bind(this)
     this.refreshCommizlist = this.refreshCommitlist.bind(this)
-	this.openCommit = this.openCommit.bind(this)
-	
-	
+    this.openCommit = this.openCommit.bind(this)
+    
+    
     Mojo.Event.listen($("content"), Mojo.Event.listTap, this.openCommit)
     
     
@@ -60,7 +60,7 @@ CommitListAssistant.prototype.setup = function() {
         visible: true,
         items: [{
             visible: false
-        },{
+        }, {
             label: $L('Refresh'),
             icon: 'refresh',
             command: 'do-refresh'
@@ -73,23 +73,24 @@ CommitListAssistant.prototype.setup = function() {
         itemTemplate: 'commit-list/item-template',
         listTemplate: 'commit-list/list-template'
     }, this.listModel = {
-        items: [],
+        items: undefined,
         listTitle: "Commit List"
     });
     Mojo.Log.info("[CommitListAssistant] <== setup")
 };
 
-CommitListAssistant.prototype.activate = function(event) {
+CommitListAssistant.prototype.activate = function(event){
     Mojo.Log.info("[CommitListAssistant] ==> activate")
-	this.refreshCommitlist()
+    if (this.listModel.items == undefined) 
+        this.refreshCommitlist()
     Mojo.Log.info("[CommitListAssistant] <== activate")
 };
 
-CommitListAssistant.prototype.deactivate = function(event) {
+CommitListAssistant.prototype.deactivate = function(event){
     Mojo.Log.info("[CommitListAssistant] <=> deactivate")
 };
 
-CommitListAssistant.prototype.cleanup = function(event) {
+CommitListAssistant.prototype.cleanup = function(event){
     Mojo.Log.info("[CommitListAssistant] ==> cleanup")
     Mojo.Event.stopListening($("content"), Mojo.Event.listTap, this.openCommit)
     Mojo.Log.info("[CommitListAssistant] <== cleanup")
@@ -103,13 +104,22 @@ CommitListAssistant.prototype.openCommit = function(event){
 
 CommitListAssistant.prototype.refreshCommitlist = function(){
     Mojo.Log.info("[CommitListAssistant] ==> refreshCommitlist")
-	
-    Github.request("/commits/list/#{user}/#{repo}/#{ref}",{user:this.user,repo:this.repo,ref:this.ref}, {
-        onSuccess: function(response){
+    
+    Github.request("/commits/list/#{user}/#{repo}/#{ref}", {
+        user: this.user,
+        repo: this.repo,
+        ref: this.ref
+    }, {
+        onSuccess: function(params, response){
             this.listModel.items = response.responseJSON.commits
+			this.listModel.listTitle = "Commits for #{user}/#{repo}/#{ref}".interpolate(params)
             this.controller.modelChanged(this.listModel)
         }
-.bind(this)        ,
+.bind(this, {
+            user: this.user,
+            repo: this.repo,
+            ref: this.ref
+        }),
         onComplete: function(x){
             $("load-spinner").mojo.stop()
             $("load-status").hide()
@@ -121,7 +131,7 @@ CommitListAssistant.prototype.refreshCommitlist = function(){
             $("load-status").show()
         },
     })
-	
+    
     Mojo.Log.info("[CommitListAssistant] <== refreshCommitlist")
 }
 
@@ -141,7 +151,7 @@ CommitListAssistant.prototype.handleCommand = function(event){
                 Mojo.Controller.stageController.swapScene({
                     name: "commit-list",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.user, this.repo,this.ref)
+                }, this.depot, this.auth, this.user, this.repo, this.ref)
                 break;
             case 'do-refresh':
                 event.stopPropagation()

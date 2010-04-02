@@ -84,7 +84,7 @@ RefListAssistant.prototype.setup = function(){
         itemTemplate: 'ref-list/item-template',
         listTemplate: 'ref-list/list-template'
     }, this.listModel = {
-        items: [],
+        items: undefined,
         listTitle: "Ref List"
     });
     Mojo.Log.info("[RefListAssistant] <== setup")
@@ -100,7 +100,7 @@ RefListAssistant.prototype.refreshReflist = function(ref){
         repo: this.repo,
         ref: ref
     }, {
-        onSuccess: function(response){
+        onSuccess: function(params,response){
             this.listModel.items = (response.responseJSON.branches == undefined) ? $H(response.responseJSON.tags).keys().collect(function(value){
                 return {
                     name: value
@@ -110,9 +110,10 @@ RefListAssistant.prototype.refreshReflist = function(ref){
                     name: value
                 }
             })
+			this.listModel.listTitle = ((params.ref == "branches") ? "Branches of #{user}/#{repo}" : "Tags of #{user}/#{repo}").interpolate(params)
             this.controller.modelChanged(this.listModel)
         }
-.bind(this)        ,
+.bind(this,{user:this.user,repo:this.repo,ref:ref})        ,
         onComplete: function(x){
             $("load-spinner").mojo.stop()
             $("load-status").hide()
@@ -136,6 +137,7 @@ RefListAssistant.prototype.openRef = function(event){
 
 RefListAssistant.prototype.activate = function(event){
     Mojo.Log.info("[RefListAssistant] ==> acitvate")
+    if (this.listModel.items == undefined)
     this.refreshReflist(this.ref)
     Mojo.Log.info("[RefListAssistant] <== activate")
 };
