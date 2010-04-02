@@ -25,7 +25,6 @@ Github.request = function(uriTemplate, params, options){
 	// Try here, if uri is called sometimes before
 	
     options.postBody = (options.postBody == undefined) ? $H(Github.auth).toQueryString() : $(options.postBody).merge($H(Github.auth)).toQueryString()
-	Mojo.Log.info("[Github] === request: Auth state " + options.postBody)
     if (options.method == undefined) {
         options.method = "post"
     }
@@ -48,6 +47,7 @@ Github.request = function(uriTemplate, params, options){
 .bind(undefined, options.onComplete)
     options.evalJSON = "false"
     
+    Mojo.Log.info("[Github] === request: Request Body " + options.postBody)
     new Ajax.Request("https://github.com/api/v2/json" + uri, options)
     Mojo.Log.info("[Github] <== request")
 }

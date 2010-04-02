@@ -63,7 +63,6 @@ UserDetailsAssistant.prototype.setup = function(){
 
 UserDetailsAssistant.prototype.activate = function(event){
     Mojo.Log.info("[UserDetailsAssistant] ==> activate")
-    $("load-spinner").hide()
     this.refreshUserinfo()
     Mojo.Log.info("[UserDetailsAssistant] <== activate")
 };
@@ -107,7 +106,7 @@ UserDetailsAssistant.prototype.refreshUserinfo = function(){
 			$("load-spinner").mojo.start()
             $("load-status").show()
 		},
-        method: (this.auth.username === this.username) ? "post" : "get"
+        method: (Github.auth.login == this.username) ? "post" : "get"
     })
     Mojo.Log.info("[UserDetailsAssistant] <== refreshUserinfo")
 }

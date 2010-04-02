@@ -110,7 +110,7 @@ RepoDetailsAssistant.prototype.refreshRepoinfo = function(){
             $("details").show()
             Mojo.Log.info("[RepoDetailsAssistant] === refreshRepoinfo <- onComplete")
         },
-		method:"get" // TODO find out, if this is really a problem (get not authorized else)
+		method: (Github.auth.login == this.username) ? "post" : "get"
     })
     
     Mojo.Log.info("[RepoDetailsAssistant] <== refreshRepoinfo")
