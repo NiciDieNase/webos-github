@@ -19,7 +19,7 @@ Github.authorize = function(login, token){
 
 Github.request = function(uriTemplate, params, options){
     Mojo.Log.info("[Github] ==> request")
-    var uri = new Template(uriTemplate).evaluate(params)
+    var uri = uriTemplate.interpolate(params)
     Mojo.Log.info("[Github] === request: Called: " + uri)
 	
 	// Try here, if uri is called sometimes before

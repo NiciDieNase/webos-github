@@ -1,7 +1,5 @@
-function IssueListAssistant(depot, auth, user, repo){
+function IssueListAssistant(user, repo){
     Mojo.Log.info("[IssueListAssistant] ==> Construct")
-    this.depot = depot
-    this.auth = auth
     this.user = user
     this.repo = repo
     
@@ -122,7 +120,7 @@ IssueListAssistant.prototype.refreshIssuelist = function(state){
 
 IssueListAssistant.prototype.openIssue = function(event){
     Mojo.Log.info("[IssueListAssistant] ==> openIssue")
-    Mojo.Controller.stageController.pushScene("issue-details", this.depot, this.auth, this.user, this.repo, event.item.number)
+    Mojo.Controller.stageController.pushScene("issue-details", this.user, this.repo, event.item.number)
     Mojo.Log.info("[IssueListAssistant] <== openIssue")
 }
 
@@ -152,14 +150,14 @@ IssueListAssistant.prototype.handleCommand = function(event){
                 Mojo.Controller.stageController.swapScene({
                     name: "ref-list",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.user, this.repo)
+                }, this.user, this.repo)
                 break;
             case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
                     name: "repo-details",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.user, this.repo)
+                }, this.user, this.repo)
                 break;
             case 'do-refresh':
                 event.stopPropagation()

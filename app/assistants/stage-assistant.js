@@ -31,7 +31,7 @@ StageAssistant.prototype.loadAuthorization = function(auth){
         Mojo.Log.info("[StageAssistant] === loadAuthorization: Auth defined, push 'user-details'")
         this.auth = auth
 		Github.authorize(auth.username,auth.apikey)
-        this.controller.pushScene("user-details", this.depot, auth, auth["username"])
+        this.controller.pushScene("user-details", auth["username"])
     }
     Mojo.Log.info("[StageAssistant] <== loadAuthorization")
 }

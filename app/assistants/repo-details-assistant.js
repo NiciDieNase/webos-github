@@ -1,7 +1,5 @@
-function RepoDetailsAssistant(depot, auth, username, repo){
+function RepoDetailsAssistant(username, repo){
     Mojo.Log.info("[RepoDetailsAssistant] ==> Construct")
-    this.depot = depot
-    this.auth = auth
     this.username = username
     this.repo = repo
     Mojo.Log.info("[RepoDetailsAssistant] <== Construct")
@@ -126,14 +124,14 @@ RepoDetailsAssistant.prototype.handleCommand = function(event){
                 Mojo.Controller.stageController.swapScene({
                     name: "issue-list",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.username, this.repo)
+                }, this.username, this.repo)
                 break;
             case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
                     name: "ref-list",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.username, this.repo)
+                }, this.username, this.repo)
                 break;
             case 'do-refresh':
                 event.stopPropagation()

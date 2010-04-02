@@ -1,7 +1,5 @@
-function CommentListAssistant(depot, auth, user, repo, number){
+function CommentListAssistant(user, repo, number){
     Mojo.Log.info("[CommentListAssistant] ==> Construct")
-    this.depot = depot
-    this.auth = auth
     this.user = user
     this.repo = repo
     this.number = number
@@ -128,14 +126,14 @@ CommentListAssistant.prototype.handleCommand = function(event){
                 Mojo.Controller.stageController.swapScene({
                     name: "issue-details",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.user, this.repo, this.number)
+                }, this.user, this.repo, this.number)
                 break;
             case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
                     name: "issue-details",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.user, this.repo, this.number)
+                }, this.user, this.repo, this.number)
                 break;
             case 'do-refresh':
                 event.stopPropagation()

@@ -1,7 +1,5 @@
-function UserListAssistant(depot, auth, username){
+function UserListAssistant(username){
     Mojo.Log.info("[UserListAssistant] ==> Construct")
-    this.depot = depot
-    this.auth = auth
     this.username = username
     
     this.direction = "following"
@@ -152,7 +150,7 @@ UserListAssistant.prototype.refreshUsers = function(direction){
 
 UserListAssistant.prototype.openUserinfo = function(event){
     Mojo.Log.info("[UserListAssistant] ==> openUserinfo")
-    Mojo.Controller.stageController.pushScene("user-details", this.depot, this.auth, event.item.name)
+    Mojo.Controller.stageController.pushScene("user-details", event.item.name)
     Mojo.Log.info("[UserListAssistant] <== openUserinfo")
 }
 
@@ -165,14 +163,14 @@ UserListAssistant.prototype.handleCommand = function(event){
                 Mojo.Controller.stageController.swapScene({
                     name: "repo-list",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.username)
+                }, this.username)
                 break;
             case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
                     name: "user-details",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.username)
+                }, this.username)
                 break;
             case 'do-refresh':
                 event.stopPropagation()

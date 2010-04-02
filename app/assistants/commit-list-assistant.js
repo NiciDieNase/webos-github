@@ -1,7 +1,5 @@
-function CommitListAssistant(depot, auth, user, repo, ref){
+function CommitListAssistant(user, repo, ref){
     Mojo.Log.info("[CommitListAssistant] ==> Construct")
-    this.depot = depot
-    this.auth = auth
     this.user = user
     this.repo = repo
     this.ref = ref
@@ -98,7 +96,7 @@ CommitListAssistant.prototype.cleanup = function(event){
 
 CommitListAssistant.prototype.openCommit = function(event){
     Mojo.Log.info("[CommitListAssistant] ==> openCommit")
-    Mojo.Controller.stageController.pushScene("commit-details", this.depot, this.auth, this.user, this.repo, event.item.id)
+    Mojo.Controller.stageController.pushScene("commit-details", this.user, this.repo, event.item.id)
     Mojo.Log.info("[CommitListAssistant] <== openCommit")
 }
 
@@ -144,14 +142,14 @@ CommitListAssistant.prototype.handleCommand = function(event){
                 Mojo.Controller.stageController.swapScene({
                     name: "commit-list",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.user, this.repo, this.ref)
+                }, this.user, this.repo, this.ref)
                 break;
             case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
                     name: "commit-list",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.user, this.repo, this.ref)
+                }, this.user, this.repo, this.ref)
                 break;
             case 'do-refresh':
                 event.stopPropagation()

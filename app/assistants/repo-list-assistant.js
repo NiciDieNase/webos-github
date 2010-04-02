@@ -1,7 +1,5 @@
-function RepoListAssistant(depot, auth, username){
+function RepoListAssistant(username){
     Mojo.Log.info("[RepoListAssistant] ==> Construct")
-    this.depot = depot
-    this.auth = auth
     this.username = username
 	
 	this.direction = "show"
@@ -87,7 +85,7 @@ RepoListAssistant.prototype.setup = function(){
     Mojo.Log.info("[RepoListAssistant] <== setup")
 };
 
-RepoListAssistant.prototype.activate = function(event, auth){
+RepoListAssistant.prototype.activate = function(event){
     Mojo.Log.info("[RepoListAssistant] ==> activate")
     if (this.listModel.items == undefined)
 	this.refreshRepos(this.direction)
@@ -113,14 +111,14 @@ RepoListAssistant.prototype.handleCommand = function(event){
                 Mojo.Controller.stageController.swapScene({
                     name: "user-details",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.username)
+                }, this.username)
                 break;
             case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
                     name: "user-list",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.username)
+                }, this.username)
                 break;
             case 'do-refresh':
                 event.stopPropagation()
@@ -170,7 +168,7 @@ RepoListAssistant.prototype.refreshRepos = function(direction){
 
 RepoListAssistant.prototype.openRepo = function(event){
     Mojo.Log.info("[RepoListAssistant] ==> openRepo")
-    Mojo.Controller.stageController.pushScene("repo-details", this.depot, this.auth, event.item.owner, event.item.name)
+    Mojo.Controller.stageController.pushScene("repo-details", event.item.owner, event.item.name)
     Mojo.Log.info("[RepoListAssistant] <== openRepo")
 }
 

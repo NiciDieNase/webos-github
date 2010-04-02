@@ -1,7 +1,5 @@
-function UserDetailsAssistant(depot, auth, username){
+function UserDetailsAssistant(username){
     Mojo.Log.info("[UserDetailsAssistant] ==> Construct")
-    this.depot = depot
-    this.auth = auth
     this.username = username
     Mojo.Log.info("[UserDetailsAssistant] <=== Construct")
 }
@@ -84,7 +82,7 @@ UserDetailsAssistant.prototype.refreshUserinfo = function(){
         onSuccess: function(response){
             $("content").update(Mojo.View.render({
                 object: response.responseJSON.user,
-                template: (response.responseJSON.user.login === this.auth["username"]) ? "user-details/private-details" : "user-details/public-details",
+                template: (response.responseJSON.user.login === Github.auth.login) ? "user-details/private-details" : "user-details/public-details",
                 formatters: {
                     created_at: function(value, model){
                         model.created_at = Mojo.Format.formatDate(new Date(value), {
@@ -121,14 +119,14 @@ UserDetailsAssistant.prototype.handleCommand = function(event){
                 Mojo.Controller.stageController.swapScene({
                     name: "user-list",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.username)
+                }, this.username)
                 break;
             case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
                     name: "repo-list",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.username)
+                }, this.username)
                 break;
             case 'do-refresh':
                 event.stopPropagation()

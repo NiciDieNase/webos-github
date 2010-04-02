@@ -1,7 +1,5 @@
-function IssueDetailsAssistant(depot, auth, user, repo, number){
+function IssueDetailsAssistant(user, repo, number){
     Mojo.Log.info("[IssueDetailsAssistant] ==> Construct")
-    this.depot = depot
-    this.auth = auth
     this.user = user
     this.repo = repo
     this.number = number
@@ -116,14 +114,14 @@ IssueDetailsAssistant.prototype.handleCommand = function(event){
                 Mojo.Controller.stageController.swapScene({
                     name: "comment-list",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.user, this.repo,this.number)
+                }, this.user, this.repo,this.number)
                 break;
             case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
                     name: "comment-list",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.user, this.repo,this.number)
+                }, this.user, this.repo,this.number)
                 break;
             case 'do-refresh':
                 event.stopPropagation()

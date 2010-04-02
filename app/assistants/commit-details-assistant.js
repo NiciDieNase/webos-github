@@ -1,7 +1,5 @@
-function CommitDetailsAssistant(depot, auth, user, repo, sha){
+function CommitDetailsAssistant(user, repo, sha){
     Mojo.Log.info("[CommitDetailsAssistant] ==> Construct")
-    this.depot = depot
-    this.auth = auth
     this.user = user
     this.repo = repo
     this.sha = sha
@@ -119,14 +117,14 @@ CommitDetailsAssistant.prototype.handleCommand = function(event){
                 Mojo.Controller.stageController.swapScene({
                     name: "commit-details",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.user, this.repo, this.sha)
+                }, this.user, this.repo, this.sha)
                 break;
             case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
                     name: "commit-details",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.user, this.repo, this.sha)
+                }, this.user, this.repo, this.sha)
                 break;
             case 'do-refresh':
                 event.stopPropagation()

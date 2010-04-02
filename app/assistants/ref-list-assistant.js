@@ -1,7 +1,5 @@
-function RefListAssistant(depot, auth, user, repo){
+function RefListAssistant(user, repo){
     Mojo.Log.info("[RefListAssistant] ==> Construct")
-    this.depot = depot
-    this.auth = auth
     this.user = user
     this.repo = repo
     
@@ -131,7 +129,7 @@ RefListAssistant.prototype.refreshReflist = function(ref){
 
 RefListAssistant.prototype.openRef = function(event){
     Mojo.Log.info("[RefListAssistant] ==> openRef")
-    Mojo.Controller.stageController.pushScene("commit-list", this.depot, this.auth, this.user, this.repo, event.item.name)
+    Mojo.Controller.stageController.pushScene("commit-list", this.user, this.repo, event.item.name)
     Mojo.Log.info("[RefListAssistant] <== openRef")
 }
 
@@ -159,14 +157,14 @@ RefListAssistant.prototype.handleCommand = function(event){
                 Mojo.Controller.stageController.swapScene({
                     name: "repo-details",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.user, this.repo)
+                }, this.user, this.repo)
                 break;
             case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
                     name: "issue-list",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.user, this.repo)
+                }, this.user, this.repo)
                 break;
             case 'do-refresh':
                 event.stopPropagation()
