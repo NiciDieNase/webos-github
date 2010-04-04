@@ -1,6 +1,6 @@
 [
     {"source": "resources/utils.js"},
-	{"source": "app/models/github.js"},
+    {"source": "app/models/github.js"},
     {"source": "app/assistants/stage-assistant.js"},
     {
         "scenes": "auth",
@@ -45,5 +45,13 @@
     {
         "scenes": "commit-details",
         "source": "app/assistants/commit-details-assistant.js"
+    },
+    {
+        "scenes": "license",
+        "source": "app/assistants/license-assistant.js"
+    },
+    {
+        "scenes": "newsfeed",
+        "source": "app/assistants/newsfeed-assistant.js"
     }
 ]

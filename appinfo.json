@@ -16,6 +16,11 @@
 			"subject":"[WebOS-Github Support]"
 		},
 		"resources": [
+             {
+                 "type": "scene",
+                 "label": "License",
+                 "sceneName": "license"
+             },
 			{
 				"type":"web",
 				"label":"Issue Tracker",
