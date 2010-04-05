@@ -23,7 +23,7 @@ Github.request = function(uriTemplate, params, options){
     
     options.postBody = (options.postBody == undefined) ? $H(Github.auth).toQueryString() : $(options.postBody).merge($H(Github.auth)).toQueryString()
     if (options.method == undefined) {
-        options.method = "post"
+        options.method = "get"
     }
     
     options.onSuccess = function(target, response){

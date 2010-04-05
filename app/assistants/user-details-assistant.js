@@ -82,7 +82,7 @@ UserDetailsAssistant.prototype.refreshUserinfo = function(){
         onSuccess: function(response){
             $("content").update(Mojo.View.render({
                 object: response.responseJSON.user,
-                template: (response.responseJSON.user.login === Github.auth.login) ? "user-details/private-details" : "user-details/public-details",
+                template: "user-details/details",
                 formatters: {
                     created_at: function(value, model){
                         model.created_at = Mojo.Format.formatDate(new Date(value), {
@@ -103,8 +103,7 @@ UserDetailsAssistant.prototype.refreshUserinfo = function(){
             $("content").hide()
 			$("load-spinner").mojo.start()
             $("load-status").show()
-		},
-        method: (Github.auth.login == this.username) ? "post" : "get"
+		}
     })
     Mojo.Log.info("[UserDetailsAssistant] <== refreshUserinfo")
 }
