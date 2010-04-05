@@ -9,11 +9,8 @@ Github.authorize = function(login, token){
         token: token
     }
     
-    Ajax.Responders.register(function(x, y, z){
-        Mojo.Log.logProperties(x, "x", true)
-        Mojo.Log.logProperties(y, "y", true)
-        Mojo.Log.logProperties(z, "z", true)
-    })
+    
+    
     Mojo.Log.info("[Github] <== authorize")
 }
 
@@ -21,9 +18,9 @@ Github.request = function(uriTemplate, params, options){
     Mojo.Log.info("[Github] ==> request")
     var uri = uriTemplate.interpolate(params)
     Mojo.Log.info("[Github] === request: Called: " + uri)
-	
-	// Try here, if uri is called sometimes before
-	
+    
+    // Try here, if uri is called sometimes before
+    
     options.postBody = (options.postBody == undefined) ? $H(Github.auth).toQueryString() : $(options.postBody).merge($H(Github.auth)).toQueryString()
     if (options.method == undefined) {
         options.method = "post"
@@ -52,3 +49,17 @@ Github.request = function(uriTemplate, params, options){
     Mojo.Log.info("[Github] <== request")
 }
 
+Github.privateFeed = function(callback){
+
+    Mojo.Log.info("https://github.com/#{login}.private.atom?token=#{token}".interpolate(Github.auth))
+    new Ajax.Request("https://github.com/#{login}.private.atom?token=#{token}".interpolate(Github.auth), {
+        onSuccess: function(target, response){
+  response.responseXML =   new DOMParser().parseFromString(response.responseText, "text/xml");
+  response.responseATOM = xml2array(response.responseXML)
+//            $("debug").update(dump(xml2array(response.responseXML).feed.entry))
+            target(response)
+        }.bind(this, callback)        ,
+		method: "get",
+        onFailure: StageAssistant.connectionError
+})
+}
