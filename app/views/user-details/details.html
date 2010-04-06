@@ -1,91 +1,111 @@
 <div class="palm-group unlabeled">
     <div class="palm-list">
         <div class="palm-row first">
-            <div class="label">
-                Name
-            </div>
-            <div class="title left truncating-text palm-row-wrapper">
-                #{name}
+            <div class="palm-row-wrapper">
+                <div class="label">
+                    Name
+                </div>
+                <div class="title left truncating-text">
+                    #{item.name}
+                </div>
             </div>
         </div>
         <div class="palm-row">
             <div class="label">
                 Login
             </div>
-            <div class="title left truncating-text palm-row-wrapper">
-                #{login}
+            <div class="palm-row-wrapper">
+                <div class="title left truncating-text">
+                    #{item.login}
+                </div>
             </div>
         </div>
         <div class="palm-row">
-            <div class="label">
-                E-Mail
-            </div>
-            <div class="title left truncating-text palm-row-wrapper">
-                <a href="mailto:#{email}">#{email}</a>
+            <div class="palm-row-wrapper">
+                <div class="label">
+                    E-Mail
+                </div>
+                <div class="title left truncating-text">
+                    <a href="mailto:#{email}">#{item.email}</a>
+                </div>
             </div>
         </div>
         <div class="palm-row">
             <div class="label">
                 Company
             </div>
-            <div class="title left truncating-text palm-row-wrapper">
-                #{company}
+            <div class="title left truncating-text">
+                #{item.company}
             </div>
         </div>
-        <div class="palm-row">
+    </div>
+    <div class="palm-row">
+        <div class="palm-row-wrapper">
             <div class="label">
                 Location
             </div>
-            <div class="title left truncating-text palm-row-wrapper">
-                #{location}
+            <div class="title left truncating-text">
+                #{item.location}
             </div>
         </div>
-        <div class="palm-row">
+    </div>
+    <div class="palm-row">
+        <div class="palm-row-wrapper">
             <div class="label">
                 Blog
             </div>
-            <div class="title left truncating-text palm-row-wrapper">
-                <a href="#{blog}">#{blog}</a>
+            <div class="title left truncating-text">
+                <a href="#{blog}">#{item.blog}</a>
             </div>
         </div>
-        <div class="palm-row">
+    </div>
+    <div class="palm-row">
+        <div class="palm-row-wrapper">
             <div class="label">
                 Created at
             </div>
-            <div class="title left truncating-text palm-row-wrapper">
-                #{created_at}
+            <div class="title left truncating-text">
+                #{item.created_at}
             </div>
         </div>
-        <div class="palm-row">
+    </div>
+    <div class="palm-row">
+        <div class="palm-row-wrapper">
             <div class="label">
                 Public Gist count
             </div>
-            <div class="title left truncating-text palm-row-wrapper">
-                #{public_gist_count}
+            <div class="title left truncating-text">
+                #{item.public_gist_count}
             </div>
         </div>
-        <div class="palm-row">
+    </div>
+    <div class="palm-row">
+        <div class="palm-row-wrapper">
             <div class="label">
                 Public repo count
             </div>
-            <div class="title left truncating-text palm-row-wrapper">
-                #{public_repo_count}
+            <div class="title left truncating-text">
+                #{item.public_repo_count}
             </div>
         </div>
-        <div class="palm-row">
+    </div>
+    <div class="palm-row">
+        <div class="palm-row-wrapper">
             <div class="label">
                 Following count
             </div>
-            <div class="title left truncating-text palm-row-wrapper">
-                #{following_count}
+            <div class="title left truncating-text">
+                #{item.following_count}
             </div>
         </div>
-        <div class="palm-row last">
+    </div>
+    <div class="palm-row last">
+        <div class="palm-row-wrapper">
             <div class="label">
                 Followers count
             </div>
-            <div class="title left truncating-text palm-row-wrapper">
-                #{followers_count}
+            <div class="title left truncating-text">
+                #{item.followers_count}
             </div>
         </div>
     </div>
