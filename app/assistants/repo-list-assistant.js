@@ -116,7 +116,7 @@ RepoListAssistant.prototype.handleCommand = function(event){
             case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
-                    name: "user-list",
+                    name: "activities-list",
                     transition: Mojo.Transition.crossFade
                 }, this.username)
                 break;

@@ -1,8 +1,8 @@
-function NewsfeedAssistant(){
-
+function ActivitiesListAssistant(user) {
+	this.user = user
 }
 
-NewsfeedAssistant.prototype.setup = function(){
+ActivitiesListAssistant.prototype.setup = function() {
     this.openEntry = this.openEntry.bind(this)
     this.handleCommand = this.handleCommand.bind(this)
     
@@ -19,8 +19,8 @@ NewsfeedAssistant.prototype.setup = function(){
     this.listModel = []
     /* --- UI widgets --- */
     this.controller.setupWidget('content', {
-        itemTemplate: 'newsfeed/item-template',
-        listTemplate: 'newsfeed/list-template',
+        itemTemplate: 'activities-list/item-template',
+        listTemplate: 'activities-list/list-template',
         height: "auto"
     }, this.listModel = {
         items: [],
@@ -38,8 +38,16 @@ NewsfeedAssistant.prototype.setup = function(){
         visible: true,
         items: [{
             items: [{
-                label: "Newsfeed",
-                width: 320
+                icon: "back",
+                command: 'back',
+                label: "Back"
+            }, {
+                label: "Activities",
+                width: 200
+            }, {
+                icon: "forward",
+                command: 'fwd',
+                label: "Forward"
             }]
         }]
     });
@@ -48,14 +56,6 @@ NewsfeedAssistant.prototype.setup = function(){
         visible: true,
         items: [{
             visible: false
-        }, {
-            items: [{
-                label: $L('Profile'),
-                command: 'cmd-showProfile',
-            }, {
-                label: $L('Search'),
-                command: 'cmd-showSearch',
-            }]
         }, {
             label: $L('Refresh'),
             icon: 'refresh',
@@ -66,13 +66,12 @@ NewsfeedAssistant.prototype.setup = function(){
     
     /* --- Event Listener --- */
     Mojo.Event.listen($("content"), Mojo.Event.listTap, this.openEntry)
-    
 };
 
-NewsfeedAssistant.prototype.activate = function(event){
-    Github.privateFeed({
+ActivitiesListAssistant.prototype.activate = function(event) {
+    Github.activitiesFeed({user:this.user},{
         onSuccess: function(response){
-            Mojo.Log.info("[NewsfeedAssistant] === activate -> onSuccess")
+            Mojo.Log.info("[ActivitiesListAssistant] === activate -> onSuccess")
             //        $("debug").update(dump(response.responseATOM.feed.entry[0][1].updated))
             this.listModel.items = $H(response.responseATOM.feed.entry).collect(function(value){
                 var Ausdruck = /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})-(\d{2}):(\d{2})/;
@@ -102,7 +101,7 @@ NewsfeedAssistant.prototype.activate = function(event){
             })
             
             this.controller.modelChanged(this.listModel)
-            Mojo.Log.info("[NewsfeedAssistant] === activate <- onSuccess")
+            Mojo.Log.info("[ActivitiesListAssistant] === activate <- onSuccess")
         }
 .bind(this)        ,
         onCreate: function(){
@@ -118,41 +117,36 @@ NewsfeedAssistant.prototype.activate = function(event){
     })
 };
 
-NewsfeedAssistant.prototype.deactivate = function(event){
+ActivitiesListAssistant.prototype.deactivate = function(event) {
 };
 
-NewsfeedAssistant.prototype.cleanup = function(event){
+ActivitiesListAssistant.prototype.cleanup = function(event) {
     Mojo.Event.stopListening($("content"), Mojo.Event.listTap, this.openEntry)
 };
 
-
-NewsfeedAssistant.prototype.openEntry = function(event){
-    Mojo.Log.info("[NewsfeedAssistant] ==> openEntry")
-    Mojo.Controller.stageController.pushScene("newsfeed-details", event.item)
-    Mojo.Log.info("[NewsfeedAssistant] <== openEntry")
+ActivitiesListAssistant.prototype.openEntry = function(event){
+    Mojo.Log.info("[ActivitiesListAssistant] ==> openEntry")
+    Mojo.Controller.stageController.pushScene("activities-details", event.item)
+    Mojo.Log.info("[ActivitiesListAssistant] <== openEntry")
 }
 
-NewsfeedAssistant.prototype.handleCommand = function(event){
-    Mojo.Log.info("[NewsfeedAssistant] ==> handleCommand")
+ActivitiesListAssistant.prototype.handleCommand = function(event){
+    Mojo.Log.info("[ActivitiesListAssistant] ==> handleCommand")
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
             case 'back':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
-                    name: "ref-list",
+                    name: "repo-list",
                     transition: Mojo.Transition.crossFade
-                }, this.user, this.repo)
+                }, this.user)
                 break;
             case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
-                    name: "repo-details",
+                    name: "user-list",
                     transition: Mojo.Transition.crossFade
-                }, this.user, this.repo)
-                break;
-            case "cmd-showProfile":
-                event.stopPropagation()
-                Mojo.Controller.stageController.pushScene("user-details", Github.auth.login)
+                }, this.user)
                 break;
             case 'do-refresh':
                 event.stopPropagation()
@@ -160,5 +154,6 @@ NewsfeedAssistant.prototype.handleCommand = function(event){
                 break;
         }
     }
-    Mojo.Log.info("[NewsfeedAssistant] <== handleCommand")
+    Mojo.Log.info("[ActivitiesListAssistant] <== handleCommand")
 }
+

@@ -49,17 +49,70 @@ Github.request = function(uriTemplate, params, options){
     Mojo.Log.info("[Github] <== request")
 }
 
-Github.privateFeed = function(callback){
+Github.privateFeed = function(options){
+	if (options.method == undefined) {
+		options.method = "get"
+	}
+	
+	options.onSuccess = function(target, response){
+		response.responseXML = new DOMParser().parseFromString(response.responseText, "text/xml");
+		response.responseATOM = xml2array(response.responseXML)
+		target(response)
+	}
+.bind(undefined, options.onSuccess)
+	if (options.onFailure == undefined) {
+		options.onFailure = StageAssistant.connectionError
+	}
+	
+	if (options.onCreate != undefined) {
+	options.onCreate = function(target, response){
+		target(response)
+	}
+.bind(undefined, options.onCreate)
+}
+	
+	if (options.onComplete != undefined) {
+	options.onComplete = function(target, response){
+		target(response)
+	}
+.bind(undefined, options.onComplete)
+}
+    options.evalJSON = "false"
 
     Mojo.Log.info("https://github.com/#{login}.private.atom?token=#{token}".interpolate(Github.auth))
-    new Ajax.Request("https://github.com/#{login}.private.atom?token=#{token}".interpolate(Github.auth), {
-        onSuccess: function(target, response){
-  response.responseXML =   new DOMParser().parseFromString(response.responseText, "text/xml");
-  response.responseATOM = xml2array(response.responseXML)
-//            $("debug").update(dump(xml2array(response.responseXML).feed.entry))
-            target(response)
-        }.bind(this, callback)        ,
-		method: "get",
-        onFailure: StageAssistant.connectionError
-})
+    new Ajax.Request("https://github.com/#{login}.private.atom?token=#{token}".interpolate(Github.auth), options)
+}
+
+Github.activitiesFeed = function(params,options){
+    if (options.method == undefined) {
+        options.method = "get"
+    }
+    
+    options.onSuccess = function(target, response){
+        response.responseXML = new DOMParser().parseFromString(response.responseText, "text/xml");
+        response.responseATOM = xml2array(response.responseXML)
+        target(response)
+    }
+.bind(undefined, options.onSuccess)
+    if (options.onFailure == undefined) {
+        options.onFailure = StageAssistant.connectionError
+    }
+    
+    if (options.onCreate != undefined) {
+    options.onCreate = function(target, response){
+        target(response)
+    }
+.bind(undefined, options.onCreate)
+}
+    
+    if (options.onComplete != undefined) {
+    options.onComplete = function(target, response){
+        target(response)
+    }
+.bind(undefined, options.onComplete)
+}
+    options.evalJSON = "false"
+
+    Mojo.Log.info("http://github.com/#{user}.atom".interpolate(params))
+    new Ajax.Request("http://github.com/#{user}.atom".interpolate(params), options)
 }

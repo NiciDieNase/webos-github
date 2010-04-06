@@ -30,11 +30,7 @@ NewsfeedDetailsAssistant.prototype.activate = function(event) {
 };
 
 NewsfeedDetailsAssistant.prototype.deactivate = function(event) {
-	/* remove any event handlers you added in activate and do any other cleanup that should happen before
-	   this scene is popped or another scene is pushed on top */
 };
 
 NewsfeedDetailsAssistant.prototype.cleanup = function(event) {
-	/* this function should do any cleanup needed before the scene is destroyed as 
-	   a result of being popped off the scene stack */
 };

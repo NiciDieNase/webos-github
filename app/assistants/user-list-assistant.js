@@ -161,7 +161,7 @@ UserListAssistant.prototype.handleCommand = function(event){
             case 'back':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
-                    name: "repo-list",
+                    name: "activities-list",
                     transition: Mojo.Transition.crossFade
                 }, this.username)
                 break;

@@ -58,5 +58,13 @@
     {
         "scenes": "newsfeed-details",
         "source": "app/assistants/newsfeed-details-assistant.js"
+    },
+    {
+        "scenes": "activities-list",
+        "source": "app/assistants/activities-list-assistant.js"
+    },
+    {
+        "scenes": "activities-details",
+        "source": "app/assistants/activities-details-assistant.js"
     }
 ]
