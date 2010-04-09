@@ -10,9 +10,16 @@ RepoDetailsAssistant.prototype.setup = function(){
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
     /* --- Bindings --- */
-    this.refreshRepoinfo = this.refreshRepoinfo.bind(this)
+    this.updateMainModel = this.updateMainModel.bind(this)
     
+    this.mainModel = new Repository(this.username, this.repo)
+    this.mainModel.bindWatcher(function(){
+        this.controller.modelChanged(this.mainModel)
+    }
+.bind(this))
+    this.controller.watchModel(this.mainModel, this, this.updateMainModel)
     
+    $("load-status").hide()
     /* --- Status widgets --- */
     this.controller.setupWidget("load-spinner", {
         spinnerSize: "large"
@@ -61,9 +68,30 @@ RepoDetailsAssistant.prototype.setup = function(){
     Mojo.Log.info("[RepoDetailsAssistant] <== setup")
 };
 
+RepoDetailsAssistant.prototype.updateMainModel = function(event){
+    Mojo.Log.info("[RepoDetailsAssistant] ==> updateRepo ")
+    $("details").update(Mojo.View.render({
+        object: this.mainModel,
+        template: "repo-details/details"
+    }))
+    
+    Mojo.Log.info("[RepoDetailsAssistant] <== updateRepo")
+};
+
 RepoDetailsAssistant.prototype.activate = function(event){
     Mojo.Log.info("[RepoDetailsAssistant] ==> activate")
-    this.refreshRepoinfo()
+    this.mainModel.update({
+        onCreate: function(){
+            $("details").hide()
+            $("load-spinner").mojo.start()
+            $("load-status").show()
+        },
+        onComplete: function(){
+            $("load-status").hide()
+            $("details").show()
+            $("load-spinner").mojo.stop()
+        }
+    })
     Mojo.Log.info("[RepoDetailsAssistant] <== activate")
 };
 
@@ -74,46 +102,6 @@ RepoDetailsAssistant.prototype.deactivate = function(event){
 RepoDetailsAssistant.prototype.cleanup = function(event){
     Mojo.Log.info("[RepoDetailsAssistant] <=> Construct")
 };
-
-RepoDetailsAssistant.prototype.refreshRepoinfo = function(){
-    Mojo.Log.info("[RepoDetailsAssistant] ==> refreshRepoinfo")
-    
-    
-    Github.request("/repos/show/#{user}/#{repo}", {
-        user: this.username,
-        repo: this.repo
-    }, {
-        onSuccess: function(response){
-            Mojo.Log.info("[RepoDetailsAssistant] === refreshRepoinfo -> onSuccess")
-            var content = Mojo.View.render({
-                object: response.responseJSON.repository,
-                template: 'repo-details/details'
-            })
-            
-            $("details").update(content)
-            Mojo.Log.info("[RepoDetailsAssistant] === refreshRepoinfo <- onSuccess")
-        }
-.bind(this)        ,
-        onCreate: function(x){
-            Mojo.Log.info("[RepoDetailsAssistant] === refreshRepoinfo -> onCreate")
-            $("load-spinner").mojo.start()
-            $("details").hide()
-            $("load-status").show()
-            Mojo.Log.info("[RepoDetailsAssistant] === refreshRepoinfo <- onCreate")
-        },
-        onComplete: function(x){
-            Mojo.Log.info("[RepoDetailsAssistant] === refreshRepoinfo -> onComplete")
-            $("load-status").hide()
-            $("load-spinner").mojo.stop()
-            $("details").show()
-            Mojo.Log.info("[RepoDetailsAssistant] === refreshRepoinfo <- onComplete")
-        },
-		method: (Github.auth.login == this.username) ? "post" : "get"
-    })
-    
-    Mojo.Log.info("[RepoDetailsAssistant] <== refreshRepoinfo")
-}
-
 
 RepoDetailsAssistant.prototype.handleCommand = function(event){
     Mojo.Log.info("[RepoDetailsAssistant] ==> handleCommand")
@@ -135,7 +123,7 @@ RepoDetailsAssistant.prototype.handleCommand = function(event){
                 break;
             case 'do-refresh':
                 event.stopPropagation()
-                this.refreshRepoinfo()
+                this.mainModel.refresh()
                 break;
         }
     }

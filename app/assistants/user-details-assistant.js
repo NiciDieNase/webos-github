@@ -9,7 +9,15 @@ UserDetailsAssistant.prototype.setup = function(){
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
     /* --- Bindings --- */
-    this.refreshUserinfo = this.refreshUserinfo.bind(this)
+    this.updateInfo = this.updateInfo.bind(this)
+    
+    this.user = new User(this.username)
+    
+    this.user.bindWatcher(function(){
+        this.controller.modelChanged(this.user)
+    }
+.bind(this))
+    this.controller.watchModel(this.user, this, this.updateInfo)
     
     /* --- Main widgets --- */
     this.controller.setupWidget("load-spinner", {
@@ -44,12 +52,12 @@ UserDetailsAssistant.prototype.setup = function(){
             }]
         }]
     });
-	
-	this.controller.setupWidget(Mojo.Menu.commandMenu, undefined, {
+    
+    this.controller.setupWidget(Mojo.Menu.commandMenu, undefined, {
         visible: true,
         items: [{
-			visible:false
-        },{
+            visible: false
+        }, {
             label: $L('Refresh'),
             icon: 'refresh',
             command: 'do-refresh'
@@ -61,7 +69,18 @@ UserDetailsAssistant.prototype.setup = function(){
 
 UserDetailsAssistant.prototype.activate = function(event){
     Mojo.Log.info("[UserDetailsAssistant] ==> activate")
-    this.refreshUserinfo()
+    this.user.update({
+        onCreate: function(){
+            $("content").hide()
+            $("load-spinner").mojo.start()
+            $("load-status").show()
+        },
+        onComplete: function(){
+            $("load-status").hide()
+            $("content").show()
+            $("load-spinner").mojo.stop()
+        }
+    })
     Mojo.Log.info("[UserDetailsAssistant] <== activate")
 };
 
@@ -73,40 +92,22 @@ UserDetailsAssistant.prototype.cleanup = function(event){
     Mojo.Log.info("[UserDetailsAssistant] <=> cleanup")
 };
 
-
-UserDetailsAssistant.prototype.refreshUserinfo = function(){
-    Mojo.Log.info("[UserDetailsAssistant] ==> refreshUserinfo")
+UserDetailsAssistant.prototype.updateInfo = function(event){
+    Mojo.Log.info("[UserDetailsAssistant] ==> updateInfo " + this.user.name)
+    $("content").update(Mojo.View.render({
+        object: this.user,
+        template: "user-details/details",
+        formatters: {
+            created_at: function(value, model){
+                model.created_at = Mojo.Format.formatDate(new Date(value), {
+                    date: 'medium'
+                })
+            },
+        }
+    }))
     
-    /* --- Load --- */
-    Github.request("/user/show/#{user}", {user:this.username},{
-        onSuccess: function(response){
-            $("content").update(Mojo.View.render({
-                object: response.responseJSON.user,
-                template: "user-details/details",
-                formatters: {
-                    created_at: function(value, model){
-                        model.created_at = Mojo.Format.formatDate(new Date(value), {
-                            date: 'medium'
-                        })
-                    },
-                }
-            }))
-            
-        }.bind(this),
-        onFailure: StageAssistant.connectionError,
-		onComplete: function (x) {
-            $("load-status").hide()
-            $("load-spinner").mojo.stop()
-            $("content").show()
-		},
-		onCreate: function (x) {
-            $("content").hide()
-			$("load-spinner").mojo.start()
-            $("load-status").show()
-		}
-    })
-    Mojo.Log.info("[UserDetailsAssistant] <== refreshUserinfo")
-}
+    Mojo.Log.info("[UserDetailsAssistant] <== updateInfo")
+};
 
 
 UserDetailsAssistant.prototype.handleCommand = function(event){
@@ -129,7 +130,7 @@ UserDetailsAssistant.prototype.handleCommand = function(event){
                 break;
             case 'do-refresh':
                 event.stopPropagation()
-                this.refreshUserinfo()
+                this.user.refresh()
                 break;
         }
     }

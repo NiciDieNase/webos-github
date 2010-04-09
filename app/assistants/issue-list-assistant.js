@@ -13,7 +13,6 @@ IssueListAssistant.prototype.setup = function(){
     
     /* --- Bindings --- */
     this.handleCommand = this.handleCommand.bind(this)
-    this.refreshIssuelist = this.refreshIssuelist.bind(this)
     this.openIssue = this.openIssue.bind(this)
     
     
@@ -81,10 +80,9 @@ IssueListAssistant.prototype.setup = function(){
     this.controller.setupWidget('content', {
         itemTemplate: 'issue-list/item-template',
         listTemplate: 'issue-list/list-template'
-    }, this.listModel = {
-        items: undefined,
-        listTitle: "Issues"
-    });
+    }, this.listModel = new Issues(this.user,this.repo));
+	this.listModel.bindWatcher(function(){this.controller.modelChanged(this.listModel)}.bind(this))
+	
     Mojo.Log.info("[IssueListAssistant] <== setup")
 };
 
@@ -126,8 +124,17 @@ IssueListAssistant.prototype.openIssue = function(event){
 
 IssueListAssistant.prototype.activate = function(event){
     Mojo.Log.info("[IssueListAssistant] ==> activate")
-    if (this.listModel.items == undefined)
-    this.refreshIssuelist(this.state)
+    this.listModel.update({onComplete: function(x){
+            $("load-spinner").mojo.stop()
+            $("load-status").hide()
+            $("content").show()
+        },
+        onCreate: function(x){
+            $("load-spinner").mojo.start()
+            $("content").hide()
+            $("load-status").show()
+        },
+    })
     Mojo.Log.info("[IssueListAssistant] <== activate")
 };
 
@@ -161,15 +168,15 @@ IssueListAssistant.prototype.handleCommand = function(event){
                 break;
             case 'do-refresh':
                 event.stopPropagation()
-                this.refreshIssuelist(this.state)
+                this.refresh()
                 break;
             case "cmd-showOpen":
                 event.stopPropagation()
-                this.refreshIssuelist("open")
+                this.listModel.setType("open")
                 break;
             case "cmd-showClosed":
                 event.stopPropagation()
-                this.refreshIssuelist("closed")
+                this.listModel.setType("closed")
                 break;
         }
     }

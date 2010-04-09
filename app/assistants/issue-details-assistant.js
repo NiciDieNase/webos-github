@@ -11,9 +11,15 @@ IssueDetailsAssistant.prototype.setup = function(){
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
     /* --- Bindings --- */
-    this.refreshIssueinfo = this.refreshIssueinfo.bind(this)
 	this.handleCommand = this.handleCommand.bind(this)
+    this.updateMainModel = this.updateMainModel.bind(this)
     
+    this.mainModel = new Issue(this.user, this.repo, this.number)
+    this.mainModel.bindWatcher(function(){
+        this.controller.modelChanged(this.mainModel)
+    }
+.bind(this))
+    this.controller.watchModel(this.mainModel, this, this.updateMainModel)
     
     /* --- Status widgets --- */
     $("load-status").hide()
@@ -63,37 +69,31 @@ IssueDetailsAssistant.prototype.setup = function(){
     Mojo.Log.info("[IssueDetailsAssistant] <== setup")
 };
 
-IssueDetailsAssistant.prototype.refreshIssueinfo = function(){
-    Mojo.Log.info("[IssueDetailsAssistant] ==> refreshIssueinfo")
-	
-    Github.request("/issues/show/#{user}/#{repo}/#{number}",{user:this.user,repo:this.repo,number:this.number}, {
-        onSuccess: function(response){
-            var content = Mojo.View.render({
-                object: response.responseJSON.issue,
-                template: 'issue-details/details'
-            })
-            $("details").update(content)
-        }
-.bind(this)        ,
-        onComplete: function(x){
-        
-            $("load-status").hide()
-            $("load-spinner").mojo.stop()
-            $("details").show()
-        },
-        onCreate: function(x){
-            $("details").hide()
-            $("load-status").show()
-        },
-    })
-	
-    Mojo.Log.info("[IssueDetailsAssistant] <== refreshIssueinfo")
-}
+IssueDetailsAssistant.prototype.updateMainModel = function(event){
+    Mojo.Log.info("[IssueDetailsAssistant] ==> updateRepo ")
+    $("details").update(Mojo.View.render({
+        object: this.mainModel,
+        template: "issue-details/details"
+    }))
+    
+    Mojo.Log.info("[IssueDetailsAssistant] <== updateRepo")
+};
 
 
 IssueDetailsAssistant.prototype.activate = function(event){
     Mojo.Log.info("[IssueDetailsAssistant] ==> activate")
-    this.refreshIssueinfo()
+    this.mainModel.update({
+        onCreate: function(){
+            $("details").hide()
+            $("load-spinner").mojo.start()
+            $("load-status").show()
+        },
+        onComplete: function(){
+            $("load-status").hide()
+            $("details").show()
+            $("load-spinner").mojo.stop()
+        }
+    })
     Mojo.Log.info("[IssueDetailsAssistant] <== activate")
 };
 
@@ -125,7 +125,7 @@ IssueDetailsAssistant.prototype.handleCommand = function(event){
                 break;
             case 'do-refresh':
                 event.stopPropagation()
-                this.refreshIssueinfo()
+                this.mainModel.refresh()
                 break;
         }
     }

@@ -66,10 +66,10 @@ CommentListAssistant.prototype.setup = function(){
     this.controller.setupWidget('content', {
         itemTemplate: 'comment-list/item-template',
         listTemplate: 'comment-list/list-template'
-    }, this.listModel = {
-        items: undefined,
-        listTitle: "Comments"
-    });
+    }, this.listModel = new Comments(this.user,this.repo,this.number));
+	this.listModel.bindWatcher(function(){this.controller.modelChanged(this.listModel)}.bind(this))
+	
+	
     Mojo.Log.info("[CommentListAssistant] <== setup")
 };
 
@@ -104,8 +104,16 @@ CommentListAssistant.prototype.refreshCommentlist = function(){
 
 CommentListAssistant.prototype.activate = function(event){
     Mojo.Log.info("[CommentListAssistant] ==> activate")
-    if (this.listModel.items == undefined) 
-        this.refreshCommentlist()
+    this.listModel.update({onComplete: function(x){
+            $("load-spinner").mojo.stop()
+            $("load-status").hide()
+            $("content").show()
+        },
+        onCreate: function(x){
+            $("load-spinner").mojo.start()
+            $("content").hide()
+            $("load-status").show()
+        }})
     Mojo.Log.info("[CommentListAssistant] <== activate")
 };
 
@@ -137,7 +145,7 @@ CommentListAssistant.prototype.handleCommand = function(event){
                 break;
             case 'do-refresh':
                 event.stopPropagation()
-                this.refreshCommentlist()
+                this.listModel.refresh()
                 break;
         }
     }

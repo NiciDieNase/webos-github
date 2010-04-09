@@ -6,7 +6,7 @@
                     ID
                 </div>
                 <div class="title left truncating-text">
-                    #{id}
+                    #{item.id}
                 </div>
             </div>
         </div>
@@ -16,7 +16,7 @@
                     Tree
                 </div>
                 <div class="title left truncating-text">
-                    #{tree}
+                    #{item.tree}
                 </div>
             </div>
         </div>
@@ -26,7 +26,7 @@
                     Url
                 </div>
                 <div class="title left truncating-text">
-                    #{url}
+                    <a href="#{item.url}">#{item.url}</a>
                 </div>
             </div>
         </div>
@@ -35,8 +35,8 @@
                 <div class="label">
                     Message
                 </div>
-                <div class="title left truncating-text">
-                    #{message}
+                <div class="title left multi-line">
+                    #{item.message}
                 </div>
             </div>
         </div>
@@ -46,11 +46,11 @@
                     Author
                 </div>
                 <div class="title left truncating-text">
-                    #{author.name}
+                    #{item.author.name}
                     <br>
-                    #{author.login}
+                    #{item.author.login}
                     <br>
-                    #{author.email}
+                    #{item.author.email}
                 </div>
             </div>
         </div>
@@ -60,11 +60,11 @@
                     Committer
                 </div>
                 <div class="title left truncating-text">
-                    #{committer.name}
+                    #{item.committer.name}
                     <br>
-                    #{committer.login}
+                    #{item.committer.login}
                     <br>
-                    #{committer.email}
+                    #{item.committer.email}
                 </div>
             </div>
         </div>
@@ -74,7 +74,7 @@
                     Committed Date
                 </div>
                 <div class="title left truncating-text">
-                    #{committed_date}
+                    #{item.committed_date}
                 </div>
             </div>
         </div>
@@ -84,7 +84,7 @@
                     Authored Date
                 </div>
                 <div class="title left truncating-text">
-                    #{authored_date}
+                    #{item.authored_date}
                 </div>
             </div>
         </div>

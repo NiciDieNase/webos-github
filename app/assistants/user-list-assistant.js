@@ -12,7 +12,6 @@ UserListAssistant.prototype.setup = function(){
     
     /* --- Bindings --- */
     this.openUserinfo = this.openUserinfo.bind(this)
-    this.refreshUsers = this.refreshUsers.bind(this)
     
     /* --- Loader-Status --- */
     this.controller.setupWidget("load-spinner", {
@@ -77,10 +76,8 @@ UserListAssistant.prototype.setup = function(){
     this.controller.setupWidget('content', {
         itemTemplate: 'user-list/item-template',
         listTemplate: 'user-list/list-template'
-    }, this.listModel = {
-        listTitle: "User List",
-        items: undefined
-    })
+    }, this.listModel = new Users(this.username))
+	this.listModel.bindWatcher(function(){this.controller.modelChanged(this.listModel)}.bind(this))
     
     
     Mojo.Log.info("[UserListAssistant] <== setup")
@@ -88,47 +85,7 @@ UserListAssistant.prototype.setup = function(){
 
 UserListAssistant.prototype.activate = function(event){
     Mojo.Log.info("[UserListAssistant] ==> activate")
-	if (this.listModel.items == undefined)
-    this.refreshUsers(this.direction)
-    Mojo.Log.info("[UserListAssistant] <== activate")
-};
-
-UserListAssistant.prototype.deactivate = function(event){
-    Mojo.Log.info("[UserListAssistant] <=> deactive")
-};
-
-UserListAssistant.prototype.cleanup = function(event){
-    Mojo.Log.info("[UserListAssistant] ==> cleanup")
-    Mojo.Event.stopListening(this.controller.get("content"), Mojo.Event.listTap, this.openUserinfo)
-    Mojo.Log.info("[UserListAssistant] <== cleanup")
-};
-
-UserListAssistant.prototype.refreshUsers = function(direction){
-    Mojo.Log.info("[UserListAssistant] ==> refreshUsers")
-    this.direction = direction
-    
-    
-    /* --- Load --- */
-    Github.request("/user/show/#{user}/#{direction}", {
-        user: this.username,
-        direction: direction
-    }, {
-        onSuccess: function(params, response){
-			Mojo.Log.info("[UserListAssistant] === refreshUsers -> onSuccess")
-            this.listModel.items = response.responseJSON.users.collect(function(value){
-                return {
-                    name: value
-                }
-            })
-            this.listModel.listTitle = ((params.direction == "following") ? "#{user} follows" : "Following #{user}").interpolate(params)
-            this.controller.modelChanged(this.listModel)
-            Mojo.Log.info("[UserListAssistant] === refreshUsers <- onSuccess")
-        }.bind(this, {
-            user: this.username,
-			direction: direction
-			
-        }),
-        onComplete: function(x){
+	this.listModel.update({onComplete: function(x){
             Mojo.Log.info("[UserListAssistant] === refreshUsers -> onComplete")
             $("load-spinner").mojo.stop()
             $("load-status").hide()
@@ -141,12 +98,19 @@ UserListAssistant.prototype.refreshUsers = function(direction){
             $("load-spinner").mojo.start()
             $("load-status").show()
             Mojo.Log.info("[UserListAssistant] === refreshUsers <- onCreate")
-        },
-    })
-    
-    
-    Mojo.Log.info("[UserListAssistant] <== refreshUsers")
-}
+        }})
+    Mojo.Log.info("[UserListAssistant] <== activate")
+};
+
+UserListAssistant.prototype.deactivate = function(event){
+    Mojo.Log.info("[UserListAssistant] <=> deactive")
+};
+
+UserListAssistant.prototype.cleanup = function(event){
+    Mojo.Log.info("[UserListAssistant] ==> cleanup")
+    Mojo.Event.stopListening(this.controller.get("content"), Mojo.Event.listTap, this.openUserinfo)
+    Mojo.Log.info("[UserListAssistant] <== cleanup")
+};
 
 UserListAssistant.prototype.openUserinfo = function(event){
     Mojo.Log.info("[UserListAssistant] ==> openUserinfo")
@@ -174,15 +138,17 @@ UserListAssistant.prototype.handleCommand = function(event){
                 break;
             case 'do-refresh':
                 event.stopPropagation()
-                this.refreshUsers(this.direction)
+                this.listModel.refresh()
                 break;
             case "cmd-showFollowers":
                 event.stopPropagation()
-                this.refreshUsers("followers")
+                this.listModel.setType("followers")
+				this.listModel.update()
                 break;
             case "cmd-showFollowing":
                 event.stopPropagation()
-                this.refreshUsers("following")
+                this.listModel.setType("following")
+				this.listModel.update()
                 break;
         }
     }

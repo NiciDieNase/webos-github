@@ -13,7 +13,6 @@ RefListAssistant.prototype.setup = function(){
     
     /* --- Bindings --- */
     this.handleCommand = this.handleCommand.bind(this)
-    this.refreshReflist = this.refreshReflist.bind(this)
     this.openRef = this.openRef.bind(this)
     
     
@@ -81,10 +80,9 @@ RefListAssistant.prototype.setup = function(){
     this.controller.setupWidget('content', {
         itemTemplate: 'ref-list/item-template',
         listTemplate: 'ref-list/list-template'
-    }, this.listModel = {
-        items: undefined,
-        listTitle: "Ref List"
-    });
+    }, this.listModel = new Refs(this.user,this.repo));
+	this.listModel.bindWatcher(function(){this.controller.modelChanged(this.listModel)}.bind(this))
+	
     Mojo.Log.info("[RefListAssistant] <== setup")
 };
 
@@ -129,14 +127,24 @@ RefListAssistant.prototype.refreshReflist = function(ref){
 
 RefListAssistant.prototype.openRef = function(event){
     Mojo.Log.info("[RefListAssistant] ==> openRef")
+	Mojo.Log.info(Mojo.Log.propertiesAsString(event.item))
     Mojo.Controller.stageController.pushScene("commit-list", this.user, this.repo, event.item.name)
     Mojo.Log.info("[RefListAssistant] <== openRef")
 }
 
 RefListAssistant.prototype.activate = function(event){
     Mojo.Log.info("[RefListAssistant] ==> acitvate")
-    if (this.listModel.items == undefined)
-    this.refreshReflist(this.ref)
+    this.listModel.update({onComplete: function(x){
+            $("load-spinner").mojo.stop()
+            $("load-status").hide()
+            $("content").show()
+        },
+        onCreate: function(x){
+            $("load-spinner").mojo.start()
+            $("content").hide()
+            $("load-status").show()
+        },
+    })
     Mojo.Log.info("[RefListAssistant] <== activate")
 };
 
@@ -168,15 +176,15 @@ RefListAssistant.prototype.handleCommand = function(event){
                 break;
             case 'do-refresh':
                 event.stopPropagation()
-                this.refreshReflist(this.ref)
+                this.listModel.refresh()
                 break;
             case "cmd-showTags":
                 event.stopPropagation()
-                this.refreshReflist("tags")
+                this.listModel.setType("tags")
                 break;
             case "cmd-showBranches":
                 event.stopPropagation()
-                this.refreshReflist("branches")
+                this.listModel.setType("branches")
                 break;
         }
     }

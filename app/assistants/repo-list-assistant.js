@@ -11,7 +11,6 @@ RepoListAssistant.prototype.setup = function(){
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
     /* --- Bindings --- */
-    this.refreshRepos = this.refreshRepos.bind(this)
     this.openRepo = this.openRepo.bind(this)
     
     
@@ -78,17 +77,28 @@ RepoListAssistant.prototype.setup = function(){
     this.controller.setupWidget('content', {
         itemTemplate: 'repo-list/item-template',
         listTemplate: 'repo-list/list-template'
-    }, this.listModel = {
-        items: undefined,
-        listTitle: "Repo List"
-    });
+    }, this.listModel = new Repos(this.username));
+	this.listModel.bindWatcher(function(){this.controller.modelChanged(this.listModel)}.bind(this))
+	
     Mojo.Log.info("[RepoListAssistant] <== setup")
 };
 
 RepoListAssistant.prototype.activate = function(event){
     Mojo.Log.info("[RepoListAssistant] ==> activate")
-    if (this.listModel.items == undefined)
-	this.refreshRepos(this.direction)
+	this.listModel.update({onComplete: function(x){
+            Mojo.Log.info("[RepoListAssistant] === refreshUsers -> onComplete")
+            $("load-spinner").mojo.stop()
+            $("load-status").hide()
+            $("content").show()
+            Mojo.Log.info("[RepoListAssistant] === refreshUsers <- onComplete")
+        },
+        onCreate: function(x){
+            Mojo.Log.info("[RepoListAssistant] === refreshUsers -> onCreate")
+            $("content").hide()
+            $("load-spinner").mojo.start()
+            $("load-status").show()
+            Mojo.Log.info("[RepoListAssistant] === refreshUsers <- onCreate")
+        }})
     Mojo.Log.info("[RepoListAssistant] <== activate")
 };
 
@@ -122,48 +132,19 @@ RepoListAssistant.prototype.handleCommand = function(event){
                 break;
             case 'do-refresh':
                 event.stopPropagation()
-                this.refreshRepos(this.direction)
+                this.listModel.refresh()
                 break;
             case "cmd-showOwn":
                 event.stopPropagation()
-                this.refreshRepos("show")
+                this.listModel.setType('show')
                 break;
             case "cmd-showWatched":
                 event.stopPropagation()
-                this.refreshRepos("watched")
+                this.listModel.setType('watched')
                 break;
         }
     }
     Mojo.Log.info("[RepoListAssistant] <== handleCommand")
-}
-
-RepoListAssistant.prototype.refreshRepos = function(direction){
-    Mojo.Log.info("[RepoListAssistant] ==> refreshRepos")
-	this.direction = direction
-	
-	
-    Github.request("/repos/#{direction}/#{user}",{
-		direction: direction,
-		user:this.username
-	}, {
-        onSuccess: function(params,response){
-            this.listModel.items = response.responseJSON.repositories
-			this.listModel.listTitle = ((params.direction == 'show') ? "#{user} Repos" : "Watched by #{user}").interpolate(params)
-            this.controller.modelChanged(this.listModel)
-        }.bind(this,{user:this.username,direction:direction}),
-		onComplete: function (x) {
-            $("load-spinner").mojo.stop()
-            $("load-status").hide()
-            $("content").show()
-		},
-		onCreate: function (x) {
-            $("content").hide()
-            $("load-spinner").mojo.start()
-            $("load-status").show()
-		},
-    })
-	
-    Mojo.Log.info("[RepoListAssistant] <== refreshRepos")
 }
 
 RepoListAssistant.prototype.openRepo = function(event){

@@ -22,11 +22,10 @@ ActivitiesListAssistant.prototype.setup = function() {
         itemTemplate: 'activities-list/item-template',
         listTemplate: 'activities-list/list-template',
         height: "auto"
-    }, this.listModel = {
-        items: [],
-        listTitle: "",
-        info: {}
-    });
+    }, this.listModel = new Activities(this.user));
+	this.listModel.bindWatcher(function(){this.controller.modelChanged(this.listModel)}.bind(this))
+	
+	
     /* --- App widgets --- */
     this.controller.setupWidget(Mojo.Menu.appMenu, {
         omitDefaultItems: true
@@ -68,7 +67,23 @@ ActivitiesListAssistant.prototype.setup = function() {
     Mojo.Event.listen($("content"), Mojo.Event.listTap, this.openEntry)
 };
 
-ActivitiesListAssistant.prototype.activate = function(event) {
+ActivitiesListAssistant.prototype.activate = function(event){
+    this.listModel.update({
+        onComplete: function(x){
+            $("load-spinner").mojo.stop()
+            $("load-status").hide()
+            $("content").show()
+        },
+        onCreate: function(x){
+            $("load-spinner").mojo.start()
+            $("content").hide()
+            $("load-status").show()
+        }
+    })
+}
+
+
+ActivitiesListAssistant.prototype.activateold = function(event) {
     Github.activitiesFeed({user:this.user},{
         onSuccess: function(response){
             Mojo.Log.info("[ActivitiesListAssistant] === activate -> onSuccess")

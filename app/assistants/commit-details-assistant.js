@@ -11,8 +11,15 @@ CommitDetailsAssistant.prototype.setup = function(){
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
     /* --- Bindings --- */
-    this.refreshCommiteinfo = this.refreshCommitinfo.bind(this)
     this.handleCommand = this.handleCommand.bind(this)
+    this.updateMainModel = this.updateMainModel.bind(this)
+    
+    this.mainModel = new Commit(this.user, this.repo, this.sha)
+    this.mainModel.bindWatcher(function(){
+        this.controller.modelChanged(this.mainModel)
+    }
+.bind(this))
+    this.controller.watchModel(this.mainModel, this, this.updateMainModel)
     
     
     /* --- Status widgets --- */
@@ -36,16 +43,8 @@ CommitDetailsAssistant.prototype.setup = function(){
         visible: true,
         items: [{
             items: [{
-                icon: "back",
-                command: 'back',
-                label: $L("Back")
-            }, {
                 label: $L("Commit Details"),
-                width: 200
-            }, {
-                icon: "forward",
-                command: 'fwd',
-                label: $L("Forward")
+                width: 320
             }]
         }]
     });
@@ -63,40 +62,30 @@ CommitDetailsAssistant.prototype.setup = function(){
     Mojo.Log.info("[CommitDetailsAssistant] <== setup")
 };
 
-CommitDetailsAssistant.prototype.refreshCommitinfo = function(){
-    Mojo.Log.info("[CommitDetailsAssistant] ==> refreshCommitinfo")
+CommitDetailsAssistant.prototype.updateMainModel = function(event){
+    Mojo.Log.info("[CommitDetailsAssistant] ==> updateRepo ")
+    $("details").update(Mojo.View.render({
+        object: this.mainModel,
+        template: "commit-details/details"
+    }))
     
-    Github.request("/commits/show/#{user}/#{repo}/#{sha}", {
-        user: this.user,
-        repo: this.repo,
-        sha: this.sha
-    }, {
-        onSuccess: function(response){
-            var content = Mojo.View.render({
-                object: response.responseJSON.commit,
-                template: 'commit-details/details'
-            })
-            $("details").update(content)
-        }
-.bind(this)        ,
-        onComplete: function(x){
-        
-            $("load-status").hide()
-            $("load-spinner").mojo.stop()
-            $("details").show()
-        },
-        onCreate: function(x){
-            $("details").hide()
-            $("load-status").show()
-        },
-    })
-    
-    Mojo.Log.info("[CommitDetailsAssistant] <== refreshCommitinfo")
-}
+    Mojo.Log.info("[CommitDetailsAssistant] <== updateRepo")
+};
 
 CommitDetailsAssistant.prototype.activate = function(event){
     Mojo.Log.info("[CommitDetailsAssistant] ==> activate")
-    this.refreshCommiteinfo()
+    this.mainModel.update({
+        onCreate: function(){
+            $("details").hide()
+            $("load-spinner").mojo.start()
+            $("load-status").show()
+        },
+        onComplete: function(){
+            $("load-status").hide()
+            $("details").show()
+            $("load-spinner").mojo.stop()
+        }
+    })
     Mojo.Log.info("[CommitDetailsAssistant] <== activate")
 };
 
@@ -112,23 +101,9 @@ CommitDetailsAssistant.prototype.handleCommand = function(event){
     Mojo.Log.info("[CommitDetailsAssistant] ==> handleCommand")
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
-            case 'back':
-                event.stopPropagation()
-                Mojo.Controller.stageController.swapScene({
-                    name: "commit-details",
-                    transition: Mojo.Transition.crossFade
-                }, this.user, this.repo, this.sha)
-                break;
-            case 'fwd':
-                event.stopPropagation()
-                Mojo.Controller.stageController.swapScene({
-                    name: "commit-details",
-                    transition: Mojo.Transition.crossFade
-                }, this.user, this.repo, this.sha)
-                break;
             case 'do-refresh':
                 event.stopPropagation()
-                this.refreshCommitinfo()
+                this.mainModel.refresh()
                 break;
         }
     }

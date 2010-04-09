@@ -12,7 +12,6 @@ CommitListAssistant.prototype.setup = function(){
     
     /* --- Bindings --- */
     this.handleCommand = this.handleCommand.bind(this)
-    this.refreshCommizlist = this.refreshCommitlist.bind(this)
     this.openCommit = this.openCommit.bind(this)
     
     
@@ -40,16 +39,8 @@ CommitListAssistant.prototype.setup = function(){
         visible: true,
         items: [{
             items: [{
-                icon: "back",
-                command: 'back',
-                label: "Back"
-            }, {
                 label: "Commit List",
-                width: 200
-            }, {
-                icon: "forward",
-                command: 'fwd',
-                label: "Forward"
+                width: 320
             }]
         }]
     });
@@ -70,17 +61,24 @@ CommitListAssistant.prototype.setup = function(){
     this.controller.setupWidget('content', {
         itemTemplate: 'commit-list/item-template',
         listTemplate: 'commit-list/list-template'
-    }, this.listModel = {
-        items: undefined,
-        listTitle: "Commit List"
-    });
+    }, this.listModel = new Commits(this.user,this.repo,this.ref));
+	this.listModel.bindWatcher(function(){this.controller.modelChanged(this.listModel)}.bind(this))
     Mojo.Log.info("[CommitListAssistant] <== setup")
 };
 
 CommitListAssistant.prototype.activate = function(event){
     Mojo.Log.info("[CommitListAssistant] ==> activate")
-    if (this.listModel.items == undefined) 
-        this.refreshCommitlist()
+    this.listModel.update({onComplete: function(x){
+            $("load-spinner").mojo.stop()
+            $("load-status").hide()
+            $("content").show()
+        },
+        onCreate: function(x){
+            $("load-spinner").mojo.start()
+            $("content").hide()
+            $("load-status").show()
+        },
+    })
     Mojo.Log.info("[CommitListAssistant] <== activate")
 };
 
@@ -100,60 +98,13 @@ CommitListAssistant.prototype.openCommit = function(event){
     Mojo.Log.info("[CommitListAssistant] <== openCommit")
 }
 
-CommitListAssistant.prototype.refreshCommitlist = function(){
-    Mojo.Log.info("[CommitListAssistant] ==> refreshCommitlist")
-    
-    Github.request("/commits/list/#{user}/#{repo}/#{ref}", {
-        user: this.user,
-        repo: this.repo,
-        ref: this.ref
-    }, {
-        onSuccess: function(params, response){
-            this.listModel.items = response.responseJSON.commits
-			this.listModel.listTitle = "Commits for #{user}/#{repo}/#{ref}".interpolate(params)
-            this.controller.modelChanged(this.listModel)
-        }
-.bind(this, {
-            user: this.user,
-            repo: this.repo,
-            ref: this.ref
-        }),
-        onComplete: function(x){
-            $("load-spinner").mojo.stop()
-            $("load-status").hide()
-            $("content").show()
-        },
-        onCreate: function(x){
-            $("load-spinner").mojo.start()
-            $("content").hide()
-            $("load-status").show()
-        },
-    })
-    
-    Mojo.Log.info("[CommitListAssistant] <== refreshCommitlist")
-}
-
 CommitListAssistant.prototype.handleCommand = function(event){
     Mojo.Log.info("[CommitListAssistant] ==> handleCommand")
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
-            case 'back':
-                event.stopPropagation()
-                Mojo.Controller.stageController.swapScene({
-                    name: "commit-list",
-                    transition: Mojo.Transition.crossFade
-                }, this.user, this.repo, this.ref)
-                break;
-            case 'fwd':
-                event.stopPropagation()
-                Mojo.Controller.stageController.swapScene({
-                    name: "commit-list",
-                    transition: Mojo.Transition.crossFade
-                }, this.user, this.repo, this.ref)
-                break;
             case 'do-refresh':
                 event.stopPropagation()
-                this.refreshCommitlist()
+                this.listModel.refresh()
                 break;
         }
     }

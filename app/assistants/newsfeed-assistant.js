@@ -5,6 +5,14 @@ function NewsfeedAssistant(){
 NewsfeedAssistant.prototype.setup = function(){
     this.openEntry = this.openEntry.bind(this)
     this.handleCommand = this.handleCommand.bind(this)
+    AdMob.ad.request({
+        onSuccess: (function(ad){ // successful ad call, parameter 'ad' is the html markup for the ad
+            $('admob').insert(ad); // place mark up in the the previously declared div
+        }).bind(this),
+        onFailure: (function(response){ 
+          Mojo.Log.info("AdMob failed: "+response.responseText)
+        }).bind(this),
+    });
     
     
     /* --- Status widgets --- */
@@ -22,11 +30,12 @@ NewsfeedAssistant.prototype.setup = function(){
         itemTemplate: 'newsfeed/item-template',
         listTemplate: 'newsfeed/list-template',
         height: "auto"
-    }, this.listModel = {
-        items: [],
-        listTitle: "",
-        info: {}
-    });
+    }, this.listModel = new Newsfeed(Github.auth.login));
+    this.listModel.bindWatcher(function(){
+        this.controller.modelChanged(this.listModel)
+    }
+.bind(this))
+    
     /* --- App widgets --- */
     this.controller.setupWidget(Mojo.Menu.appMenu, {
         omitDefaultItems: true
@@ -52,9 +61,6 @@ NewsfeedAssistant.prototype.setup = function(){
             items: [{
                 label: $L('Profile'),
                 command: 'cmd-showProfile',
-            }, {
-                label: $L('Search'),
-                command: 'cmd-showSearch',
             }]
         }, {
             label: $L('Refresh'),
@@ -63,17 +69,32 @@ NewsfeedAssistant.prototype.setup = function(){
         }]
     });
     
-    
     /* --- Event Listener --- */
     Mojo.Event.listen($("content"), Mojo.Event.listTap, this.openEntry)
     
 };
 
 NewsfeedAssistant.prototype.activate = function(event){
+    
+	
+    this.listModel.update({
+        onComplete: function(x){
+            $("load-spinner").mojo.stop()
+            $("load-status").hide()
+            $("content").show()
+        },
+        onCreate: function(x){
+            $("load-spinner").mojo.start()
+            $("content").hide()
+            $("load-status").show()
+        }
+    })
+}
+
+
+NewsfeedAssistant.prototype.activateold = function(event){
     Github.privateFeed({
         onSuccess: function(response){
-            Mojo.Log.info("[NewsfeedAssistant] === activate -> onSuccess")
-            //        $("debug").update(dump(response.responseATOM.feed.entry[0][1].updated))
             this.listModel.items = $H(response.responseATOM.feed.entry).collect(function(value){
                 var Ausdruck = /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})-(\d{2}):(\d{2})/;
                 var result = Ausdruck.exec(value[1].updated)
@@ -136,27 +157,15 @@ NewsfeedAssistant.prototype.handleCommand = function(event){
     Mojo.Log.info("[NewsfeedAssistant] ==> handleCommand")
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
-            case 'back':
+            case 'cmd-showProfile':
                 event.stopPropagation()
-                Mojo.Controller.stageController.swapScene({
-                    name: "ref-list",
-                    transition: Mojo.Transition.crossFade
-                }, this.user, this.repo)
-                break;
-            case 'fwd':
-                event.stopPropagation()
-                Mojo.Controller.stageController.swapScene({
-                    name: "repo-details",
-                    transition: Mojo.Transition.crossFade
-                }, this.user, this.repo)
-                break;
-            case "cmd-showProfile":
-                event.stopPropagation()
-                Mojo.Controller.stageController.pushScene("user-details", Github.auth.login)
+                Mojo.Controller.stageController.pushScene({
+                    name: "user-details",
+                }, Github.auth.login)
                 break;
             case 'do-refresh':
                 event.stopPropagation()
-                this.activate()
+                this.listModel.refresh()
                 break;
         }
     }

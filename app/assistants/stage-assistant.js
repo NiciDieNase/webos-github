@@ -8,15 +8,23 @@ function StageAssistant(){
         replace: false // open an existing depot
     };
     this.depot = new Mojo.Depot(options);
+    AdMob.ad.initialize({
+                pub_id: 'a14bbbbacb9e602', // your publisher id
+                bg_color: '#ccc', // optional background color, defaults to #fff
+                text_color: '#333', // optional background color, defaults to #000
+                test_mode: true // optional, set to true for testing ads, remove or set to false for production
+  });
     
     this.handleCommand = this.handleCommand.bind(this)
     Mojo.Log.info("[StageAssistant] <== Construct")
+	
 }
 
 
 StageAssistant.prototype.setup = function(){
     Mojo.Log.info("[StageAssistant] ==> setup")
     this.depot.get("auth", this.loadAuthorization.bind(this))
+	
     Mojo.Log.info("[StageAssistant] <== setup")
 };
 

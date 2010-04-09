@@ -15,33 +15,41 @@ Github.authorize = function(login, token){
 }
 
 Github.request = function(uriTemplate, params, options){
-    Mojo.Log.info("[Github] ==> request")
-    var uri = uriTemplate.interpolate(params)
-    Mojo.Log.info("[Github] === request: Called: " + uri)
-    
-    // Try here, if uri is called sometimes before
-    
-    options.postBody = (options.postBody == undefined) ? $H(Github.auth).toQueryString() : $(options.postBody).merge($H(Github.auth)).toQueryString()
-    if (options.method == undefined) {
-        options.method = "get"
-    }
-    
-    options.onSuccess = function(target, response){
-        target(response)
-    }
-.bind(undefined, options.onSuccess)
-    if (options.onFailure == undefined) {
-        options.onFailure = StageAssistant.connectionError
-    }
-    options.onCreate = function(target, response){
-        target(response)
-    }
-.bind(undefined, options.onCreate)
-    
-    options.onComplete = function(target, response){
-        target(response)
-    }
-.bind(undefined, options.onComplete)
+	Mojo.Log.info("[Github] ==> request")
+	var uri = uriTemplate.interpolate(params)
+	Mojo.Log.info("[Github] === request: Called: " + uri)
+	
+	// Try here, if uri is called sometimes before
+	
+	options.postBody = (options.postBody == undefined) ? $H(Github.auth).toQueryString() : $(options.postBody).merge($H(Github.auth)).toQueryString()
+	if (options.method == undefined) {
+		options.method = "get"
+	}
+	
+	options.onSuccess = function(target, response){
+		target(response)
+	}
+.bind(this, options.onSuccess)
+	if (options.onFailure == undefined) {
+		options.onFailure = StageAssistant.connectionError
+	}
+	
+	
+	if (options.onCreate != undefined) {
+	options.onCreate = function(target, response){
+		target(response)
+	}
+.bind(this, options.onCreate)
+}
+	
+	if (options.onComplete != undefined) {
+	options.onComplete = function(target, response){
+		target(response)
+	}
+.bind(this, options.onComplete)
+	
+}
+
     options.evalJSON = "false"
     
     Mojo.Log.info("[Github] === request: Request Body " + options.postBody)
