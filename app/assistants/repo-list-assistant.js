@@ -79,6 +79,8 @@ RepoListAssistant.prototype.setup = function(){
         listTemplate: 'repo-list/list-template'
     }, this.listModel = new Repos(this.username));
 	this.listModel.bindWatcher(function(){this.controller.modelChanged(this.listModel)}.bind(this))
+    
+    this.controller.get("load-status").hide()
 	
     Mojo.Log.info("[RepoListAssistant] <== setup")
 };

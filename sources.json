@@ -1,7 +1,6 @@
 [
     {"source": "resources/vendors/admob.js"},
     {"source": "resources/utils.js"},
-    {"source": "resources/xml2array.js"},
     {"source": "app/models/github.js"},
     {"source": "app/models/user.js"},
     {"source": "app/models/users.js"},

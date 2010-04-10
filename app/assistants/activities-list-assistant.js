@@ -65,6 +65,8 @@ ActivitiesListAssistant.prototype.setup = function() {
     
     /* --- Event Listener --- */
     Mojo.Event.listen($("content"), Mojo.Event.listTap, this.openEntry)
+	
+	this.controller.get("load-status").hide()
 };
 
 ActivitiesListAssistant.prototype.activate = function(event){

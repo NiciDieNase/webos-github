@@ -65,6 +65,8 @@ RepoDetailsAssistant.prototype.setup = function(){
         }]
     });
     
+    this.controller.get("load-status").hide()
+    
     Mojo.Log.info("[RepoDetailsAssistant] <== setup")
 };
 

@@ -67,6 +67,8 @@ IssueDetailsAssistant.prototype.setup = function(){
         }]
     });
     Mojo.Log.info("[IssueDetailsAssistant] <== setup")
+    
+    this.controller.get("load-status").hide()
 };
 
 IssueDetailsAssistant.prototype.updateMainModel = function(event){

@@ -79,6 +79,8 @@ UserListAssistant.prototype.setup = function(){
     }, this.listModel = new Users(this.username))
 	this.listModel.bindWatcher(function(){this.controller.modelChanged(this.listModel)}.bind(this))
     
+    this.controller.get("load-status").hide()
+    
     
     Mojo.Log.info("[UserListAssistant] <== setup")
 };

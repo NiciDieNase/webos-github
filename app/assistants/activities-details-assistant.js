@@ -19,6 +19,8 @@ ActivitiesDetailsAssistant.prototype.setup = function() {
             }]
         }]
     });
+	
+	this.controller.get("load-status").hide()
 };
 
 ActivitiesDetailsAssistant.prototype.activate = function(event) {

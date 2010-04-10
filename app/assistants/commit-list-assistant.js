@@ -64,6 +64,8 @@ CommitListAssistant.prototype.setup = function(){
     }, this.listModel = new Commits(this.user,this.repo,this.ref));
 	this.listModel.bindWatcher(function(){this.controller.modelChanged(this.listModel)}.bind(this))
     Mojo.Log.info("[CommitListAssistant] <== setup")
+    
+    this.controller.get("load-status").hide()
 };
 
 CommitListAssistant.prototype.activate = function(event){

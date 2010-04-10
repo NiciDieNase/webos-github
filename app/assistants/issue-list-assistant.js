@@ -84,6 +84,8 @@ IssueListAssistant.prototype.setup = function(){
 	this.listModel.bindWatcher(function(){this.controller.modelChanged(this.listModel)}.bind(this))
 	
     Mojo.Log.info("[IssueListAssistant] <== setup")
+    
+    this.controller.get("load-status").hide()
 };
 
 

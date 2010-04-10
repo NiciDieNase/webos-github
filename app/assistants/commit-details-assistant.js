@@ -70,6 +70,8 @@ CommitDetailsAssistant.prototype.updateMainModel = function(event){
     }))
     
     Mojo.Log.info("[CommitDetailsAssistant] <== updateRepo")
+    
+    this.controller.get("load-status").hide()
 };
 
 CommitDetailsAssistant.prototype.activate = function(event){

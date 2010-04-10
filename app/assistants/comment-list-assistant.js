@@ -71,6 +71,8 @@ CommentListAssistant.prototype.setup = function(){
 	
 	
     Mojo.Log.info("[CommentListAssistant] <== setup")
+    
+    this.controller.get("load-status").hide()
 };
 
 CommentListAssistant.prototype.refreshCommentlist = function(){

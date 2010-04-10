@@ -19,6 +19,8 @@ NewsfeedDetailsAssistant.prototype.setup = function() {
             }]
         }]
     });
+    
+    this.controller.get("load-status").hide()
 };
 
 NewsfeedDetailsAssistant.prototype.activate = function(event) {

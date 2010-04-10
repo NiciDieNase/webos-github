@@ -82,6 +82,8 @@ RefListAssistant.prototype.setup = function(){
         listTemplate: 'ref-list/list-template'
     }, this.listModel = new Refs(this.user,this.repo));
 	this.listModel.bindWatcher(function(){this.controller.modelChanged(this.listModel)}.bind(this))
+    
+    this.controller.get("load-status").hide()
 	
     Mojo.Log.info("[RefListAssistant] <== setup")
 };
