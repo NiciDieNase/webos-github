@@ -9,22 +9,22 @@ function StageAssistant(){
     };
     this.depot = new Mojo.Depot(options);
     AdMob.ad.initialize({
-                pub_id: 'a14bbbbacb9e602', // your publisher id
-                bg_color: '#ccc', // optional background color, defaults to #fff
-                text_color: '#333', // optional background color, defaults to #000
-                test_mode: true // optional, set to true for testing ads, remove or set to false for production
-  });
+        pub_id: 'a14bbbbacb9e602', // your publisher id
+        bg_color: '#ccc', // optional background color, defaults to #fff
+        text_color: '#333', // optional background color, defaults to #000
+        test_mode: true // optional, set to true for testing ads, remove or set to false for production
+    });
     
     this.handleCommand = this.handleCommand.bind(this)
     Mojo.Log.info("[StageAssistant] <== Construct")
-	
+    
 }
 
 
 StageAssistant.prototype.setup = function(){
     Mojo.Log.info("[StageAssistant] ==> setup")
     this.depot.get("auth", this.loadAuthorization.bind(this))
-	
+    
     Mojo.Log.info("[StageAssistant] <== setup")
 };
 
@@ -38,9 +38,9 @@ StageAssistant.prototype.loadAuthorization = function(auth){
     else {
         Mojo.Log.info("[StageAssistant] === loadAuthorization: Auth defined, push 'user-details'")
         this.auth = auth
-		Github.authorize(auth.username,auth.apikey)
-//        this.controller.pushScene("user-details", auth["username"])
-this.controller.pushScene("newsfeed",auth["username"],auth["apikey"])
+        Github.authorize(auth.login, auth.token)
+        //        this.controller.pushScene("user-details", auth["username"])
+        this.controller.pushScene("newsfeed", auth["login"], auth["token"])
     }
     Mojo.Log.info("[StageAssistant] <== loadAuthorization")
 }
@@ -57,6 +57,9 @@ StageAssistant.prototype.handleCommand = function(event){
             case Mojo.Menu.helpItem.command:
                 this.controller.pushAppSupportInfoScene()
                 break;
+            case Mojo.Menu.prefsItem.command:
+                this.controller.pushScene("preferences", this.depot, Github.auth)
+                break;
             default:
                 Mojo.Log.info("[StageAssistant] = handleCommand: '" + event.command + "' not handled here")
                 break;
@@ -69,11 +72,11 @@ StageAssistant.prototype.handleCommand = function(event){
 StageAssistant.connectionError = function(response){
     Mojo.Log.info("[StageAssistant] ==> connectionError")
     if ((response.responseJSON == undefined) || (response.responseJSON.error == undefined)) {
-        Mojo.Log.error("[StageAssistant] === connectionError: Error caused by Connection: " + response.status +" - '" +response.statusText + "' not handled correctly")
+        Mojo.Log.error("[StageAssistant] === connectionError: Error caused by Connection: " + response.status + " - '" + response.statusText + "' not handled correctly")
         Mojo.Controller.errorDialog(response.status + ": " + response.statusText)
     }
     else {
-        Mojo.Log.warn("[StageAssistant] === connectionError: Error caused by Application: "+response.responseJSON.error[0].error)
+        Mojo.Log.warn("[StageAssistant] === connectionError: Error caused by Application: " + response.responseJSON.error[0].error)
         Mojo.Controller.errorDialog(response.responseJSON.error[0].error)
     }
     Mojo.Log.info("[StageAssistant] <== connectionError")
@@ -82,12 +85,8 @@ StageAssistant.connectionError = function(response){
 StageAssistant.appMenu = {
     visible: true,
     items: [Mojo.Menu.editItem, {
-        label: $L('Update Token'),
-        command: 'cmd-updateToken'
-    }, {
         label: Mojo.Menu.prefsItem.label,
-        command: Mojo.Menu.prefsItem.command,
-        disabled: true
+        command: Mojo.Menu.prefsItem.command
     }, {
         label: Mojo.Menu.helpItem.label,
         command: Mojo.Menu.helpItem.command

@@ -4,18 +4,17 @@
     {"source": "app/models/github.js"},
     {"source": "app/models/user.js"},
     {"source": "app/models/users.js"},
-	{"source": "app/models/repository.js"},
+    {"source": "app/models/repository.js"},
     {"source": "app/models/repos.js"},
     {"source": "app/models/refs.js"},
     {"source": "app/models/issue.js"},
     {"source": "app/models/issues.js"},
-	{"source": "app/models/commit.js"},
+    {"source": "app/models/commit.js"},
     {"source": "app/models/commits.js"},
     {"source": "app/models/newsfeed.js"},
     {"source": "app/models/activities.js"},
     {"source": "app/models/comments.js"},
     {"source": "app/assistants/stage-assistant.js"},
-
     {
         "scenes": "auth",
         "source": "app/assistants/auth-assistant.js"
@@ -79,5 +78,9 @@
     {
         "scenes": "activities-details",
         "source": "app/assistants/activities-details-assistant.js"
+    },
+    {
+        "scenes": "preferences",
+        "source": "app/assistants/preferences-assistant.js"
     }
 ]

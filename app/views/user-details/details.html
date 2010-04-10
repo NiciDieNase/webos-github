@@ -1,11 +1,13 @@
 <div class="palm-group unlabeled">
     <div class="palm-list">
         <div class="palm-row first">
-            <div class="label">
-                Name
-            </div>
-            <div class="title left truncating-text palm-row-wrapper">
-                #{item.name}
+            <div class="palm-row-wrapper">
+                <div class="label">
+                    Name
+                </div>
+                <div class="title left truncating-text">
+                    #{item.name}
+                </div>
             </div>
         </div>
         <div class="palm-row">
@@ -19,11 +21,13 @@
             </div>
         </div>
         <div class="palm-row">
-            <div class="label">
-                E-Mail
-            </div>
-            <div class="title left truncating-text palm-row-wrapper">
-                <a href="mailto:#{email}">#{item.email}</a>
+            <div class="palm-row-wrapper">
+                <div class="label">
+                    E-Mail
+                </div>
+                <div class="title left truncating-text">
+                    <a href="mailto:#{email}">#{item.email}</a>
+                </div>
             </div>
         </div>
         <div class="palm-row">

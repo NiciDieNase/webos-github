@@ -3,8 +3,8 @@ function AuthAssistant(depot, auth){
     this.depot = depot
     if (auth == undefined) {
         this.model = {
-            "username": "",
-            "apikey": "",
+            "login": "",
+            "token": "",
             disabled: false
         };
     }
@@ -43,12 +43,12 @@ AuthAssistant.prototype.setup = function(){
 
     /* --- UI widgets --- */
     this.controller.setupWidget('login', usernameAttributes = {
-        hintText: 'Username',
-        modelProperty: 'username'
+        hintText: 'Login',
+        modelProperty: 'login'
     }, this.model);
     this.controller.setupWidget('token', apikeyAttributes = {
-        hintText: 'API Key',
-        modelProperty: 'apikey'
+        hintText: 'Token',
+        modelProperty: 'token'
     }, this.model);
     
     this.controller.setupWidget('update', {
@@ -56,7 +56,7 @@ AuthAssistant.prototype.setup = function(){
     }, this.buttonModel = {
         buttonLabel: 'Save',
         buttonClass: 'primary',
-        disabled: !((this.model.username.length > 0) && (this.model.apikey.length == 32))
+        disabled: !((this.model.login.length > 0) && (this.model.token.length == 32))
     });
     this.controller.setupWidget('cancel', {
         type: Mojo.Widget.defaultButton
@@ -70,7 +70,7 @@ AuthAssistant.prototype.setup = function(){
 
 AuthAssistant.prototype.propertyChanged = function(event){
     Mojo.Log.info("[AuthAssistant] ==> propertyChanged")
-    this.buttonModel.disabled = !((event.model.username.length > 0) && (event.model.apikey.length == 32))
+    this.buttonModel.disabled = !((event.model.login.length > 0) && (event.model.token.length == 32))
     this.controller.modelChanged(this.buttonModel)
     Mojo.Log.info("[AuthAssistant] <== propertyChanged")
 }
@@ -86,8 +86,8 @@ AuthAssistant.prototype.deactivate = function(event){
 AuthAssistant.prototype.verifyAuthorization = function(){
     Mojo.Log.info("[AuthAssistant] ==> verifyAuthorization")
 	
-	Github.authorize(this.model.username,this.model.apikey)
-    Github.request("/user/show/#{user}",{user:this.model.username}, {
+	Github.authorize(this.model.login,this.model.token)
+    Github.request("/user/show/#{user}",{user:this.model.login}, {
         onSuccess: this.updateAuthorization,
         onFailure: function(response){
             if ((response.responseJSON == undefined) || (response.responseJSON.error == undefined)) {
