@@ -126,7 +126,7 @@ AuthAssistant.prototype.proceed = function(){
     Mojo.Log.info("[AuthAssistant] ==> proceed")
     Mojo.Controller.stageController.auth = this.model
     Mojo.Controller.stageController.popScenesTo()
-    Mojo.Controller.stageController.pushScene("user-details", this.model["username"])
+    Mojo.Controller.stageController.pushScene("newsfeed", this.model["username"])
     Mojo.Log.info("[AuthAssistant] <== proceed")
 }
 
