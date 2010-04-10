@@ -11,7 +11,7 @@ User.prototype.refresh = function(options){
             Mojo.Log.info("[User] === refresh -> onSuccess")
             Mojo.Log.info("[User] === refresh : " + response.responseText)
             
-            User.mapping[this.login] = response.responseJSON.user
+            User.mapping[this.login] = Mojo.Model.format(response.responseJSON.user,User.formatters)
             
             this.update()
             Mojo.Log.info("[User] === refresh <- onSuccess")
@@ -43,3 +43,19 @@ User.prototype.bindWatcher = function(watcher){
     this.watcher = watcher
 }
 
+User.formatters = {
+	created_at: function (value, context) {
+		context.created_at = Mojo.Format.formatDate(new Date(value),{date:'medium',time:"short"})
+	},
+    blog: function (value, context) {
+        if (value.substr(0,11) == "http://www.") {
+            context.blog_title = value.substr(11)
+        } else {
+            if (value.substr(0,7) == "http://") {
+                context.blog_title = value.substr(7)
+            } else {
+                context.blog_title = value
+            }
+        }
+    }
+}

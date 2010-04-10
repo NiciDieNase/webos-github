@@ -13,7 +13,7 @@ Commit.prototype.refresh = function(options){
         Mojo.Log.info("[Commit] === refresh -> onSuccess")
         Mojo.Log.info("[Commit] === refresh : " + response.responseText)
         
-        Commit.mapping[this.login + "/" + this.repo + "/" + this.number] = response.responseJSON.commit
+        Commit.mapping[this.login + "/" + this.repo + "/" + this.number] = Mojo.Model.format(response.responseJSON.commit,Commit.formatters)
         
         this.update()
         Mojo.Log.info("[Commit] === refresh <- onSuccess")
@@ -47,3 +47,37 @@ Commit.prototype.bindWatcher = function(watcher){
     this.watcher = watcher
 }
 
+Commit.formatters = {
+	id: function(value, context){
+		context.id = value.substr(0, 8)
+	},
+	tree: function(value, context){
+		context.tree = value.substr(0, 8)
+	},
+	url: function(value, context){
+		context.url_title = value.substr(18)
+	},
+	committed_date: function(value, context){
+		var Ausdruck = /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})-(\d{2}):(\d{2})/;
+        var result = Ausdruck.exec(value)
+        var dateObj = new Date(result[1], parseInt(result[2]) - 1, result[3], parseInt(result[4]) + parseInt(result[7]), result[5], result[6])
+        
+        dateObj.setMinutes(dateObj.getMinutes() - dateObj.getTimezoneOffset())
+		
+		context.committed_date = Mojo.Format.formatDate(dateObj, {
+			date: "short",
+			time: "short"
+		})
+	},
+	authored_date: function(value, context){
+		var Ausdruck = /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})-(\d{2}):(\d{2})/;
+        var result = Ausdruck.exec(value)
+        var dateObj = new Date(result[1], parseInt(result[2]) - 1, result[3], parseInt(result[4]) + parseInt(result[7]), result[5], result[6])
+        
+        dateObj.setMinutes(dateObj.getMinutes() - dateObj.getTimezoneOffset())
+		context.authored_date = Mojo.Format.formatDate(dateObj, {
+			date: "short",
+			time: "short"
+		})
+	}
+}

@@ -14,7 +14,7 @@ Issue.prototype.refresh = function(options){
         Mojo.Log.info("[Issue] === refresh -> onSuccess")
         Mojo.Log.info("[Issue] === refresh : " + response.responseText)
         
-        Issue.mapping[this.login + "/" + this.repo + "/" + this.number] = response.responseJSON.issue
+        Issue.mapping[this.login + "/" + this.repo + "/" + this.number] = Mojo.Model.format(response.responseJSON.issue, Issue.formatters)
         
         this.update()
         Mojo.Log.info("[Issue] === refresh <- onSuccess")
@@ -48,3 +48,11 @@ Issue.prototype.bindWatcher = function(watcher){
     this.watcher = watcher
 }
 
+Issue.formatters = {
+    created_at: function (value,context) {
+        context.created_at = Mojo.Format.formatDate(new Date(value),{date:"medium",time:"short"})
+    },
+    updated_at:function (value,context) {
+        context.updated_at = Mojo.Format.formatDate(new Date(value),{date:"medium",time:"short"})
+    }
+}
