@@ -104,14 +104,10 @@ RepoListAssistant.prototype.setup = function(){
 };
 
 RepoListAssistant.prototype.activate = function(event){
-    AdMob.ad.request({
-        onSuccess: (function(ad){ // successful ad call, parameter 'ad' is the html markup for the ad
-            $('admob').insert(ad); // place mark up in the the previously declared div
-        }).bind(this),
-        onFailure: (function(response){ 
-        }).bind(this),
-    });
     Mojo.Log.info("[RepoListAssistant] ==> activate")
+	
+    StageAssistant.addAd(this.controller.get("admob"))
+	
 	this.listModel.update({onComplete: function(x){
             Mojo.Log.info("[RepoListAssistant] === refreshUsers -> onComplete")
             $("load-spinner").mojo.stop()

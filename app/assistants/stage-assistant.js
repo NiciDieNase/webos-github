@@ -100,6 +100,18 @@ StageAssistant.connectionError = function(response){
     Mojo.Log.info("[StageAssistant] <== connectionError")
 }
 
+StageAssistant.addAd = function (element) {
+	
+    AdMob.ad.request({
+        onSuccess: (function(ad){ // successful ad call, parameter 'ad' is the html markup for the ad
+            this.update()
+            this.insert(ad); // place mark up in the the previously declared div
+        }).bind(element),
+        onFailure: (function(response){ 
+        }),
+    });
+}
+
 StageAssistant.appMenu = {
     visible: true,
     items: [Mojo.Menu.editItem, {
@@ -110,3 +122,6 @@ StageAssistant.appMenu = {
         command: Mojo.Menu.helpItem.command
     }]
 }
+
+
+

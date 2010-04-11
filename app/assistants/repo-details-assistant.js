@@ -99,14 +99,10 @@ RepoDetailsAssistant.prototype.updateMainModel = function(event){
 };
 
 RepoDetailsAssistant.prototype.activate = function(event){
-    AdMob.ad.request({
-        onSuccess: (function(ad){ // successful ad call, parameter 'ad' is the html markup for the ad
-            $('admob').insert(ad); // place mark up in the the previously declared div
-        }).bind(this),
-        onFailure: (function(response){ 
-        }).bind(this),
-    });
     Mojo.Log.info("[RepoDetailsAssistant] ==> activate")
+	
+    StageAssistant.addAd(this.controller.get("admob"))
+	
     this.mainModel.update({
         onCreate: function(){
             $("details").hide()
