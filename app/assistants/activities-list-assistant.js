@@ -21,6 +21,14 @@ function ActivitiesListAssistant(user) {
 }
 
 ActivitiesListAssistant.prototype.setup = function() {
+    AdMob.ad.request({
+        onSuccess: (function(ad){ // successful ad call, parameter 'ad' is the html markup for the ad
+            $('admob').insert(ad); // place mark up in the the previously declared div
+        }).bind(this),
+        onFailure: (function(response){ 
+          Mojo.Log.info("AdMob failed: "+response.responseText)
+        }).bind(this),
+    });
     this.openEntry = this.openEntry.bind(this)
     this.handleCommand = this.handleCommand.bind(this)
     

@@ -21,6 +21,14 @@ function NewsfeedDetailsAssistant(entry) {
 }
 
 NewsfeedDetailsAssistant.prototype.setup = function() {
+    AdMob.ad.request({
+        onSuccess: (function(ad){ // successful ad call, parameter 'ad' is the html markup for the ad
+            $('admob').insert(ad); // place mark up in the the previously declared div
+        }).bind(this),
+        onFailure: (function(response){ 
+          Mojo.Log.info("AdMob failed: "+response.responseText)
+        }).bind(this),
+    });
     /* --- App widgets --- */
     this.controller.setupWidget(Mojo.Menu.appMenu, {
         omitDefaultItems: true
