@@ -1,35 +1,55 @@
-function RepoListAssistant(depot, auth, username){
-    /* this is the creator function for your scene assistant object. It will be passed all the 
-     
-     additional parameters (after the scene name) that were passed to pushScene. The reference
-     
-     to the scene controller (this.controller) has not be established yet, so any initialization
-     
-     that needs the scene controller should be done in the setup function below. */
-    this.depot = depot
-    this.auth = auth
+/*
+ * de.kingcrunch.github
+ *
+ * Copyright 2009 Sebastian "KingCrunch" Krebs <sebastian.krebs@kingcrunch.de>
+ *
+ * This file is part of "de.kingcrunch.gut".
+ * "de.kingcrunch.github" is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * "crunch" is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with "de.kingcrunch.github". If not, see <http://www.gnu.org/licenses/>.
+ */
+
+function RepoListAssistant(username){
+    Mojo.Log.info("[RepoListAssistant] ==> Construct")
     this.username = username
+	
+	this.direction = "show"
+    Mojo.Log.info("[RepoListAssistant] ==> Construct")
 }
 
 RepoListAssistant.prototype.setup = function(){
-	this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
-	
-	/* --- Bindings --- */
-    this.updateRepositories = this.updateRepositories.bind(this)
+    AdMob.ad.request({
+        onSuccess: (function(ad){ // successful ad call, parameter 'ad' is the html markup for the ad
+            $('admob').insert(ad); // place mark up in the the previously declared div
+        }).bind(this),
+        onFailure: (function(response){ 
+          Mojo.Log.info("AdMob failed: "+response.responseText)
+        }).bind(this),
+    });
+    Mojo.Log.info("[RepoListAssistant] ==> setup")
+    this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
+    
+    /* --- Bindings --- */
     this.openRepo = this.openRepo.bind(this)
     
-	
+    
     /* --- Status widgets --- */
-    $("content").hide()
-    $("load-status").show()
+	$("load-spinner").hide()
     this.controller.setupWidget("load-spinner", {
         spinnerSize: "large"
     }, {
-        spinning: true
+        spinning: false
     })
     
     
-	/* --- Event Listener --- */
+    /* --- Event Listener --- */
     Mojo.Event.listen($("content"), Mojo.Event.listTap, this.openRepo)
     
     
@@ -58,38 +78,70 @@ RepoListAssistant.prototype.setup = function(){
         }]
     });
     
+    this.controller.setupWidget(Mojo.Menu.commandMenu, undefined, {
+        visible: true,
+        items: [{
+            visible:false
+        }, {
+            items: [{
+                label: $L('Own'),
+                command: 'cmd-showOwn',
+            }, {
+                label: $L('Watched'),
+                command: 'cmd-showWatched',
+            }],
+            toggleCmd: "cmd-showOwn"
+        }, {
+            label: $L('Refresh'),
+            icon: 'refresh',
+            command: 'do-refresh'
+        }]
+    });
     
-    /* --- UI widget --- */ 
+    
+    /* --- UI widget --- */
     this.controller.setupWidget('content', {
         itemTemplate: 'repo-list/item-template',
         listTemplate: 'repo-list/list-template'
-    }, this.listModel = {
-        items: [],
-        listTitle: "Repositories"
-    });
+    }, this.listModel = new Repos(this.username));
+	this.listModel.bindWatcher(function(){this.controller.modelChanged(this.listModel)}.bind(this))
     
+    this.controller.get("load-status").hide()
 	
-    /* --- Load ---*/
-    var request = new Ajax.Request("https://github.com/api/v2/json/repos/show/" + this.username, {
-        method: "post",
-        evalJSON: "false",
-        onSuccess: this.updateRepositories,
-        onFailure: StageAssistant.connectionError,
-        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey'])
-    })
+    Mojo.Log.info("[RepoListAssistant] <== setup")
 };
 
-RepoListAssistant.prototype.activate = function(event, auth){
+RepoListAssistant.prototype.activate = function(event){
+    Mojo.Log.info("[RepoListAssistant] ==> activate")
+	this.listModel.update({onComplete: function(x){
+            Mojo.Log.info("[RepoListAssistant] === refreshUsers -> onComplete")
+            $("load-spinner").mojo.stop()
+            $("load-status").hide()
+            $("content").show()
+            Mojo.Log.info("[RepoListAssistant] === refreshUsers <- onComplete")
+        },
+        onCreate: function(x){
+            Mojo.Log.info("[RepoListAssistant] === refreshUsers -> onCreate")
+            $("content").hide()
+            $("load-spinner").mojo.start()
+            $("load-status").show()
+            Mojo.Log.info("[RepoListAssistant] === refreshUsers <- onCreate")
+        }})
+    Mojo.Log.info("[RepoListAssistant] <== activate")
 };
 
 RepoListAssistant.prototype.deactivate = function(event){
+    Mojo.Log.info("[RepoListAssistant] <=> deactive")
 };
 
 RepoListAssistant.prototype.cleanup = function(event){
-    Mojo.Event.stopListening($("repositories-list"), Mojo.Event.listTap, this.openRepo)
+    Mojo.Log.info("[RepoListAssistant] ==> cleanup")
+    Mojo.Event.stopListening($("content"), Mojo.Event.listTap, this.openRepo)
+    Mojo.Log.info("[RepoListAssistant] <== clean")
 };
 
 RepoListAssistant.prototype.handleCommand = function(event){
+    Mojo.Log.info("[RepoListAssistant] ==> handleCommand")
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
             case 'back':
@@ -97,27 +149,35 @@ RepoListAssistant.prototype.handleCommand = function(event){
                 Mojo.Controller.stageController.swapScene({
                     name: "user-details",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.username)
+                }, this.username)
                 break;
             case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
-                    name: "user-list",
+                    name: "activities-list",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.username)
+                }, this.username)
+                break;
+            case 'do-refresh':
+                event.stopPropagation()
+                this.listModel.refresh()
+                break;
+            case "cmd-showOwn":
+                event.stopPropagation()
+                this.listModel.setType('show')
+                break;
+            case "cmd-showWatched":
+                event.stopPropagation()
+                this.listModel.setType('watched')
                 break;
         }
     }
+    Mojo.Log.info("[RepoListAssistant] <== handleCommand")
 }
 
 RepoListAssistant.prototype.openRepo = function(event){
-    Mojo.Controller.stageController.pushScene("repo-details", this.depot, this.auth, event.item.owner, event.item.name)
+    Mojo.Log.info("[RepoListAssistant] ==> openRepo")
+    Mojo.Controller.stageController.pushScene("repo-details", event.item.owner, event.item.name)
+    Mojo.Log.info("[RepoListAssistant] <== openRepo")
 }
 
-RepoListAssistant.prototype.updateRepositories = function(response){
-    this.listModel.items = response.responseJSON.repositories
-    $("load-spinner").mojo.stop()
-    this.controller.modelChanged(this.listModel)
-    $("load-status").hide()
-    $("content").show()
-}

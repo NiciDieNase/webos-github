@@ -2,34 +2,35 @@ WebOS-Github
 ===
 The (as far as I know) first Github app for WebOS (Palm Pre and Pixi) ever.
 
+Note, that this app will likely distributed as a paid app in palms app-shop, when its not under development anymore. Till then no package files will be provided by me.
+However, you can still download the source, build your own package, install it via QuickInstall and use it for free.
+
 Goals
 ---
 Allow control about your Github account and repositories with a native WebOS interface
 
 Features (v0.0.1)
 ----
-You can browse your own and your friends (and theire friends and so on) repositories and issues
+You can browse your own and your followers/following (and theire followers/following and so on) repositories and issues
+
+Installation
+----
+Use WebOSQuickInstall for install the package ipk-file.
 
 Plans
 ---
 - More Scenes: Comments on Issues, Commits and a Tree-view
-- More Links: Click on somethig and you get somewhere
-- Search: Repos and Users
-
-Feedback
----
-Do it! There are many ways to contact me spread all over the application and this documents. If there is something you don't like (or something), get active. If you think, you can make something better: Do it! See CONTRIBUTE.md
+- More Links: Click on something and you get somewhere
+- Search
 
 Contribute
 ---
-See CONTRIBUTE.md (Do it ;))
-
+See CONTRIBUTE.md
 
 Copyright
 ---
-See License for further details. This is Open-Source
+See License for further details. This is OSS under LGPL
 2010
 Sebastian "KingCrunch" Krebs
 sebastian.krebs@kingcrunch.de
 http://www.www.kingcrunch,de/
-See License for further details

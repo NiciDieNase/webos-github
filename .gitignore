@@ -1,3 +1,5 @@
 .project
-.tmp*
+.tmp_*
+*.ipk
+.settings/
 

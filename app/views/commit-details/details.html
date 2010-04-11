@@ -1,0 +1,92 @@
+<div class="palm-group unlabeled">
+    <div class="palm-list">
+        <div class="palm-row first">
+            <div class="palm-row-wrapper">
+                <div class="label">
+                    ID
+                </div>
+                <div class="title left truncating-text">
+                    #{item.id}
+                </div>
+            </div>
+        </div>
+        <div class="palm-row">
+            <div class="palm-row-wrapper">
+                <div class="label">
+                    Tree
+                </div>
+                <div class="title left truncating-text">
+                    #{item.tree}
+                </div>
+            </div>
+        </div>
+        <div class="palm-row">
+            <div class="palm-row-wrapper">
+                <div class="label">
+                    Url
+                </div>
+                <div class="title left truncating-text">
+                    <a href="#{item.url}">#{item.url_title}</a>
+                </div>
+            </div>
+        </div>
+        <div class="palm-row">
+            <div class="palm-row-wrapper">
+                <div class="label">
+                    Message
+                </div>
+                <div class="title left multi-line">
+                    #{item.message}
+                </div>
+            </div>
+        </div>
+        <div class="palm-row">
+            <div class="palm-row-wrapper">
+                <div class="label">
+                    Author
+                </div>
+                <div class="title left truncating-text">
+                    #{item.author.name}
+                    <br>
+                    #{item.author.login}
+                    <br>
+                    #{item.author.email}
+                </div>
+            </div>
+        </div>
+        <div class="palm-row">
+            <div class="palm-row-wrapper">
+                <div class="label">
+                    Committer
+                </div>
+                <div class="title left truncating-text">
+                    #{item.committer.name}
+                    <br>
+                    #{item.committer.login}
+                    <br>
+                    #{item.committer.email}
+                </div>
+            </div>
+        </div>
+        <div class="palm-row">
+            <div class="palm-row-wrapper">
+                <div class="label">
+                    Committed Date
+                </div>
+                <div class="title left">
+                    #{item.committed_date}
+                </div>
+            </div>
+        </div>
+        <div class="palm-row last">
+            <div class="palm-row-wrapper">
+                <div class="label">
+                    Authored Date
+                </div>
+                <div class="title left">
+                    #{item.authored_date}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

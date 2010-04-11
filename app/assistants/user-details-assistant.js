@@ -1,29 +1,57 @@
-function UserDetailsAssistant(depot, auth, username){
-    /* this is the creator function for your scene assistant object. It will be passed all the 
-     additional parameters (after the scene name) that were passed to pushScene. The reference
-     to the scene controller (this.controller) has not be established yet, so any initialization
-     that needs the scene controller should be done in the setup function below. */
-    this.depot = depot
-    this.auth = auth
+/*
+ * de.kingcrunch.github
+ *
+ * Copyright 2009 Sebastian "KingCrunch" Krebs <sebastian.krebs@kingcrunch.de>
+ *
+ * This file is part of "de.kingcrunch.gut".
+ * "de.kingcrunch.github" is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * "crunch" is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with "de.kingcrunch.github". If not, see <http://www.gnu.org/licenses/>.
+ */
+
+function UserDetailsAssistant(username){
+    Mojo.Log.info("[UserDetailsAssistant] ==> Construct")
     this.username = username
+    Mojo.Log.info("[UserDetailsAssistant] <=== Construct")
 }
 
 UserDetailsAssistant.prototype.setup = function(){
-	this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
-	
-    /* --- Bindings --- */
-    this.updateUserinfo = this.updateUserinfo.bind(this)
+    AdMob.ad.request({
+        onSuccess: (function(ad){ // successful ad call, parameter 'ad' is the html markup for the ad
+            $('admob').insert(ad); // place mark up in the the previously declared div
+        }).bind(this),
+        onFailure: (function(response){ 
+          Mojo.Log.info("AdMob failed: "+response.responseText)
+        }).bind(this),
+    });
+    Mojo.Log.info("[UserDetailsAssistant] ==> setup")
+    this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
-    /* --- Loader-Status --- */
-    $("content").hide()
-    $("load-status").show()
+    /* --- Bindings --- */
+    this.updateInfo = this.updateInfo.bind(this)
+    
+    this.user = new User(this.username)
+    
+    this.user.bindWatcher(function(){
+        this.controller.modelChanged(this.user)
+    }
+.bind(this))
+    this.controller.watchModel(this.user, this, this.updateInfo)
+    
+    /* --- Main widgets --- */
     this.controller.setupWidget("load-spinner", {
         spinnerSize: "large"
     }, {
-        spinning: true
+        spinning: false
     })
     
-    /* --- Main widgets --- */
     // App Menu
     this.controller.setupWidget(Mojo.Menu.appMenu, {
         omitDefaultItems: true
@@ -51,31 +79,52 @@ UserDetailsAssistant.prototype.setup = function(){
         }]
     });
     
-    /* --- Load --- */
-    new Ajax.Request("https://github.com/api/v2/json/user/show/" + escape(this.username), {
-        evalJSON: "false",
-        onSuccess: this.updateUserinfo,
-        onFailure: StageAssistant.connectionError,
-        postBody: "login=" + escape(this.auth['username']) + "&token=" + escape(this.auth['apikey']),
-        method: (this.auth.username === this.username) ? "post" : "get"
-    })
+    this.controller.setupWidget(Mojo.Menu.commandMenu, undefined, {
+        visible: true,
+        items: [{
+            visible: false
+        }, {
+            label: $L('Refresh'),
+            icon: 'refresh',
+            command: 'do-refresh'
+        }]
+    });
+    
+    this.controller.get("load-status").hide()
+    
+    Mojo.Log.info("[UserDetailsAssistant] <== setup")
 };
 
 UserDetailsAssistant.prototype.activate = function(event){
+    Mojo.Log.info("[UserDetailsAssistant] ==> activate")
+    this.user.update({
+        onCreate: function(){
+            $("content").hide()
+            $("load-spinner").mojo.start()
+            $("load-status").show()
+        },
+        onComplete: function(){
+            $("load-status").hide()
+            $("content").show()
+            $("load-spinner").mojo.stop()
+        }
+    })
+    Mojo.Log.info("[UserDetailsAssistant] <== activate")
 };
 
 UserDetailsAssistant.prototype.deactivate = function(event){
+    Mojo.Log.info("[UserDetailsAssistant] <=> deactivate")
 };
 
 UserDetailsAssistant.prototype.cleanup = function(event){
+    Mojo.Log.info("[UserDetailsAssistant] <=> cleanup")
 };
 
-
-UserDetailsAssistant.prototype.updateUserinfo = function(response){
-    $("load-spinner").mojo.stop()
+UserDetailsAssistant.prototype.updateInfo = function(event){
+    Mojo.Log.info("[UserDetailsAssistant] ==> updateInfo " + this.user.name)
     $("content").update(Mojo.View.render({
-        object: response.responseJSON.user,
-        template: (response.responseJSON.user.login === this.auth["username"]) ? "user-details/private-details" : "user-details/public-details",
+        object: this.user,
+        template: "user-details/details",
         formatters: {
             created_at: function(value, model){
                 model.created_at = Mojo.Format.formatDate(new Date(value), {
@@ -84,13 +133,13 @@ UserDetailsAssistant.prototype.updateUserinfo = function(response){
             },
         }
     }))
-	
-    $("load-status").hide()
-    $("content").show()
-}
+    
+    Mojo.Log.info("[UserDetailsAssistant] <== updateInfo")
+};
 
 
 UserDetailsAssistant.prototype.handleCommand = function(event){
+    Mojo.Log.info("[UserDetailsAssistant] ==> handleCommand")
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
             case 'back':
@@ -98,15 +147,20 @@ UserDetailsAssistant.prototype.handleCommand = function(event){
                 Mojo.Controller.stageController.swapScene({
                     name: "user-list",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.username)
+                }, this.username)
                 break;
             case 'fwd':
                 event.stopPropagation()
                 Mojo.Controller.stageController.swapScene({
                     name: "repo-list",
                     transition: Mojo.Transition.crossFade
-                }, this.depot, this.auth, this.username)
+                }, this.username)
+                break;
+            case 'do-refresh':
+                event.stopPropagation()
+                this.user.refresh()
                 break;
         }
     }
+    Mojo.Log.info("[UserDetailsAssistant] <== handleCommand")
 }

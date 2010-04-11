@@ -1,67 +1,83 @@
 <div class="palm-group unlabeled">
     <div class="palm-list">
         <div class="palm-row first">
-            <div class="label">
-                Number
-            </div>
-            <div class="title left truncating-text palm-row-wrapper">
-                #{number}
-            </div>
-        </div>
-        <div class="palm-row">
-            <div class="label">
-                Title
-            </div>
-            <div class="title left truncating-text palm-row-wrapper">
-                #{title}
+            <div class="palm-row-wrapper">
+                <div class="label">
+                    Number
+                </div>
+                <div class="title left truncating-text">
+                    #{item.number}
+                </div>
             </div>
         </div>
         <div class="palm-row">
-            <div class="label">
-                Body
-            </div>
-            <div class="title left truncating-text palm-row-wrapper">
-                #{body}
-            </div>
-        </div>
-        <div class="palm-row">
-            <div class="label">
-                Votes
-            </div>
-            <div class="title left truncating-text palm-row-wrapper">
-                #{votes}
+            <div class="palm-row-wrapper">
+                <div class="label">
+                    Title
+                </div>
+                <div class="title left truncating-text">
+                    #{item.title}
+                </div>
             </div>
         </div>
         <div class="palm-row">
-            <div class="label">
-                Created at
-            </div>
-            <div class="title left truncating-text palm-row-wrapper">
-                #{created_at}
-            </div>
-        </div>
-        <div class="palm-row">
-            <div class="label">
-                Updated at
-            </div>
-            <div class="title left truncating-text palm-row-wrapper">
-                #{updated_at}
+            <div class="palm-row-wrapper">
+                <div class="label">
+                    Body
+                </div>
+                <div class="title left truncating-text">
+                    #{item.body}
+                </div>
             </div>
         </div>
         <div class="palm-row">
-            <div class="label">
-                User
+            <div class="palm-row-wrapper">
+                <div class="label">
+                    Votes
+                </div>
+                <div class="title left truncating-text">
+                    #{item.votes}
+                </div>
             </div>
-            <div class="title left truncating-text palm-row-wrapper">
-                #{user}
+        </div>
+        <div class="palm-row">
+            <div class="palm-row-wrapper">
+                <div class="label">
+                    Created at
+                </div>
+                <div class="title left truncating-text">
+                    #{item.created_at}
+                </div>
+            </div>
+        </div>
+        <div class="palm-row">
+            <div class="palm-row-wrapper">
+                <div class="label">
+                    Updated at
+                </div>
+                <div class="title left truncating-text">
+                    #{item.updated_at}
+                </div>
+            </div>
+        </div>
+        <div class="palm-row">
+            <div class="palm-row-wrapper">
+                <div class="label">
+                    User
+                </div>
+                <div class="title left truncating-text">
+                    #{item.user}
+                </div>
             </div>
         </div>
         <div class="palm-row last">
-            <div class="label">
-                State
-            </div>
-            <div class="title left truncating-text palm-row-wrapper">
-                #{state}
+            <div class="palm-row-wrapper">
+                <div class="label">
+                    State
+                </div>
+                <div class="title left truncating-text">
+                    #{item.state}
+                </div>
             </div>
         </div>
     </div>
