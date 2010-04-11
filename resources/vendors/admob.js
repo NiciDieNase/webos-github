@@ -85,7 +85,8 @@ AdMob.ad = function() {
                 ex: 1, // use client's ip address for i field
                 o: udid, // uuid
                 v: '20091118-WEBOSSDK-3cd2b53620088ef8',
-                f: 'jsonp'
+                f: 'jsonp',
+				to:"10"
             }
             if(test_mode) params.m = 'test';
 
