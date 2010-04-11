@@ -22,14 +22,6 @@ function PreferencesAssistant(depot, auth){
 }
 
 PreferencesAssistant.prototype.setup = function(){
-    AdMob.ad.request({
-        onSuccess: (function(ad){ // successful ad call, parameter 'ad' is the html markup for the ad
-            $('admob').insert(ad); // place mark up in the the previously declared div
-        }).bind(this),
-        onFailure: (function(response){ 
-          Mojo.Log.info("AdMob failed: "+response.responseText)
-        }).bind(this),
-    });
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
     
@@ -75,6 +67,13 @@ PreferencesAssistant.prototype.setup = function(){
 };
 
 PreferencesAssistant.prototype.activate = function(event){
+    AdMob.ad.request({
+        onSuccess: (function(ad){ // successful ad call, parameter 'ad' is the html markup for the ad
+            $('admob').insert(ad); // place mark up in the the previously declared div
+        }).bind(this),
+        onFailure: (function(response){ 
+        }).bind(this),
+    });
 };
 
 PreferencesAssistant.prototype.deactivate = function(event){

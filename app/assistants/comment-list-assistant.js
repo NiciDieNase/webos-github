@@ -25,14 +25,6 @@ function CommentListAssistant(user, repo, number){
 }
 
 CommentListAssistant.prototype.setup = function(){
-    AdMob.ad.request({
-        onSuccess: (function(ad){ // successful ad call, parameter 'ad' is the html markup for the ad
-            $('admob').insert(ad); // place mark up in the the previously declared div
-        }).bind(this),
-        onFailure: (function(response){ 
-          Mojo.Log.info("AdMob failed: "+response.responseText)
-        }).bind(this),
-    });
     Mojo.Log.info("[CommentListAssistant] ==> setup")
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
@@ -131,6 +123,13 @@ CommentListAssistant.prototype.refreshCommentlist = function(){
 }
 
 CommentListAssistant.prototype.activate = function(event){
+    AdMob.ad.request({
+        onSuccess: (function(ad){ // successful ad call, parameter 'ad' is the html markup for the ad
+            $('admob').insert(ad); // place mark up in the the previously declared div
+        }).bind(this),
+        onFailure: (function(response){ 
+        }).bind(this),
+    });
     Mojo.Log.info("[CommentListAssistant] ==> activate")
     this.listModel.update({onComplete: function(x){
             $("load-spinner").mojo.stop()

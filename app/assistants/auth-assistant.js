@@ -38,7 +38,6 @@ AuthAssistant.prototype.setup = function(){
             $('admob').insert(ad); // place mark up in the the previously declared div
         }).bind(this),
         onFailure: (function(response){ 
-          Mojo.Log.info("AdMob failed: "+response.responseText)
         }).bind(this),
     });
     Mojo.Log.info("[AuthAssistant] ==> setup")

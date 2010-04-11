@@ -25,14 +25,6 @@ function CommitListAssistant(user, repo, ref){
 }
 
 CommitListAssistant.prototype.setup = function(){
-    AdMob.ad.request({
-        onSuccess: (function(ad){ // successful ad call, parameter 'ad' is the html markup for the ad
-            $('admob').insert(ad); // place mark up in the the previously declared div
-        }).bind(this),
-        onFailure: (function(response){ 
-          Mojo.Log.info("AdMob failed: "+response.responseText)
-        }).bind(this),
-    });
     Mojo.Log.info("[CommitListAssistant] ==> setup")
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
@@ -95,6 +87,13 @@ CommitListAssistant.prototype.setup = function(){
 };
 
 CommitListAssistant.prototype.activate = function(event){
+    AdMob.ad.request({
+        onSuccess: (function(ad){ // successful ad call, parameter 'ad' is the html markup for the ad
+            $('admob').insert(ad); // place mark up in the the previously declared div
+        }).bind(this),
+        onFailure: (function(response){ 
+        }).bind(this),
+    });
     Mojo.Log.info("[CommitListAssistant] ==> activate")
     this.listModel.update({onComplete: function(x){
             $("load-spinner").mojo.stop()
