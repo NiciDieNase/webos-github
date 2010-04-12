@@ -18,14 +18,16 @@
 
 function StageAssistant(){
     Mojo.Log.info("[StageAssistant] ==> Construct")
-    var options = {
+	
+    this.depot = new Mojo.Depot({
         name: "de.kingcrunch.github",
         version: 1,
         //displayName: "de.kingcrunch.github",
         //estimatedSize: 200000, 
         replace: false // open an existing depot
-    };
-    this.depot = new Mojo.Depot(options);
+    });
+	
+	
     AdMob.ad.initialize({
         pub_id: 'a14bbbbacb9e602', // your publisher id
         bg_color: '#ccc', // optional background color, defaults to #fff
@@ -34,6 +36,7 @@ function StageAssistant(){
     });
     
     this.handleCommand = this.handleCommand.bind(this)
+	
     Mojo.Log.info("[StageAssistant] <== Construct")
     
 }
@@ -41,6 +44,7 @@ function StageAssistant(){
 
 StageAssistant.prototype.setup = function(){
     Mojo.Log.info("[StageAssistant] ==> setup")
+	
     this.depot.get("auth", this.loadAuthorization.bind(this))
     
     Mojo.Log.info("[StageAssistant] <== setup")
@@ -49,6 +53,7 @@ StageAssistant.prototype.setup = function(){
 
 StageAssistant.prototype.loadAuthorization = function(auth){
     Mojo.Log.info("[StageAssistant] ==> loadAuthorization")
+	
     if (auth == undefined) {
         Mojo.Log.info("[StageAssistant] === loadAuthorization: Auth undefined, push 'auth'")
         this.controller.pushScene("auth", this.depot)
@@ -60,11 +65,13 @@ StageAssistant.prototype.loadAuthorization = function(auth){
         //        this.controller.pushScene("user-details", auth["username"])
         this.controller.pushScene("newsfeed", auth["login"], auth["token"])
     }
+	
     Mojo.Log.info("[StageAssistant] <== loadAuthorization")
 }
 
 StageAssistant.prototype.handleCommand = function(event){
     Mojo.Log.info("[StageAssistant] ==> handleCommand")
+	
     if (event.type == Mojo.Event.command) {
         Mojo.Log.info("[StageController] = handleCommand: '" + event.command + "' received")
         switch (event.command) {
@@ -84,11 +91,13 @@ StageAssistant.prototype.handleCommand = function(event){
                 
         }
     }
+	
     Mojo.Log.info("[StageAssistant] <== loadAuthorization")
 }
 
 StageAssistant.connectionError = function(response){
     Mojo.Log.info("[StageAssistant] ==> connectionError")
+	
     if ((response.responseJSON == undefined) || (response.responseJSON.error == undefined)) {
         Mojo.Log.error("[StageAssistant] === connectionError: Error caused by Connection: " + response.status + " - '" + response.statusText + "' not handled correctly")
         Mojo.Controller.errorDialog(response.status + ": " + response.statusText)
@@ -97,10 +106,12 @@ StageAssistant.connectionError = function(response){
         Mojo.Log.warn("[StageAssistant] === connectionError: Error caused by Application: " + response.responseJSON.error[0].error)
         Mojo.Controller.errorDialog(response.responseJSON.error[0].error)
     }
+	
     Mojo.Log.info("[StageAssistant] <== connectionError")
 }
 
 StageAssistant.addAd = function (element) {
+    Mojo.Log.info("[StageAssistant] ==> addAd")
 	
     AdMob.ad.request({
         onSuccess: (function(ad){ // successful ad call, parameter 'ad' is the html markup for the ad
@@ -110,6 +121,8 @@ StageAssistant.addAd = function (element) {
         onFailure: (function(response){ 
         }),
     });
+	
+    Mojo.Log.info("[StageAssistant] <== addAd")
 }
 
 StageAssistant.appMenu = {

@@ -21,6 +21,10 @@ function IssueDetailsAssistant(user, repo, number){
     this.user = user
     this.repo = repo
     this.number = number
+	
+	this.comments = new Comments (this,user,repo,number)
+    this.issue = new Issue(this,user, repo, number)
+	
     Mojo.Log.info("[IssueDetailsAssistant] <== Construct")
 }
 
@@ -32,12 +36,7 @@ IssueDetailsAssistant.prototype.setup = function(){
 	this.handleCommand = this.handleCommand.bind(this)
     this.updateMainModel = this.updateMainModel.bind(this)
     
-    this.mainModel = new Issue(this.user, this.repo, this.number)
-    this.mainModel.bindWatcher(function(){
-        this.controller.modelChanged(this.mainModel)
-    }
-.bind(this))
-    this.controller.watchModel(this.mainModel, this, this.updateMainModel)
+    this.controller.watchModel(this.issue, this, this.updateMainModel)
     
     /* --- Status widgets --- */
     $("load-status").hide()
@@ -53,26 +52,6 @@ IssueDetailsAssistant.prototype.setup = function(){
         omitDefaultItems: true
     }, StageAssistant.appMenu);
     
-    this.controller.setupWidget(Mojo.Menu.viewMenu, {
-        spacerHeight: 00,
-        menuClass: 'no-fade'
-    }, {
-        visible: true,
-        items: [{
-            items: [{
-                icon: "back",
-                command: 'back',
-                label: $L("Back")
-            }, {
-                label: $L("Issue Details"),
-                width: 200
-            }, {
-                icon: "forward",
-                command: 'fwd',
-                label: $L("Forward")
-            }]
-        }]
-    });
     
     this.controller.setupWidget(Mojo.Menu.commandMenu, undefined, {
         visible: true,
@@ -84,6 +63,12 @@ IssueDetailsAssistant.prototype.setup = function(){
             command: 'do-refresh'
         }]
     });
+	
+	this.controller.setupWidget('comments', {
+        itemTemplate: 'issue-details/comments/item-template',
+        listTemplate: 'issue-details/comments/list-template'
+    }, this.comments);
+	
     Mojo.Log.info("[IssueDetailsAssistant] <== setup")
     
     this.controller.get("load-status").hide()
@@ -92,7 +77,7 @@ IssueDetailsAssistant.prototype.setup = function(){
 IssueDetailsAssistant.prototype.updateMainModel = function(event){
     Mojo.Log.info("[IssueDetailsAssistant] ==> updateRepo ")
     $("details").update(Mojo.View.render({
-        object: this.mainModel,
+        object: this.issue,
         template: "issue-details/details"
     }))
     
@@ -104,16 +89,15 @@ IssueDetailsAssistant.prototype.activate = function(event){
     Mojo.Log.info("[IssueDetailsAssistant] ==> activate")
 	
     StageAssistant.addAd(this.controller.get("admob"))
-	
-    this.mainModel.update({
+
+    this.comments.update()	
+    this.issue.update({
         onCreate: function(){
-            $("details").hide()
             $("load-spinner").mojo.start()
             $("load-status").show()
         },
         onComplete: function(){
             $("load-status").hide()
-            $("details").show()
             $("load-spinner").mojo.stop()
         }
     })
@@ -132,23 +116,9 @@ IssueDetailsAssistant.prototype.handleCommand = function(event){
     Mojo.Log.info("[IssueDetailsAssistant] ==> handleCommand")
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
-            case 'back':
-                event.stopPropagation()
-                Mojo.Controller.stageController.swapScene({
-                    name: "comment-list",
-                    transition: Mojo.Transition.crossFade
-                }, this.user, this.repo,this.number)
-                break;
-            case 'fwd':
-                event.stopPropagation()
-                Mojo.Controller.stageController.swapScene({
-                    name: "comment-list",
-                    transition: Mojo.Transition.crossFade
-                }, this.user, this.repo,this.number)
-                break;
             case 'do-refresh':
                 event.stopPropagation()
-                this.mainModel.refresh()
+                this.issue.refresh()
                 break;
         }
     }

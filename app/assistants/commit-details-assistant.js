@@ -21,6 +21,7 @@ function CommitDetailsAssistant(user, repo, sha){
     this.user = user
     this.repo = repo
     this.sha = sha
+    this.commit = new Commit(this, user, repo, sha)
     Mojo.Log.info("[CommitDetailsAssistant] <== Construct")
 }
 
@@ -32,12 +33,7 @@ CommitDetailsAssistant.prototype.setup = function(){
     this.handleCommand = this.handleCommand.bind(this)
     this.updateMainModel = this.updateMainModel.bind(this)
     
-    this.mainModel = new Commit(this.user, this.repo, this.sha)
-    this.mainModel.bindWatcher(function(){
-        this.controller.modelChanged(this.mainModel)
-    }
-.bind(this))
-    this.controller.watchModel(this.mainModel, this, this.updateMainModel)
+    this.controller.watchModel(this.commit, this, this.updateMainModel)
     
     
     /* --- Status widgets --- */
@@ -54,18 +50,6 @@ CommitDetailsAssistant.prototype.setup = function(){
         omitDefaultItems: true
     }, StageAssistant.appMenu);
     
-    this.controller.setupWidget(Mojo.Menu.viewMenu, {
-        spacerHeight: 00,
-        menuClass: 'no-fade'
-    }, {
-        visible: true,
-        items: [{
-            items: [{
-                label: $L("Commit Details"),
-                width: 320
-            }]
-        }]
-    });
     
     this.controller.setupWidget(Mojo.Menu.commandMenu, undefined, {
         visible: true,
@@ -83,7 +67,7 @@ CommitDetailsAssistant.prototype.setup = function(){
 CommitDetailsAssistant.prototype.updateMainModel = function(event){
     Mojo.Log.info("[CommitDetailsAssistant] ==> updateRepo ")
     $("details").update(Mojo.View.render({
-        object: this.mainModel,
+        object: this.commit,
         template: "commit-details/details"
     }))
     
@@ -95,15 +79,13 @@ CommitDetailsAssistant.prototype.updateMainModel = function(event){
 CommitDetailsAssistant.prototype.activate = function(event){
     Mojo.Log.info("[CommitDetailsAssistant] ==> activate")
     StageAssistant.addAd(this.controller.get("admob"))
-    this.mainModel.update({
+    this.commit.update({
         onCreate: function(){
-            $("details").hide()
             $("load-spinner").mojo.start()
             $("load-status").show()
         },
         onComplete: function(){
             $("load-status").hide()
-            $("details").show()
             $("load-spinner").mojo.stop()
         }
     })
@@ -124,7 +106,7 @@ CommitDetailsAssistant.prototype.handleCommand = function(event){
         switch (event.command) {
             case 'do-refresh':
                 event.stopPropagation()
-                this.mainModel.refresh()
+                this.commit.refresh()
                 break;
         }
     }

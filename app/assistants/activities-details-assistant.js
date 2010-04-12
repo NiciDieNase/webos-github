@@ -27,21 +27,6 @@ ActivitiesDetailsAssistant.prototype.setup = function() {
         omitDefaultItems: true
     }, StageAssistant.appMenu);
     
-    this.controller.setupWidget(Mojo.Menu.viewMenu, {
-        spacerHeight: 00,
-    }, {
-        visible: true,
-        items: [{
-            items: [{
-                label: "Actitivties",
-                width:320
-            }]
-        }]
-    });
-	
-	this.controller.get("load-status").hide()
-};
-
 ActivitiesDetailsAssistant.prototype.activate = function(event) {
     StageAssistant.addAd(this.controller.get("admob"))
 	
@@ -49,7 +34,6 @@ ActivitiesDetailsAssistant.prototype.activate = function(event) {
                 object: this.entry,
                 template: 'activities-details/details'
             }))
-            $("debug").update(this.entry.toJSON())
 };
 
 ActivitiesDetailsAssistant.prototype.deactivate = function(event) {

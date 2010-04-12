@@ -1,0 +1,15 @@
+.palm-account-icon.icon-user {
+background: url(../images/user.png) no-repeat;
+margin-top:0px;
+margin-left:17px;
+}
+.icon.icon-user-go {
+background: url(../images/user_go.png) no-repeat;
+margin-top:13px;
+margin-left:17px;
+}
+
+.palm-row-wrapper.label,.palm-row-wrapper.title {
+	font-size:smaller;
+}
+

@@ -15,58 +15,32 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with "de.kingcrunch.github". If not, see <http://www.gnu.org/licenses/>.
  */
-
-function Comments(login,repo, number){
-    this.login = login
-    this.repo = repo
-	this.number = number
-    this.watcher = ""
-    
-    this.items = []
-}
-
-Comments.mapping = new Hash()
-
-Comments.prototype.refresh = function(options){
-    options = options || new Object()
-    options.onSuccess = function(response){
-            Mojo.Log.info("[Comments] === refresh -> onSuccess")
-            Mojo.Log.info("[Comments] === refresh : " + response.responseText)
-            
-            Comments.mapping[this.login + "/" + this.repo + "/" +  this.type] = response.responseJSON.comments
-            
-            this.update()
-            Mojo.Log.info("[Comments] === refresh <- onSuccess")
+var Comments = Class.create(Model, {
+    formatters: {
+        created_at: function(value, context){
+            context.created_at = Mojo.Format.formatDate(new Date(value), {
+                date: 'medium',
+                time: "short"
+            })
+        },
+        updated_at: function(value, context){
+            context.updated_at = Mojo.Format.formatDate(new Date(value), {
+                date: 'medium',
+                time: "short"
+            })
         }
-.bind(this)  
-
-options.method = "get"
-
-    Mojo.Log.info("[Comments] ==> refresh")
-    Github.request("/issues/comments/#{user}/#{repo}/#{number}", {
-        user: this.login,
-        repo : this.repo,
-        number: this.number
-    }, options)
-    Mojo.Log.info("[Comments] <== refresh")
-}
-
-Comments.prototype.update = function(options){
-    if (Comments.mapping[this.login + "/" + this.repo + "/" + this.type] == undefined) {
-        this.refresh(options)
+    },
+    
+    initialize: function($super, controller, login, repo, number){
+        $super(controller, {
+            uriTemplate: "/issues/comments/#{login}/#{repo}/#{number}",
+            responseKey: "comments",
+            uriSpecs: {
+                login: login,
+                repo: repo,
+                number: number
+            },
+            itemKey: "items"
+        })
     }
-    else {
-        this.items = Comments.mapping[this.login + "/" + this.repo + "/" + this.type]
-        
-        this.watcher()
-    }
-}
-
-Comments.prototype.bindWatcher = function(watcher){
-    this.watcher = watcher
-}
-
-Comments.prototype.setType = function(type){
-    this.type = type
-    this.update()
-}
+})

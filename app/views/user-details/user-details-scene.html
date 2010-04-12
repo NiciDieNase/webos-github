@@ -1,15 +1,145 @@
-<div id="main" class="palm-hasheader">
-    <div id="admob">
-    </div>
-    <div id="load-status" align="center">
-        <div x-mojo-element="Spinner" class="palm-activity-indicator-large" id="load-spinner">
+<div class="palm-page-header multi-line">
+    <div class="palm-page-header-wrapper">
+        <div class="icon">
         </div>
-        <div align="center">
-            Loading User Details...
+        <div class="title">
+            User
         </div>
     </div>
-    <div id="content" align="center">
+</div>
+<div id="admob">
+</div>
+<div id="load-status" align="center" class="palm-scrim">
+    <div x-mojo-element="Spinner" class="palm-activity-indicator-large" id="load-spinner">
     </div>
-    <div id="debug">
+    <div align="center">
+        Loading User Details...
+    </div>
+</div>
+<div id="content" align="center">
+</div>
+<div id="activities" name="top">
+    <table id="activities-collapser" class="palm-divider collapsible" x-mojo-touch-feedback="delayed">
+        <tr>
+            <td class="left">
+            </td>
+            <td class="label">
+                Activities
+            </td>
+            <td class="line">
+            </td>
+            <td>
+                <div id="activities-arrow" name="arrow" class="palm-arrow-closed arrow_button">
+                    <div x-mojo-element="Spinner" id="activities-spinner" name="spinner">
+                    </div>
+                </div>
+            </td>
+            <td class="right">
+            </td>
+        </tr>
+    </table>
+    <div x-mojo-element="Drawer" name="drawer" id="activities-drawer">
+        <div id="activities-list" name="list" x-mojo-element="List">
+        </div>
+    </div>
+</div>
+<div id="own-repos" name="top">
+    <table id="own-repos-collapser" class="palm-divider collapsible" x-mojo-touch-feedback="delayed">
+        <tr>
+            <td class="left palm-account-icon icon-user">
+            </td>
+            <td class="label">
+                Own Repositories
+            </td>
+            <td class="line">
+            </td>
+            <td>
+                <div id="own-repos-arrow" class="palm-arrow-closed arrow_button" name="arrow">
+                    <div x-mojo-element="Spinner" id="own-repos-spinner" name="spinner">
+                    </div>
+                </div>
+            </td>
+            <td class="right">
+            </td>
+        </tr>
+    </table>
+    <div x-mojo-element="Drawer" id="own-repos-drawer" name="drawer">
+        <div id="own-repos-list" x-mojo-element="List" name="list">
+        </div>
+    </div>
+</div>
+<div id="activities" name="top">
+    <table id="watched-repos-collapser" class="palm-divider collapsible" x-mojo-touch-feedback="delayed">
+        <tr>
+            <td class="left">
+            </td>
+            <td class="label">
+                Watched Repositores
+            </td>
+            <td class="line">
+            </td>
+            <td>
+                <div id="watched-repos-arrow" class="palm-arrow-closed arrow_button" name="arrow">
+                    <div x-mojo-element="Spinner" id="watched-repos-spinner" name="spinner">
+                    </div>
+                </div>
+            </td>
+            <td class="right">
+            </td>
+        </tr>
+    </table>
+    <div x-mojo-element="Drawer" id="watched-repos-drawer" name="drawer">
+        <div id="watched-repos-list" x-mojo-element="List" name="list">
+        </div>
+    </div>
+</div>
+<div id="following" name="top">
+    <table id="following-collapser" class="palm-divider collapsible" x-mojo-touch-feedback="delayed">
+        <tr>
+            <td class="left">
+            </td>
+            <td class="label">
+                Following Users
+            </td>
+            <td class="line">
+            </td>
+            <td>
+                <div id="following-arrow" class="palm-arrow-closed arrow_button" name="arrow">
+                    <div x-mojo-element="Spinner" id="following-spinner" name="spinner">
+                    </div>
+                </div>
+            </td>
+            <td class="right">
+            </td>
+        </tr>
+    </table>
+    <div x-mojo-element="Drawer" id="following-drawer" name="drawer">
+        <div id="following-list" x-mojo-element="List" name="list">
+        </div>
+    </div>
+</div>
+<div id="followers" name="top">
+    <table id="followers-collapser" class="palm-divider collapsible" x-mojo-touch-feedback="delayed">
+        <tr>
+            <td class="left">
+            </td>
+            <td class="label">
+                Followers
+            </td>
+            <td class="line">
+            </td>
+            <td>
+                <div id="followers-arrow" class="palm-arrow-closed arrow_button" name="arrow">
+                    <div x-mojo-element="Spinner" id="followers-spinner" name="spinner">
+                    </div>
+                </div>
+            </td>
+            <td class="right">
+            </td>
+        </tr>
+    </table>
+    <div x-mojo-element="Drawer" id="followers-drawer" name="drawer">
+        <div id="followers-list" x-mojo-element="List" name="list">
+        </div>
     </div>
 </div>

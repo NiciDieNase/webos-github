@@ -16,10 +16,21 @@
  * along with "de.kingcrunch.github". If not, see <http://www.gnu.org/licenses/>.
  */
 
-function RepoDetailsAssistant(username, repo){
+function RepoDetailsAssistant(username, reponame){
     Mojo.Log.info("[RepoDetailsAssistant] ==> Construct")
     this.username = username
-    this.repo = repo
+    this.reponame = reponame
+	
+	this.repo = new Repository(this,username,reponame)
+	this.openIssues = new OpenIssues(this, username, reponame)
+	this.closedIssues = new ClosedIssues (this, username, reponame)
+	this.tags = new Tags(this,username,reponame)
+	this.branches = new Branches(this,username,reponame)
+	
+	this.openIssue = this.openIssue.bind(this)
+	this.openRef = this.openRef.bind(this)
+    this.updateMainModel = this.updateMainModel.bind(this)
+	
     Mojo.Log.info("[RepoDetailsAssistant] <== Construct")
 }
 
@@ -28,14 +39,8 @@ RepoDetailsAssistant.prototype.setup = function(){
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade)
     
     /* --- Bindings --- */
-    this.updateMainModel = this.updateMainModel.bind(this)
     
-    this.mainModel = new Repository(this.username, this.repo)
-    this.mainModel.bindWatcher(function(){
-        this.controller.modelChanged(this.mainModel)
-    }
-.bind(this))
-    this.controller.watchModel(this.mainModel, this, this.updateMainModel)
+    this.controller.watchModel(this.repo, this, this.updateMainModel)
     
     $("load-status").hide()
     /* --- Status widgets --- */
@@ -51,27 +56,6 @@ RepoDetailsAssistant.prototype.setup = function(){
         omitDefaultItems: true
     }, StageAssistant.appMenu);
     
-    this.controller.setupWidget(Mojo.Menu.viewMenu, {
-        spacerHeight: 00,
-        menuClass: 'no-fade'
-    }, {
-        visible: true,
-        items: [{
-            items: [{
-                icon: "back",
-                command: 'back',
-                label: $L("Back")
-            }, {
-                label: $L("Repository Details"),
-                width: 200
-            }, {
-                icon: "forward",
-                command: 'fwd',
-                label: $L("Forward")
-            }]
-        }]
-    });
-    
     this.controller.setupWidget(Mojo.Menu.commandMenu, undefined, {
         visible: true,
         items: [{
@@ -82,7 +66,63 @@ RepoDetailsAssistant.prototype.setup = function(){
             command: 'do-refresh'
         }]
     });
+	
+	this.controller.setupWidget("open-issues-drawer", {
+        modelProperty: 'open',
+        unstyled: true
+    }, {
+        open: false
+    });
+    this.controller.setupWidget("closed-issues-drawer", {
+        modelProperty: 'open',
+        unstyled: true
+    }, {
+        open: false
+    });
+    this.controller.setupWidget("tags-drawer", {
+        modelProperty: 'open',
+        unstyled: true
+    }, {
+        open: false
+    });
+    this.controller.setupWidget("branches-drawer", {
+        modelProperty: 'open',
+        unstyled: true
+    }, {
+        open: false
+    });
+	
+	
+	this.controller.setupWidget('open-issues-list', {
+        itemTemplate: 'repo-details/issues/item-template',
+        listTemplate: 'repo-details/issues/list-template'
+    }, this.openIssues);
+    this.controller.setupWidget('closed-issues-list', {
+        itemTemplate: 'repo-details/issues/item-template',
+        listTemplate: 'repo-details/issues/list-template'
+    }, this.closedIssues);
+    this.controller.setupWidget('branches-list', {
+        itemTemplate: 'repo-details/refs/item-template',
+        listTemplate: 'repo-details/refs/list-template'
+    }, this.branches);
+    this.controller.setupWidget('tags-list', {
+        itemTemplate: 'repo-details/refs/item-template',
+        listTemplate: 'repo-details/refs/list-template'
+    }, this.tags);
     
+	
+	
+    Mojo.Event.listen($("open-issues-collapser"), Mojo.Event.tap, this.drawerTap.bind(this, this.openIssues))
+    Mojo.Event.listen($("closed-issues-collapser"), Mojo.Event.tap, this.drawerTap.bind(this, this.closedIssues))
+    Mojo.Event.listen($("branches-collapser"), Mojo.Event.tap, this.drawerTap.bind(this, this.branches))
+    Mojo.Event.listen($("tags-collapser"), Mojo.Event.tap, this.drawerTap.bind(this, this.tags))
+	
+	
+    Mojo.Event.listen($("open-issues-list"), Mojo.Event.listTap, this.openIssue)
+    Mojo.Event.listen($("closed-issues-list"), Mojo.Event.listTap, this.openIssue)
+    Mojo.Event.listen($("branches-list"), Mojo.Event.listTap, this.openRef)
+    Mojo.Event.listen($("tags-list"), Mojo.Event.listTap, this.openRef)
+	
     this.controller.get("load-status").hide()
     
     Mojo.Log.info("[RepoDetailsAssistant] <== setup")
@@ -90,8 +130,8 @@ RepoDetailsAssistant.prototype.setup = function(){
 
 RepoDetailsAssistant.prototype.updateMainModel = function(event){
     Mojo.Log.info("[RepoDetailsAssistant] ==> updateRepo ")
-    $("details").update(Mojo.View.render({
-        object: this.mainModel,
+    $("content").update(Mojo.View.render({
+        object: this.repo,
         template: "repo-details/details"
     }))
     
@@ -103,15 +143,13 @@ RepoDetailsAssistant.prototype.activate = function(event){
 	
     StageAssistant.addAd(this.controller.get("admob"))
 	
-    this.mainModel.update({
+    this.repo.update({
         onCreate: function(){
-            $("details").hide()
             $("load-spinner").mojo.start()
             $("load-status").show()
         },
         onComplete: function(){
             $("load-status").hide()
-            $("details").show()
             $("load-spinner").mojo.stop()
         }
     })
@@ -130,20 +168,6 @@ RepoDetailsAssistant.prototype.handleCommand = function(event){
     Mojo.Log.info("[RepoDetailsAssistant] ==> handleCommand")
     if (event.type == Mojo.Event.command) {
         switch (event.command) {
-            case 'back':
-                event.stopPropagation()
-                Mojo.Controller.stageController.swapScene({
-                    name: "issue-list",
-                    transition: Mojo.Transition.crossFade
-                }, this.username, this.repo)
-                break;
-            case 'fwd':
-                event.stopPropagation()
-                Mojo.Controller.stageController.swapScene({
-                    name: "ref-list",
-                    transition: Mojo.Transition.crossFade
-                }, this.username, this.repo)
-                break;
             case 'do-refresh':
                 event.stopPropagation()
                 this.mainModel.refresh()
@@ -152,3 +176,51 @@ RepoDetailsAssistant.prototype.handleCommand = function(event){
     }
     Mojo.Log.info("[RepoDetailsAssistant] <== handleCommand")
 }
+
+RepoDetailsAssistant.prototype.drawerTap = function(model, event){
+    Mojo.Log.info("-->")
+    Mojo.Log.info(Mojo.Log.propertiesAsString(model))
+    if (event.srcElement.up("div[name=top]").down("div[name=drawer]").mojo.getOpenState()) {
+        var top = event.srcElement.up("div[name=top]")
+        top.down("div[name=drawer]").mojo.toggleState()
+        top.down("div.arrow_button").removeClassName("palm-arrow-expanded")
+        top.down("div.arrow_button").addClassName("palm-arrow-closed")
+        model.items = []
+        this.controller.modelChanged(model)
+        
+    }
+    else {
+        model.update({
+            onCreate: function(event, model){
+                var top = event.srcElement.up("div[name=top]")
+                top.down("div[name=spinner]").mojo.start();
+            }
+.bind(this, event, model)            ,
+            onComplete: function(event, model){
+                var top = event.srcElement.up("div[name=top]")
+                top.down("div[name=spinner]").mojo.stop()
+                top.down("div[name=drawer]").mojo.toggleState()
+                top.down("div[name=arrow]").removeClassName("palm-arrow-closed")
+                top.down("div[name=arrow]").addClassName("palm-arrow-expanded")
+            }
+.bind(this, event, model)
+        })
+    }
+    Mojo.Log.info("<--")
+}
+
+RepoDetailsAssistant.prototype.openIssue = function(event){
+    Mojo.Log.info("[IssueListAssistant] ==> openIssue")
+	Mojo.Log.info(Mojo.Log.propertiesAsString(event.item))
+    Mojo.Controller.stageController.pushScene("issue-details", event.item.user, this.reponame, event.item.number)
+    Mojo.Log.info("[IssueListAssistant] <== openIssue")
+}
+
+RepoDetailsAssistant.prototype.openRef = function(event){
+    Mojo.Log.info("[RefListAssistant] ==> openRef")
+    Mojo.Log.info(Mojo.Log.propertiesAsString(event.item))
+    Mojo.Controller.stageController.pushScene("commit-details", this.username, this.reponame, event.item.commit)
+    Mojo.Log.info("[RefListAssistant] <== openRef")
+}
+
+

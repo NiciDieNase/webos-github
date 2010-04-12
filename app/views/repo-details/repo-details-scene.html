@@ -1,15 +1,120 @@
-<div id="main" class="palm-hasheader">
-    <div id="admob">
-    </div>
-    <div id="load-status" align="center">
-        <div x-mojo-element="Spinner" class="palm-activity-indicator-large" id="load-spinner">
+<div class="palm-page-header multi-line">
+    <div class="palm-page-header-wrapper">
+        <div class="icon">
         </div>
-        <div align="center">
-            Loading Repository Details
+        <div class="title">
+            Repository
         </div>
     </div>
-    <div id="details">
+</div>
+<div id="admob">
+</div>
+<div id="load-status" align="center" class="palm-scrim">
+    <div x-mojo-element="Spinner" class="palm-activity-indicator-large" id="load-spinner">
     </div>
-    <div id="debug">
+    <div align="center">
+        Loading Repository Details
+    </div>
+</div>
+<div id="content" align="center">
+</div>
+<div id="open-issues" name="top">
+    <table id="open-issues-collapser" class="palm-divider collapsible" x-mojo-touch-feedback="delayed">
+        <tr>
+            <td class="left">
+            </td>
+            <td class="label">
+                Open Issues
+            </td>
+            <td class="line">
+            </td>
+            <td>
+                <div id="open-issues-arrow" name="arrow" class="palm-arrow-closed arrow_button">
+                    <div x-mojo-element="Spinner" id="activities-spinner" name="spinner">
+                    </div>
+                </div>
+            </td>
+            <td class="right">
+            </td>
+        </tr>
+    </table>
+    <div x-mojo-element="Drawer" name="drawer" id="open-issues-drawer">
+        <div id="open-issues-list" name="list" x-mojo-element="List">
+        </div>
+    </div>
+</div>
+<div id="closed-issues" name="top">
+    <table id="closed-issues-collapser" class="palm-divider collapsible" x-mojo-touch-feedback="delayed">
+        <tr>
+            <td class="left">
+            </td>
+            <td class="label">
+                Closed Issues
+            </td>
+            <td class="line">
+            </td>
+            <td>
+                <div id="closed-issues-arrow" class="palm-arrow-closed arrow_button" name="arrow">
+                    <div x-mojo-element="Spinner" id="closed-issues-spinner" name="spinner">
+                    </div>
+                </div>
+            </td>
+            <td class="right">
+            </td>
+        </tr>
+    </table>
+    <div x-mojo-element="Drawer" id="closed-issues-drawer" name="drawer">
+        <div id="closed-issues-list" x-mojo-element="List" name="list">
+        </div>
+    </div>
+</div>
+<div id="branches" name="top">
+    <table id="branches-collapser" class="palm-divider collapsible" x-mojo-touch-feedback="delayed">
+        <tr>
+            <td class="left">
+            </td>
+            <td class="label">
+                Branches
+            </td>
+            <td class="line">
+            </td>
+            <td>
+                <div id="branches-arrow" class="palm-arrow-closed arrow_button" name="arrow">
+                    <div x-mojo-element="Spinner" id="branches-spinner" name="spinner">
+                    </div>
+                </div>
+            </td>
+            <td class="right">
+            </td>
+        </tr>
+    </table>
+    <div x-mojo-element="Drawer" id="branches-drawer" name="drawer">
+        <div id="branches-list" x-mojo-element="List" name="list">
+        </div>
+    </div>
+</div>
+<div id="tags" name="top">
+    <table id="tags-collapser" class="palm-divider collapsible" x-mojo-touch-feedback="delayed">
+        <tr>
+            <td class="left">
+            </td>
+            <td class="label">
+                Tags
+            </td>
+            <td class="line">
+            </td>
+            <td>
+                <div id="tags-arrow" class="palm-arrow-closed arrow_button" name="arrow">
+                    <div x-mojo-element="Spinner" id="tags-spinner" name="spinner">
+                    </div>
+                </div>
+            </td>
+            <td class="right">
+            </td>
+        </tr>
+    </table>
+    <div x-mojo-element="Drawer" id="tags-drawer" name="drawer">
+        <div id="tags-list" x-mojo-element="List" name="list">
+        </div>
     </div>
 </div>

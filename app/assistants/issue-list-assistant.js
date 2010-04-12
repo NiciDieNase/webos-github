@@ -97,7 +97,7 @@ IssueListAssistant.prototype.setup = function(){
     /* --- UI widgets --- */
     this.controller.setupWidget('content', {
         itemTemplate: 'issue-list/item-template',
-        listTemplate: 'issue-list/list-template'
+        listTemplate: 'issue-list/list-template',
     }, this.listModel = new Issues(this.user,this.repo));
 	this.listModel.bindWatcher(function(){this.controller.modelChanged(this.listModel)}.bind(this))
 	
@@ -105,36 +105,6 @@ IssueListAssistant.prototype.setup = function(){
     
     this.controller.get("load-status").hide()
 };
-
-
-IssueListAssistant.prototype.refreshIssuelist = function(state){
-    Mojo.Log.info("[IssueListAssistant] ==> refreshIssuelist")
-    this.state = state
-    Github.request("/issues/list/#{user}/#{repo}/#{state}", {
-        user: this.user,
-        repo: this.repo,
-        state: state
-    }, {
-        onSuccess: function(params,response){
-            this.listModel.items = response.responseJSON.issues
-			this.listModel.listTitle = "#{state} Issues for #{user}/#{repo}".interpolate(params)
-            this.controller.modelChanged(this.listModel)
-        }
-.bind(this,{user:this.user,repo:this.repo,state:this.state})        ,
-        onComplete: function(x){
-            $("load-spinner").mojo.stop()
-            $("load-status").hide()
-            $("content").show()
-        },
-        onCreate: function(x){
-            $("load-spinner").mojo.start()
-            $("content").hide()
-            $("load-status").show()
-        },
-    })
-    
-    Mojo.Log.info("[IssueListAssistant] <== refreshIssuelist")
-}
 
 IssueListAssistant.prototype.openIssue = function(event){
     Mojo.Log.info("[IssueListAssistant] ==> openIssue")
@@ -150,11 +120,9 @@ IssueListAssistant.prototype.activate = function(event){
     this.listModel.update({onComplete: function(x){
             $("load-spinner").mojo.stop()
             $("load-status").hide()
-            $("content").show()
         },
         onCreate: function(x){
             $("load-spinner").mojo.start()
-            $("content").hide()
             $("load-status").show()
         },
     })

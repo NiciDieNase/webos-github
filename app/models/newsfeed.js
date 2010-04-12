@@ -16,7 +16,8 @@
  * along with "de.kingcrunch.github". If not, see <http://www.gnu.org/licenses/>.
  */
 
-function Newsfeed(login){
+function Newsfeed(assistant, login){
+	this.assistant = assistant
     this.login = login
     this.watcher = ""
     
@@ -41,8 +42,10 @@ Newsfeed.prototype.refresh = function(options){
         }).each(function(item){
             return Mojo.Model.format(item, Newsfeed.formatters)
         })
-        
-        this.update()
+        this.items = Newsfeed.mapping[this.login + "/newsfeed/entries"]
+		this.assistant.controller.modelChanged(this)
+		
+		
         Mojo.Log.info("[Newsfeed] === refresh <- onSuccess")
     }
 .bind(this)
@@ -58,9 +61,18 @@ Newsfeed.prototype.update = function(options){
         this.refresh(options)
     }
     else {
+		if (options.onCreate != undefined) {
+			options.onCreate()
+		}
+		
         this.items = Newsfeed.mapping[this.login + "/newsfeed/entries"]
         
-        this.watcher()
+        this.assistant.controller.modelChanged(this)
+		
+		
+		if (options.onComplete != undefined) {
+			options.onComplete()
+		}
     }
 }
 

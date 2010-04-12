@@ -1,113 +1,81 @@
-<div class="palm-group unlabeled">
-    <div class="palm-list">
-        <div class="palm-row first">
-            <div class="palm-row-wrapper">
-                <div class="label">
-                    Name
-                </div>
-                <div class="title left truncating-text">
-                    #{item.name}
-                </div>
+<table class="palm-divider labeled">
+    <tr>
+        <td class="left palm-account-icon icon-user">
+        <td class="label">
+            Details
+        </td>
+        <td class="right">
+        </td>
+    </tr>
+</table>
+<div class="palm-list" style="text-size:smaller;">
+    <div class="palm-row first">
+        <div class="palm-row-wrapper">
+            <div class="label">
+                Name
+            </div>
+            <div class="title left truncating-text">
+                #{item.name}
             </div>
         </div>
-        <div class="palm-row">
-            <div class="palm-row-wrapper">
-                <div class="label">
-                    Login
-                </div>
-                <div class="title left truncating-text">
-                    #{item.login}
-                </div>
+    </div>
+    <div class="palm-row">
+        <div class="palm-row-wrapper">
+            <div class="label">
+                Login
+            </div>
+            <div class="title left truncating-text">
+                #{item.login}
             </div>
         </div>
-        <div class="palm-row">
-            <div class="palm-row-wrapper">
-                <div class="label">
-                    E-Mail
-                </div>
-                <div class="title left truncating-text">
-                    <a href="mailto:#{item.email}">#{item.email}</a>
-                </div>
+    </div>
+    <div class="palm-row">
+        <div class="palm-row-wrapper">
+            <div class="label">
+                E-Mail
+            </div>
+            <div class="title left truncating-text">
+                <a href="mailto:#{item.email}">#{item.email}</a>
             </div>
         </div>
-        <div class="palm-row">
-            <div class="palm-row-wrapper">
-                <div class="label">
-                    Company
-                </div>
-                <div class="title left truncating-text">
-                    #{item.company}
-                </div>
+    </div>
+    <div class="palm-row">
+        <div class="palm-row-wrapper">
+            <div class="label">
+                Company
+            </div>
+            <div class="title left truncating-text">
+                #{item.company}
             </div>
         </div>
-        <div class="palm-row">
-            <div class="palm-row-wrapper">
-                <div class="label">
-                    Location
-                </div>
-                <div class="title left truncating-text">
-                    #{item.location}
-                </div>
+    </div>
+    <div class="palm-row">
+        <div class="palm-row-wrapper">
+            <div class="label">
+                Location
+            </div>
+            <div class="title left truncating-text">
+                #{item.location}
             </div>
         </div>
-        <div class="palm-row">
-            <div class="palm-row-wrapper">
-                <div class="label">
-                    Blog
-                </div>
-                <div class="title left truncating-text">
-                    <a href="#{item.blog}">#{item.blog_title}</a>
-                </div>
+    </div>
+    <div class="palm-row">
+        <div class="palm-row-wrapper">
+            <div class="label">
+                Blog
+            </div>
+            <div class="title left truncating-text">
+                <a href="#{item.blog}">#{item.blog_title}</a>
             </div>
         </div>
-        <div class="palm-row">
-            <div class="palm-row-wrapper">
-                <div class="label">
-                    Created at
-                </div>
-                <div class="title left truncating-text">
-                    #{item.created_at}
-                </div>
+    </div>
+    <div class="palm-row last">
+        <div class="palm-row-wrapper">
+            <div class="label">
+                Created at
             </div>
-        </div>
-        <div class="palm-row">
-            <div class="palm-row-wrapper">
-                <div class="label">
-                    Public Gist count
-                </div>
-                <div class="title left truncating-text">
-                    #{item.public_gist_count}
-                </div>
-            </div>
-        </div>
-        <div class="palm-row">
-            <div class="palm-row-wrapper">
-                <div class="label">
-                    Public repo count
-                </div>
-                <div class="title left truncating-text">
-                    #{item.public_repo_count}
-                </div>
-            </div>
-        </div>
-        <div class="palm-row">
-            <div class="palm-row-wrapper">
-                <div class="label">
-                    Following count
-                </div>
-                <div class="title left truncating-text">
-                    #{item.following_count}
-                </div>
-            </div>
-        </div>
-        <div class="palm-row last">
-            <div class="palm-row-wrapper">
-                <div class="label">
-                    Followers count
-                </div>
-                <div class="title left truncating-text">
-                    #{item.followers_count}
-                </div>
+            <div class="title left truncating-text">
+                #{item.created_at}
             </div>
         </div>
     </div>

@@ -93,35 +93,6 @@ CommentListAssistant.prototype.setup = function(){
     this.controller.get("load-status").hide()
 };
 
-CommentListAssistant.prototype.refreshCommentlist = function(){
-    Mojo.Log.info("[CommentListAssistant] ==> refreshCommentlist")
-    
-    Github.request("/issues/comments/#{user}/#{repo}/#{number}", {
-        user: this.user,
-        repo: this.repo,
-        number: this.number
-    }, {
-        onSuccess: function(params, response){
-            this.listModel.items = response.responseJSON.comments
-			this.listModel.listTitle = "Comments for Issue ##{number} on #{user}/#{repo}".interpolate(params)
-            this.controller.modelChanged(this.listModel)
-        }
-.bind(this,{user:this.user,repo:this.repo,number:this.number})        ,
-        onComplete: function(x){
-            $("load-spinner").mojo.stop()
-            $("load-status").hide()
-            $("content").show()
-        },
-        onCreate: function(x){
-            $("load-spinner").mojo.start()
-            $("content").hide()
-            $("load-status").show()
-        },
-    })
-    
-    Mojo.Log.info("[CommentListAssistant] <== refreshCommentlist")
-}
-
 CommentListAssistant.prototype.activate = function(event){
     Mojo.Log.info("[CommentListAssistant] ==> activate")
     StageAssistant.addAd(this.controller.get("admob"))

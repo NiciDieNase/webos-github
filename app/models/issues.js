@@ -16,33 +16,34 @@
  * along with "de.kingcrunch.github". If not, see <http://www.gnu.org/licenses/>.
  */
 
-function Issues(login,repo){
+function OpenIssues(login,repo){
     this.login = login
     this.repo = repo
     this.watcher = ""
     
-    this.items = []
+    this.items = OpenIssues.mapping[this.login + "/" + this.repo + "/" +  this.type]
     
     this.type = "open"
     
 }
 
-Issues.mapping = new Hash()
+OpenIssues.mapping = new Hash()
 
-Issues.prototype.refresh = function(options){
+OpenIssues.prototype.refresh = function(options){
     options = options || new Object()
     options.onSuccess = function(response){
             Mojo.Log.info("[Issues] === refresh -> onSuccess")
             Mojo.Log.info("[Issues] === refresh : " + response.responseText)
             
-            Issues.mapping[this.login + "/" + this.repo + "/" +  this.type] = response.responseJSON.issues
+            OpenIssues.mapping[this.login + "/" + this.repo + "/" +  this.type] = response.responseJSON.issues
+			this.items = OpenIssues.mapping[this.login + "/" + this.repo + "/" +  this.type]
+			this.assistant.controller.modelChanged(this)
 			
-            this.update()
             Mojo.Log.info("[Commits] === refresh <- onSuccess")
         }
 .bind(this)  
 
-options.method = "get"
+OpenIssues.method = "get"
 
     Mojo.Log.info("[Issues] ==> refresh")
     Github.request("/issues/list/#{user}/#{repo}/#{state}", {
@@ -53,23 +54,18 @@ options.method = "get"
     Mojo.Log.info("[Issues] <== refresh")
 }
 
-Issues.prototype.update = function(options){
-    if (Issues.mapping[this.login + "/" + this.repo + "/" + this.type] == undefined) {
+OpenIssues.prototype.update = function(options){
+    if (OpenIssues.mapping[this.login + "/" + this.repo + "/" + this.type] == undefined) {
         this.refresh(options)
     }
     else {
-        this.items = Issues.mapping[this.login + "/" + this.repo + "/" + this.type]
-        
-        this.watcher()
+		if (options.onCreate != undefined) {
+			options.onCreate()
+		}
+        this.items = OpenIssues.mapping[this.login + "/" + this.repo + "/" + this.type]
+		this.assistant.controller.modelChanged(this)
+		if (options.onComplete != undefined) {
+			options.onComplete()
+		}
     }
-}
-
-
-Issues.prototype.bindWatcher = function(watcher){
-    this.watcher = watcher
-}
-
-Issues.prototype.setType = function(type){
-	this.type = type
-	this.update()
 }

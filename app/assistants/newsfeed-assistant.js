@@ -15,10 +15,11 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with "de.kingcrunch.github". If not, see <http://www.gnu.org/licenses/>.
  */
-
 function NewsfeedAssistant(){
     Mojo.Log.info("[NewsfeedAssistant] <=> Construct")
-
+    
+    this.newsfeed = new Newsfeed(this, Github.auth.login)
+    
 }
 
 NewsfeedAssistant.prototype.setup = function(){
@@ -41,28 +42,15 @@ NewsfeedAssistant.prototype.setup = function(){
         itemTemplate: 'newsfeed/item-template',
         listTemplate: 'newsfeed/list-template',
         height: "auto"
-    }, this.listModel = new Newsfeed(Github.auth.login));
-    this.listModel.bindWatcher(function(){
-        this.controller.modelChanged(this.listModel)
-    }
-.bind(this))
+    }, this.newsfeed);
+    
+    
     
     /* --- App widgets --- */
     this.controller.setupWidget(Mojo.Menu.appMenu, {
         omitDefaultItems: true
     }, StageAssistant.appMenu);
     
-    this.controller.setupWidget(Mojo.Menu.viewMenu, {
-        spacerHeight: 00,
-    }, {
-        visible: true,
-        items: [{
-            items: [{
-                label: "Newsfeed",
-                width: 320
-            }]
-        }]
-    });
     
     this.controller.setupWidget(Mojo.Menu.commandMenu, undefined, {
         visible: true,
@@ -83,6 +71,7 @@ NewsfeedAssistant.prototype.setup = function(){
     /* --- Event Listener --- */
     Mojo.Event.listen($("content"), Mojo.Event.listTap, this.openEntry)
     
+    
     this.controller.get("load-status").hide()
     
     Mojo.Log.info("[NewsfeedAssistant] <== setup")
@@ -90,71 +79,23 @@ NewsfeedAssistant.prototype.setup = function(){
 
 NewsfeedAssistant.prototype.activate = function(event){
     Mojo.Log.info("[NewsfeedAssistant] ==> activate")
-	
-	StageAssistant.addAd(this.controller.get("admob"))
     
-    this.listModel.update({
+    StageAssistant.addAd(this.controller.get("admob"))
+    
+    this.newsfeed.update({
         onComplete: function(x){
             $("load-spinner").mojo.stop()
             $("load-status").hide()
-            $("content").show()
+            
         },
         onCreate: function(x){
             $("load-spinner").mojo.start()
-            $("content").hide()
             $("load-status").show()
         }
     })
     Mojo.Log.info("[NewsfeedAssistant] <== activate")
 }
 
-
-NewsfeedAssistant.prototype.activateold = function(event){
-    Github.privateFeed({
-        onSuccess: function(response){
-            this.listModel.items = $H(response.responseATOM.feed.entry).collect(function(value){
-                var Ausdruck = /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})-(\d{2}):(\d{2})/;
-                var result = Ausdruck.exec(value[1].updated)
-                var dateObj = new Date(result[1], parseInt(result[2]) - 1, result[3], parseInt(result[4]) + parseInt(result[7]), result[5], result[6])
-                
-                dateObj.setMinutes(dateObj.getMinutes() - dateObj.getTimezoneOffset())
-                
-                value[1].updated = Mojo.Format.formatDate(dateObj, {
-                    date: "long",
-                    time: "short"
-                })
-                
-                value[1].link = value[1].attribute_link_href
-                return value[1]
-            })
-            
-            var Ausdruck = /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})-(\d{2}):(\d{2})/;
-            var result = Ausdruck.exec(response.responseATOM.feed.updated)
-            var dateObj = new Date(result[1], parseInt(result[2]) - 1, result[3], parseInt(result[4]) + parseInt(result[7]), result[5], result[6])
-            
-            dateObj.setMinutes(dateObj.getMinutes() - dateObj.getTimezoneOffset())
-            
-            this.listModel.listTitle = Mojo.Format.formatDate(dateObj, {
-                date: "long",
-                time: "short"
-            })
-            
-            this.controller.modelChanged(this.listModel)
-            Mojo.Log.info("[NewsfeedAssistant] === activate <- onSuccess")
-        }
-.bind(this)        ,
-        onCreate: function(){
-            $("content").hide()
-            $("load-status").show()
-            $("load-spinner").mojo.start()
-        },
-        onComplete: function(){
-            $("content").show()
-            $("load-status").hide()
-            $("load-spinner").mojo.stop()
-        }
-    })
-};
 
 NewsfeedAssistant.prototype.deactivate = function(event){
 };
@@ -182,7 +123,7 @@ NewsfeedAssistant.prototype.handleCommand = function(event){
                 break;
             case 'do-refresh':
                 event.stopPropagation()
-                this.listModel.refresh()
+                this.newsfeed.refresh()
                 break;
         }
     }

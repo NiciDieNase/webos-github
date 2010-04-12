@@ -106,45 +106,6 @@ RefListAssistant.prototype.setup = function(){
     Mojo.Log.info("[RefListAssistant] <== setup")
 };
 
-
-RefListAssistant.prototype.refreshReflist = function(ref){
-    Mojo.Log.info("[RefListAssistant] ==> refreshReflist")
-    this.ref = ref
-    
-    Github.request("/repos/show/#{user}/#{repo}/#{ref}", {
-        user: this.user,
-        repo: this.repo,
-        ref: ref
-    }, {
-        onSuccess: function(params,response){
-            this.listModel.items = (response.responseJSON.branches == undefined) ? $H(response.responseJSON.tags).keys().collect(function(value){
-                return {
-                    name: value
-                }
-            }) : $H(response.responseJSON.branches).keys().collect(function(value){
-                return {
-                    name: value
-                }
-            })
-			this.listModel.listTitle = ((params.ref == "branches") ? "Branches of #{user}/#{repo}" : "Tags of #{user}/#{repo}").interpolate(params)
-            this.controller.modelChanged(this.listModel)
-        }
-.bind(this,{user:this.user,repo:this.repo,ref:ref})        ,
-        onComplete: function(x){
-            $("load-spinner").mojo.stop()
-            $("load-status").hide()
-            $("content").show()
-        },
-        onCreate: function(x){
-            $("load-spinner").mojo.start()
-            $("content").hide()
-            $("load-status").show()
-        },
-    })
-	
-    Mojo.Log.info("[RefListAssistant] <== refreshReflist")
-}
-
 RefListAssistant.prototype.openRef = function(event){
     Mojo.Log.info("[RefListAssistant] ==> openRef")
 	Mojo.Log.info(Mojo.Log.propertiesAsString(event.item))

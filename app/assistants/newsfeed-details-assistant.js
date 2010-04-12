@@ -26,18 +26,6 @@ NewsfeedDetailsAssistant.prototype.setup = function() {
         omitDefaultItems: true
     }, StageAssistant.appMenu);
     
-    this.controller.setupWidget(Mojo.Menu.viewMenu, {
-        spacerHeight: 00,
-    }, {
-        visible: true,
-        items: [{
-            items: [{
-                label: "Newsfeed",
-                width:320
-            }]
-        }]
-    });
-    
     this.controller.get("load-status").hide()
 };
 
