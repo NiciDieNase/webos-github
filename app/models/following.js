@@ -15,61 +15,36 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with "de.kingcrunch.github". If not, see <http://www.gnu.org/licenses/>.
  */
-function Following(assistant, login){
-    this.assistant = assistant
-    this.login = login
-    this.watcher = ""
+var Following = Class.create(Model, {
+    formatters: {
+        created_at: function(value, context){
+            context.created_at = Mojo.Format.formatDate(new Date(value), {
+                date: 'medium',
+                time: "short"
+            })
+        },
+        updated_at: function(value, context){
+            context.updated_at = Mojo.Format.formatDate(new Date(value), {
+                date: 'medium',
+                time: "short"
+            })
+        }
+    },
     
-    this.items = []
-    
-    this.type = "following"
-}
-
-Following.mapping = new Hash()
-
-Following.prototype.refresh = function(options){
-    options = options || new Object()
-    options.onSuccess = function(response){
-        Mojo.Log.info("[User] === refresh -> onSuccess")
-        Mojo.Log.info("[User] === refresh : " + response.responseText)
-        
-        Following.mapping[this.login + "/" + this.type] = response.responseJSON.users.collect(function(value){
-            return {
-                name: value
+    initialize: function($super, controller, login){
+        $super(controller, {
+            uriTemplate: "/user/show/#{login}/#{direction}",
+            responseKey: "users",
+            uriSpecs: {
+                login: login,
+                direction: "following",
+            },
+            itemKey: "items",
+            map: function(value){
+                return {
+                    name: value
+                }
             }
         })
-        
-        this.items = Following.mapping[this.login + "/" + this.type]
-        this.assistant.controller.modelChanged(this)
-        Mojo.Log.info("[User] === refresh <- onSuccess")
     }
-.bind(this)
-    
-    options.method = "get"
-    
-    Mojo.Log.info("[User] ==> refresh")
-    Github.request("/user/show/#{user}/#{direction}", {
-        user: this.login,
-        direction: this.type
-    }, options)
-    Mojo.Log.info("[User] <== refresh")
-}
-
-Following.prototype.update = function(options){
-    if (Following.mapping[this.login + "/" + this.type] == undefined) {
-        this.refresh(options)
-    }
-    else {
-        if (options.onCreate != undefined) {
-            options.onCreate()
-        }
-        this.items = Following.mapping[this.login + "/" + this.type]
-        this.assistant.controller.modelChanged(this)
-        
-        if (options.onComplete != undefined) {
-            options.onComplete()
-        }
-    }
-}
-
-
+})

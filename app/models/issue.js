@@ -17,13 +17,19 @@
  */
 var Issue = Class.create(Model, {
     formatters: {
-    created_at: function (value,context) {
-        context.created_at = Mojo.Format.formatDate(new Date(value),{date:"medium",time:"short"})
+        created_at: function(value, context){
+            context.created_at = Mojo.Format.formatDate(new Date(value), {
+                date: "medium",
+                time: "short"
+            })
+        },
+        updated_at: function(value, context){
+            context.updated_at = Mojo.Format.formatDate(new Date(value), {
+                date: "medium",
+                time: "short"
+            })
+        }
     },
-    updated_at:function (value,context) {
-        context.updated_at = Mojo.Format.formatDate(new Date(value),{date:"medium",time:"short"})
-    }
-},
     
     
     initialize: function($super, controller, login, repo, number){
@@ -33,7 +39,7 @@ var Issue = Class.create(Model, {
             uriSpecs: {
                 login: login,
                 repo: repo,
-				number: number
+                number: number
             },
             itemKey: "item"
         })

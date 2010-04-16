@@ -15,57 +15,19 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with "de.kingcrunch.github". If not, see <http://www.gnu.org/licenses/>.
  */
-
-function ClosedIssues(assistant,login,repo){
-	this.assistant = assistant
-    this.login = login
-    this.repo = repo
+var ClosedIssues = Class.create(Model, {
+    formatters: {},
     
-    this.items = ClosedIssues.mapping[this.login + "/" + this.repo + "/" +  this.type]
-    
-    this.type = "closed"
-    
-}
-
-ClosedIssues.mapping = new Hash()
-
-ClosedIssues.prototype.refresh = function(options){
-    options = options || new Object()
-    options.onSuccess = function(response){
-            Mojo.Log.info("[Issues] === refresh -> onSuccess")
-            Mojo.Log.info("[Issues] === refresh : " + response.responseText)
-            
-            ClosedIssues.mapping[this.login + "/" + this.repo + "/" +  this.type] = response.responseJSON.issues
-            this.items = ClosedIssues.mapping[this.login + "/" + this.repo + "/" +  this.type]
-            this.assistant.controller.modelChanged(this)
-            
-            Mojo.Log.info("[Commits] === refresh <- onSuccess")
-        }
-.bind(this)  
-
-ClosedIssues.method = "get"
-
-    Mojo.Log.info("[Issues] ==> refresh")
-    Github.request("/issues/list/#{user}/#{repo}/#{state}", {
-        user: this.login,
-        repo : this.repo,
-        state: this.type
-    }, options)
-    Mojo.Log.info("[Issues] <== refresh")
-}
-
-ClosedIssues.prototype.update = function(options){
-    if (ClosedIssues.mapping[this.login + "/" + this.repo + "/" + this.type] == undefined) {
-        this.refresh(options)
+    initialize: function($super, controller, login, repo){
+        $super(controller, {
+            uriTemplate: "/issues/list/#{login}/#{repo}/#{state}",
+            responseKey: "issues",
+            uriSpecs: {
+                login: login,
+                repo: repo,
+                state: "closed"
+            },
+            itemKey: "items"
+        })
     }
-    else {
-        if (options.onCreate != undefined) {
-            options.onCreate()
-        }
-        this.items = ClosedIssues.mapping[this.login + "/" + this.repo + "/" + this.type]
-        this.assistant.controller.modelChanged(this)
-        if (options.onComplete != undefined) {
-            options.onComplete()
-        }
-    }
-}
+})

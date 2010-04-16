@@ -15,29 +15,36 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with "de.kingcrunch.github". If not, see <http://www.gnu.org/licenses/>.
  */
-
-
-function ActivitiesDetailsAssistant(entry) {
-    this.entry = entry
-}
-
-ActivitiesDetailsAssistant.prototype.setup = function() {
-    /* --- App widgets --- */
-    this.controller.setupWidget(Mojo.Menu.appMenu, {
-        omitDefaultItems: true
-    }, StageAssistant.appMenu);
+var FeedEntryAssistant = Class.create(Assistant,{
+    initialize: function($super,entry){
+		$super({scene:"feed-entry-details"})
+        this.entry = entry
+    },
     
-ActivitiesDetailsAssistant.prototype.activate = function(event) {
-    StageAssistant.addAd(this.controller.get("admob"))
-	
-    $("details").update(Mojo.View.render({
-                object: this.entry,
-                template: 'activities-details/details'
-            }))
-};
-
-ActivitiesDetailsAssistant.prototype.deactivate = function(event) {
-};
-
-ActivitiesDetailsAssistant.prototype.cleanup = function(event) {
-};
+    
+    setup: function($super){
+		$super()
+		
+        this.controller.setupWidget(Mojo.Menu.appMenu, {
+            omitDefaultItems: true
+        }, StageAssistant.appMenu);
+        
+    },
+    
+    cleanup: function($super,event){
+        $super(event)
+    },
+    
+    activate: function($super,event){
+		$super()
+		
+        $("details").update(Mojo.View.render({
+            object: this.entry,
+            template: 'feed-entry/details'
+        }))
+    },
+    
+    deactivate: function($super,event){
+		$super(event)
+    }
+})

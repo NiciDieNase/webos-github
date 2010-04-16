@@ -19,7 +19,6 @@
 function Newsfeed(assistant, login){
 	this.assistant = assistant
     this.login = login
-    this.watcher = ""
     
     this.items = []
     
@@ -37,11 +36,11 @@ Newsfeed.prototype.refresh = function(options){
     options.onSuccess = function(response){
         Mojo.Log.info("[Newsfeed] === refresh -> onSuccess")
         
-        Newsfeed.mapping[this.login + "/newsfeed/entries"] = $H(response.responseATOM.feed.entry).collect(function(value){
-            return value[1]
-        }).each(function(item){
-            return Mojo.Model.format(item, Newsfeed.formatters)
-        })
+    Mojo.Log.info(Mojo.Log.propertiesAsString(response.responseATOM))
+        Newsfeed.mapping[this.login + "/newsfeed/entries"] = response.responseATOM.feed
+		$H(response.responseATOM.feed).collect(function(pair){
+			this[pair.key] = pair.value
+		}.bind(this))
         this.items = Newsfeed.mapping[this.login + "/newsfeed/entries"]
 		this.assistant.controller.modelChanged(this)
 		
@@ -75,17 +74,6 @@ Newsfeed.prototype.update = function(options){
 		}
     }
 }
-
-
-Newsfeed.prototype.bindWatcher = function(watcher){
-    this.watcher = watcher
-}
-
-Newsfeed.prototype.setType = function(type){
-    this.type = type
-    this.update()
-}
-
 
 Newsfeed.formatters = {
     updated: function(value,context){

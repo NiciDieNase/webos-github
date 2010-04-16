@@ -15,64 +15,25 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with "de.kingcrunch.github". If not, see <http://www.gnu.org/licenses/>.
  */
-function Branches(assistant, login, repo){
-    this.assistant = assistant
-    this.login = login
-    this.repo = repo
-    this.watcher = ""
+var Branches = Class.create(Model, {
+    formatters: {},
     
-    this.items = []
-    
-    this.type = "branches"
-    
-}
-
-Branches.mapping = new Hash()
-
-Branches.prototype.refresh = function(options){
-    options = options || new Object()
-    options.onSuccess = function(response){
-        Mojo.Log.info("[ReCommitspos] === refresh -> onSuccess")
-        Mojo.Log.info("[Commits] === refresh : " + response.responseText)
-        
-        Branches.mapping[this.login + "/" + this.repo + "/" + this.type] = $H(response.responseJSON[this.type]).collect(function(pair){
-            Mojo.Log.info(Mojo.Log.propertiesAsString(pair))
-            return {
-                name: pair.key,
-                commit: pair.value
+    initialize: function($super, controller, login, repo){
+        $super(controller, {
+            uriTemplate: "/repos/show/#{login}/#{repo}/#{ref}",
+            responseKey: "branches",
+            uriSpecs: {
+                login: login,
+                repo: repo,
+                ref: "branches"
+            },
+            itemKey: "items",
+            collect: function(pair){
+                return {
+                    name: pair.key,
+                    commit: pair.value
+                }
             }
         })
-        this.items = Branches.mapping[this.login + "/" + this.repo + "/" + this.type]
-        this.assistant.controller.modelChanged(this)
-        
-        Mojo.Log.info("[Commits] === refresh <- onSuccess")
     }
-.bind(this)
-    
-    options.method = "get"
-    
-    Mojo.Log.info("[Commits] ==> refresh")
-    Github.request("/repos/show/#{user}/#{repo}/#{ref}", {
-        user: this.login,
-        repo: this.repo,
-        ref: this.type
-    }, options)
-    Mojo.Log.info("[Commits] <== refresh")
-}
-
-Branches.prototype.update = function(options){
-    if (Branches.mapping[this.login + "/" + this.repo + "/" + this.type] == undefined) {
-        this.refresh(options)
-    }
-    else {
-        if (options.onCreate != undefined) {
-            options.onCreate()
-        }
-        this.items = Branches.mapping[this.login + "/" + this.repo + "/" + this.type]
-        this.assistant.controller.modelChanged(this)
-        
-        if (options.onComplete != undefined) {
-            options.onComplete()
-        }
-    }
-}
+})

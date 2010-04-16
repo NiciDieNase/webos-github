@@ -1,18 +1,16 @@
 [
-    {"source": "app/models/model.js"},
     {"source": "resources/vendors/admob.js"},
     {"source": "resources/utils.js"},
+    {"source": "resources/assistant.js"},
+    {"source": "app/model.js"},
+    {"source": "app/stage-assistant.js"},
     {"source": "app/models/github.js"},
     {"source": "app/models/user.js"},
-    {"source": "app/models/users.js"},
     {"source": "app/models/repository.js"},
-    {"source": "app/models/repos.js"},
-    {"source": "app/models/refs.js"},
     {"source": "app/models/issue.js"},
     {"source": "app/models/open-issues.js"},
     {"source": "app/models/closed-issues.js"},
     {"source": "app/models/commit.js"},
-    {"source": "app/models/commits.js"},
     {"source": "app/models/newsfeed.js"},
     {"source": "app/models/activities.js"},
     {"source": "app/models/comments.js"},
@@ -22,50 +20,25 @@
     {"source": "app/models/watched-repositories.js"},
     {"source": "app/models/following.js"},
     {"source": "app/models/followers.js"},
-    {"source": "app/assistants/stage-assistant.js"},
     {
         "scenes": "auth",
         "source": "app/assistants/auth-assistant.js"
     },
     {
-        "scenes": "user-details",
-        "source": "app/assistants/user-details-assistant.js"
+        "scenes": "user",
+        "source": "app/assistants/user-assistant.js"
     },
     {
-        "scenes": "repo-list",
-        "source": "app/assistants/repo-list-assistant.js"
+        "scenes": "repo",
+        "source": "app/assistants/repo-assistant.js"
     },
     {
-        "scenes": "user-list",
-        "source": "app/assistants/user-list-assistant.js"
+        "scenes": "issue",
+        "source": "app/assistants/issue-assistant.js"
     },
     {
-        "scenes": "repo-details",
-        "source": "app/assistants/repo-details-assistant.js"
-    },
-    {
-        "scenes": "issue-list",
-        "source": "app/assistants/issue-list-assistant.js"
-    },
-    {
-        "scenes": "issue-details",
-        "source": "app/assistants/issue-details-assistant.js"
-    },
-    {
-        "scenes": "ref-list",
-        "source": "app/assistants/ref-list-assistant.js"
-    },
-    {
-        "scenes": "comment-list",
-        "source": "app/assistants/comment-list-assistant.js"
-    },
-    {
-        "scenes": "commit-list",
-        "source": "app/assistants/commit-list-assistant.js"
-    },
-    {
-        "scenes": "commit-details",
-        "source": "app/assistants/commit-details-assistant.js"
+        "scenes": "commit",
+        "source": "app/assistants/commit-assistant.js"
     },
     {
         "scenes": "license",
@@ -76,16 +49,8 @@
         "source": "app/assistants/newsfeed-assistant.js"
     },
     {
-        "scenes": "newsfeed-details",
-        "source": "app/assistants/newsfeed-details-assistant.js"
-    },
-    {
-        "scenes": "activities-list",
-        "source": "app/assistants/activities-list-assistant.js"
-    },
-    {
-        "scenes": "activities-details",
-        "source": "app/assistants/activities-details-assistant.js"
+        "scenes": "feed-entry",
+        "source": "app/assistants/feed-entry-assistant.js"
     },
     {
         "scenes": "preferences",

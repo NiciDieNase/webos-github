@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with "de.kingcrunch.github". If not, see <http://www.gnu.org/licenses/>.
  */
-
 function Activities(assistant, login){
 	this.assistant = assistant
     this.login = login
@@ -37,11 +36,10 @@ Activities.prototype.refresh = function(options){
         Mojo.Log.info("[Newsfeed] === refresh : " + response.responseText)
         
         
-        Activities.mapping[this.login + "/newsfeed/entries"] = $H(response.responseATOM.feed.entry).collect(function(value){
-            return value[1]
-        }).each(function(item){
-            return Mojo.Model.format(item, Newsfeed.formatters)
-        })
+        Activities.mapping[this.login + "/newsfeed/entries"] = response.responseATOM.feed
+        $H(response.responseATOM.feed).collect(function(pair){
+            this[pair.key] = pair.value
+        }.bind(this))
 		
 		this.items = Activities.mapping[this.login + "/newsfeed/entries"]
 		this.assistant.controller.modelChanged(this)

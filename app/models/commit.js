@@ -51,7 +51,6 @@ var Commit = Class.create(Model, {
         }
     },
     
-    
     initialize: function($super, controller, login, repo, sha){
         $super(controller, {
             uriTemplate: "/commits/show/#{login}/#{repo}/#{sha}",
