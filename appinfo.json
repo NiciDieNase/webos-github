@@ -16,6 +16,11 @@
 			"subject":"[WebOS-Github Support]"
 		},
 		"resources": [
+		     {
+			     "type":"scene",
+				 "label":"Credits",
+				 "sceneName":"credit"
+		     },
              {
                  "type": "scene",
                  "label": "License",

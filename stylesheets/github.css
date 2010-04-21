@@ -82,6 +82,18 @@
     margin-left: 17px;
 }
 
+.palm-account-icon.icon-octocat {
+    background: url(../icon-32x32.png) no-repeat;
+    margin-top: 0px;
+    margin-left: 17px;
+}
+
+.icon.icon-octocat {
+    background: url(../icon-32x32.png) no-repeat;
+    margin-top: 13px;
+    margin-left: 17px;
+}
+
 .palm-row-wrapper {
     font-size: smaller;
 }

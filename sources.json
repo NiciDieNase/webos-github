@@ -16,7 +16,7 @@
     {"source": "app/models/comments.js"},
     {"source": "app/models/branches.js"},
     {"source": "app/models/tags.js"},
-	{"source": "app/models/own-repositories.js"},
+    {"source": "app/models/own-repositories.js"},
     {"source": "app/models/watched-repositories.js"},
     {"source": "app/models/following.js"},
     {"source": "app/models/followers.js"},
@@ -55,5 +55,9 @@
     {
         "scenes": "preferences",
         "source": "app/assistants/preferences-assistant.js"
+    },
+    {
+        "scenes": "credit",
+        "source": "app/assistants/credit-assistant.js"
     }
 ]
