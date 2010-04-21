@@ -15,89 +15,55 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with "de.kingcrunch.github". If not, see <http://www.gnu.org/licenses/>.
  */
-
-function Newsfeed(assistant, login){
-	this.assistant = assistant
-    this.login = login
-    
-    this.items = []
-    
-    this.type = "open"
-    
-}
-
-Newsfeed.mapping = new Hash()
+var Newsfeed = Class.create({
+	loaded:false,
 
 
-
-Newsfeed.prototype.refresh = function(options){
-    Mojo.Log.info("[Newsfeed] ==> refresh")
-    options = options || new Object()
-    options.onSuccess = function(response){
-        Mojo.Log.info("[Newsfeed] === refresh -> onSuccess")
-        
-    Mojo.Log.info(Mojo.Log.propertiesAsString(response.responseATOM))
-        Newsfeed.mapping[this.login + "/newsfeed/entries"] = response.responseATOM.feed
-		$H(response.responseATOM.feed).collect(function(pair){
-			this[pair.key] = pair.value
-		}.bind(this))
-        this.items = Newsfeed.mapping[this.login + "/newsfeed/entries"]
-		this.assistant.controller.modelChanged(this)
-		
-		
-        Mojo.Log.info("[Newsfeed] === refresh <- onSuccess")
-    }
-.bind(this)
-    
-    options.method = "get"
-    
-    Github.privateFeed(options)
-    Mojo.Log.info("[Newsfeed] <== refresh")
-}
-
-Newsfeed.prototype.update = function(options){
-    if (Newsfeed.mapping[this.login + "/newsfeed/entries"] == undefined) {
-        this.refresh(options)
-    }
-    else {
-		if (options.onCreate != undefined) {
-			options.onCreate()
-		}
-		
-        this.items = Newsfeed.mapping[this.login + "/newsfeed/entries"]
-        
-        this.assistant.controller.modelChanged(this)
-		
-		
-		if (options.onComplete != undefined) {
-			options.onComplete()
-		}
-    }
-}
-
-Newsfeed.formatters = {
-    updated: function(value,context){
-        var Ausdruck = /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})-(\d{2}):(\d{2})/;
-        var result = Ausdruck.exec(value)
-        var dateObj = new Date(result[1], parseInt(result[2]) - 1, result[3], parseInt(result[4]) + parseInt(result[7]), result[5], result[6])
-        
-        dateObj.setMinutes(dateObj.getMinutes() - dateObj.getTimezoneOffset())
-        
-        context.updated = Mojo.Format.formatDate(dateObj, {
-            date: "long",
-            time: "short"
-        })
+    initialize: function(assistant, login){
+        this.assistant = assistant
+        this.login = login
+		this.loaded = false
     },
-    published: function(value,context){
-        var Ausdruck = /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})-(\d{2}):(\d{2})/;
-        var result = Ausdruck.exec(value)
-        var dateObj = new Date(result[1], parseInt(result[2]) - 1, result[3], parseInt(result[4]) + parseInt(result[7]), result[5], result[6])
+    
+    refresh: function(options){
+        Mojo.Log.info("[Newsfeed] ==> refresh")
+        options = options || new Object()
+        options.onSuccess = function(response){
+            Mojo.Log.info("[Newsfeed] === refresh -> onSuccess")
+            this.entry = response.responseATOM.feed.entry
+            this.entry = this.entry.collect(function(item){
+                return Mojo.Model.format(item, this.formatters)
+            }, this)
+            Mojo.Log.info(Mojo.Log.propertiesAsString(response.responseATOM.feed.entry[0]))
+            
+			this.loaded = true
+            this.assistant.controller.modelChanged(this)
+        }
+.bind(this)
         
-        dateObj.setMinutes(dateObj.getMinutes() - dateObj.getTimezoneOffset())
+        options.method = "get"
         
-        context.published = Mojo.Format.formatDate(dateObj, {
-            date: "long",
-            time: "short"
-        })
+        Github.privateFeed(options)
+    },
+    
+    update: function(options){
+		if (!this.loaded) {
+			this.refresh(options)
+		}
+    },
+    
+    formatters: {
+        updated: function(value, context){
+            context.updated = Mojo.Format.formatDate(iso2date(value), {
+                date: "long",
+                time: "short"
+            })
+        },
+        published: function(value, context){
+            context.published = Mojo.Format.formatDate(iso2date(value), {
+                date: "long",
+                time: "short"
+            })
+        }
     }
-}
+})

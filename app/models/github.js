@@ -91,19 +91,6 @@ Github.privateFeed = function(options){
         options.onFailure = StageAssistant.connectionError
     }
     
-    if (options.onCreate != undefined) {
-        options.onCreate = function(target, response){
-            target(response)
-        }
-.bind(undefined, options.onCreate)
-    }
-    
-    if (options.onComplete != undefined) {
-        options.onComplete = function(target, response){
-            target(response)
-        }
-.bind(undefined, options.onComplete)
-    }
     options.evalJSON = "false"
     
     Mojo.Log.info("https://github.com/#{login}.private.atom?token=#{token}".interpolate(Github.auth))

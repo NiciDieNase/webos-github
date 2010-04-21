@@ -18,6 +18,7 @@
 var Model = Class.create({
     storage: new Hash(),
     formatters: {},
+    loaded: false,
     
     uri: "unknown",
     
@@ -29,47 +30,35 @@ var Model = Class.create({
     },
     
     initialize: function(assistant, specs){
+        this.loaded = false
         this.assistant = assistant
         this.specs = specs
         this.uri = specs.uriTemplate.interpolate(specs.uriSpecs)
-        this[this.specs.itemKey] = this.storage[this.uri]
+        this[this.specs.itemKey] = []
     },
     
     update: function(options){
-		options = options ? options : {}
-        if (this.storage[this.uri] == undefined) {
+        if (!this.loaded) {
             this.refresh(options)
-        }
-        else {
-            if (options.onCreate != undefined) {
-                options.onCreate()
-            }
-            
-            this[this.specs.itemKey] = this.storage[this.uri]
-            this.assistant.controller.modelChanged(this)
-            
-            if (options.onComplete != undefined) {
-                options.onComplete()
-            }
         }
     },
     
     refresh: function(options){
         options = options || new Object()
         options.onSuccess = function(response){
-            
+        
             if (this.specs.collect) {
-                this.storage[this.uri] = Mojo.Model.format($H(response.responseJSON[this.specs.responseKey]).collect(this.specs.collect), this.formatters)
+                this[this.specs.itemKey] = Mojo.Model.format($H(response.responseJSON[this.specs.responseKey]).collect(this.specs.collect), this.formatters)
             }
             else {
                 if (this.specs.map) {
-                    this.storage[this.uri] = Mojo.Model.format($A(response.responseJSON[this.specs.responseKey]).map(this.specs.map), this.formatters)
+                    this[this.specs.itemKey] = Mojo.Model.format($A(response.responseJSON[this.specs.responseKey]).map(this.specs.map), this.formatters)
                 }
                 else {
-                    this.storage[this.uri] = Mojo.Model.format(response.responseJSON[this.specs.responseKey], this.formatters)
+                    this[this.specs.itemKey] = Mojo.Model.format(response.responseJSON[this.specs.responseKey], this.formatters)
                 }
             }
-            this[this.specs.itemKey] = this.storage[this.uri]
+            this.loaded = true
             this.assistant.controller.modelChanged(this)
         }
 .bind(this)

@@ -140,7 +140,7 @@ function iso2date (value) {
     result = /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})-(\d{2}):(\d{2})/.exec(value)
     date = new Date(result[1], parseInt(result[2]) - 1, result[3], parseInt(result[4]) + parseInt(result[7]), result[5], result[6])
             
-    date.setMinutes(dateObj.getMinutes() - dateObj.getTimezoneOffset())
+    date.setMinutes(date.getMinutes() - date.getTimezoneOffset())
     return date    
 }
 
