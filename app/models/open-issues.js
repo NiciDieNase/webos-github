@@ -15,32 +15,20 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with "de.kingcrunch.github". If not, see <http://www.gnu.org/licenses/>.
  */
-var Comments = Class.create(Model, {
-    formatters: {
-        created_at: function(value, context){
-            context.created_at = Mojo.Format.formatDate(new Date(value), {
-                date: 'medium',
-                time: "short"
-            })
-        },
-        updated_at: function(value, context){
-            context.updated_at = Mojo.Format.formatDate(new Date(value), {
-                date: 'medium',
-                time: "short"
-            })
-        }
-    },
+var OpenIssues = Class.create(Model, {
+    formatters: {},
     
-    initialize: function($super, controller, login, repo, number){
+    initialize: function($super, controller, login, repo){
         $super(controller, {
-            uriTemplate: "/issues/comments/#{login}/#{repo}/#{number}",
-            responseKey: "comments",
+            uriTemplate: "/issues/list/#{login}/#{repo}/#{state}",
+            responseKey: "issues",
             uriSpecs: {
                 login: login,
                 repo: repo,
-                number: number
+                state: "open"
             },
             itemKey: "items"
         })
     }
 })
+

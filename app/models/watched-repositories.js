@@ -15,40 +15,32 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with "de.kingcrunch.github". If not, see <http://www.gnu.org/licenses/>.
  */
-var User = Class.create(Model, {
+var WatchedRepositories = Class.create(Model, {
     formatters: {
         created_at: function(value, context){
             context.created_at = Mojo.Format.formatDate(new Date(value), {
-                date: 'medium',
+                date: "medium",
                 time: "short"
             })
         },
-        blog: function(value, context){
-            if (value) {
-                if (value.substr(0, 11) == "http://www.") {
-                    context.blog_title = value.substr(11)
-                }
-                else {
-                    if (value.substr(0, 7) == "http://") {
-                        context.blog_title = value.substr(7)
-                    }
-                    else {
-                        context.blog_title = value
-                    }
-                }
-            }
+        updated_at: function(value, context){
+            context.updated_at = Mojo.Format.formatDate(new Date(value), {
+                date: "medium",
+                time: "short"
+            })
         }
     },
-	
-	
+    
+    
     initialize: function($super, controller, login){
-        $super(controller,{
-			uriTemplate: "/user/show/#{login}",
-			responseKey: "user",
-			uriSpecs: {
-				login: login
-			},
-			itemKey: "item"
-		})
+        $super(controller, {
+            uriTemplate: "/repos/#{direction}/#{login}",
+            responseKey: "repositories",
+            uriSpecs: {
+                login: login,
+                direction: "watched"
+            },
+            itemKey: "items"
+        })
     }
 })

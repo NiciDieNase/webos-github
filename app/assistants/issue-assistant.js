@@ -15,38 +15,30 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with "de.kingcrunch.github". If not, see <http://www.gnu.org/licenses/>.
  */
-var NewsfeedAssistant = Class.create(Assistant, {
-    initialize: function($super){
-        $super({
-            scene: "newsfeed"
-        })
+var IssueAssistant = Class.create(Assistant,{
+    initialize: function($super,user, repo, number){
+		$super({scene:"issue"})
+
+        this.user = user
+        this.repo = repo
+        this.number = number
         
-        this.newsfeed = new Newsfeed(this, Github.auth.login)
+        this.comments = new Comments(this, user, repo, number)
+        this.issue = new Issue(this, user, repo, number)
 		
-        this.openEntry = this.openEntry.bind(this)
         this.handleCommand = this.handleCommand.bind(this)
+        this.updateMainModel = this.updateMainModel.bind(this)
     },
     
     setup: function($super){
-        $super()
-		
-        /* --- UI widgets --- */
-        this.controller.setupWidget('content', {
-            itemTemplate: 'newsfeed/item-template',
-            listTemplate: 'newsfeed/list-template',
-            itemsProperty: 'entry',
-            height: "auto"
-        }, this.newsfeed);
+		$super()
+        
+        this.controller.watchModel(this.issue, this, this.updateMainModel)
         
         this.controller.setupWidget(Mojo.Menu.commandMenu, undefined, {
             visible: true,
             items: [{
                 visible: false
-            }, {
-                items: [{
-                    label: $L('Profile'),
-                    command: 'cmd-showProfile',
-                }]
             }, {
                 label: $L('Refresh'),
                 icon: 'refresh',
@@ -54,55 +46,55 @@ var NewsfeedAssistant = Class.create(Assistant, {
             }]
         });
         
-		
-        /* --- Event Listener --- */
-        Mojo.Event.listen($("content"), Mojo.Event.listTap, this.openEntry)
+        this.controller.setupWidget('comments', {
+            itemTemplate: 'issue/comments/item-template',
+            listTemplate: 'issue/comments/list-template'
+        }, this.comments);
     },
     
-    cleanup: function($super, event){
+    cleanup: function($super,event){
         $super(event)
-        Mojo.Event.stopListening($("content"), Mojo.Event.listTap, this.openEntry)
+		
+		this.controller.removeWatcher(this,this.issue)
     },
     
-    activate: function($super, event){
+    activate: function($super,event){
         $super(event)
         
-        this.newsfeed.update({
-            onComplete: function(x){
-                $("load-spinner").mojo.stop()
-                $("load-status").hide()
-            },
-            onCreate: function(x){
+        this.comments.update()
+        this.issue.update({
+            onCreate: function(){
                 $("load-spinner").mojo.start()
                 $("load-status").show()
+            },
+            onComplete: function(){
+                $("load-status").hide()
+                $("load-spinner").mojo.stop()
             }
         })
     },
     
-    deactivate: function($super, event){
+    deactivate: function($super,event){
         $super(event)
     },
     
-    handleCommand: function($super, event){
+    handleCommand: function($super,event){
         $super(event)
-        
+		
         if (event.type == Mojo.Event.command) {
             switch (event.command) {
-                case 'cmd-showProfile':
-                    event.stopPropagation()
-                    Mojo.Controller.stageController.pushScene({
-                        name: "user",
-                    }, Github.auth.login)
-                    break;
                 case 'do-refresh':
                     event.stopPropagation()
-                    this.newsfeed.refresh()
+                    this.issue.refresh()
                     break;
             }
         }
     },
     
-    openEntry: function(event){
-        Mojo.Controller.stageController.pushScene("feed-entry", event.item)
-    }
+    updateMainModel: function(event){
+        $("details").update(Mojo.View.render({
+            object: this.issue,
+            template: "issue/details"
+        }))
+    },
 })
