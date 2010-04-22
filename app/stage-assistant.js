@@ -32,7 +32,7 @@ var StageAssistant = Class.create({
             pub_id: 'a14bbbbacb9e602', // your publisher id
             bg_color: '#ccc', // optional background color, defaults to #fff
             text_color: '#333', // optional background color, defaults to #000
-            test_mode: true // optional, set to true for testing ads, remove or set to false for production
+            test_mode: false // optional, set to true for testing ads, remove or set to false for production
         });
         
         this.handleCommand = this.handleCommand.bind(this)
