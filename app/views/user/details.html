@@ -1,0 +1,72 @@
+<table class="palm-divider labeled">
+    <tr>
+        <td class="left palm-account-icon icon-user">
+        <td class="label">
+            #{item.login}
+        </td>
+        <td class="right">
+        </td>
+    </tr>
+</table>
+<div class="palm-list" style="text-size:smaller;">
+    <div class="palm-row first">
+        <div class="palm-row-wrapper">
+            <div class="label">
+                Name
+            </div>
+            <div class="title left truncating-text">
+                #{item.name}
+            </div>
+        </div>
+    </div>
+    <div class="palm-row">
+        <div class="palm-row-wrapper">
+            <div class="label">
+                Company
+            </div>
+            <div class="title left truncating-text">
+                #{item.company}
+            </div>
+        </div>
+    </div>
+    <div class="palm-row">
+        <div class="palm-row-wrapper">
+            <div class="label">
+                Location
+            </div>
+            <div class="title left truncating-text">
+                #{item.location}
+            </div>
+        </div>
+    </div>
+    <div class="palm-row">
+        <div class="palm-row-wrapper">
+            <div class="label">
+                E-Mail
+            </div>
+            <div class="title left truncating-text">
+                <a href="mailto:#{item.email}">#{item.email}</a>
+            </div>
+        </div>
+    </div>
+    <div class="palm-row">
+        <div class="palm-row-wrapper">
+            <div class="label">
+                Blog
+            </div>
+            <div class="title left truncating-text">
+                <a href="#{item.blog}">#{item.blog_title}</a>
+            </div>
+        </div>
+    </div>
+    <div class="palm-row last">
+        <div class="palm-row-wrapper">
+            <div class="label">
+                Created at
+            </div>
+            <div class="title left truncating-text">
+                #{item.created_at}
+            </div>
+        </div>
+    </div>
+</div>

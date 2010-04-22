@@ -1,0 +1,52 @@
+<table class="palm-divider labeled">
+    <tr>
+        <td class="left palm-account-icon icon-user">
+        <td class="label">
+            #{item.name}
+        </td>
+        <td class="right">
+        </td>
+    </tr>
+</table>
+<div class="palm-list">
+    <div class="palm-row first" id="owner-row" x-mojo-tap-highlight="delayed">
+        <div class="palm-row-wrapper">
+            <div class="label">
+                Owner
+            </div>
+            <div class="title left truncating-text">
+                #{item.owner}
+            </div>
+        </div>
+    </div>
+    <div class="palm-row">
+        <div class="palm-row-wrapper">
+            <div class="label">
+                Description
+            </div>
+            <div class="title left multi-line">
+                #{item.description}
+            </div>
+        </div>
+    </div>
+    <div class="palm-row">
+        <div class="palm-row-wrapper">
+            <div class="label">
+                Url
+            </div>
+            <div class="title left truncating-text">
+                <a href="#{item.url}">#{item.url_title}</a>
+            </div>
+        </div>
+    </div>
+    <div class="palm-row last">
+        <div class="palm-row-wrapper">
+            <div class="label">
+                Homepage
+            </div>
+            <div class="title left truncating-text">
+                <a href="#{item.homepage}">#{item.homepage_title}</a>
+            </div>
+        </div>
+    </div>
+</div>
