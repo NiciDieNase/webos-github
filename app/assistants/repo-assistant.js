@@ -19,7 +19,7 @@ var RepoAssistant = Class.create(Assistant, {
     initialize: function($super, owner, name){
         this.owner = owner
         this.name = name
-		
+        
         $super({
             scene: "repo",
             lists: [{
@@ -48,11 +48,17 @@ var RepoAssistant = Class.create(Assistant, {
         this.repo = new Repository(this, owner, name)
         
         this.updateMainModel = this.updateMainModel.bind(this)
+        this.openDetail = this.openDetail.bind(this)
     },
     
     setup: function($super){
         $super()
-		
+        $("content").update(Mojo.View.render({
+            object: {},
+            template: "repo/details"
+        }))
+        Mojo.Event.listen(this.controller.get("content"), Mojo.Event.tap, this.openDetail)
+        
         this.controller.watchModel(this.repo, this, this.updateMainModel)
         
         this.controller.setupWidget(Mojo.Menu.commandMenu, undefined, {
@@ -65,12 +71,15 @@ var RepoAssistant = Class.create(Assistant, {
                 command: 'do-refresh'
             }]
         });
+        
+        
     },
     
     cleanup: function($super, event){
         $super(event)
-		
-		this.controller.removeWatcher(this,this.model)
+        
+        this.controller.removeWatcher(this, this.model)
+        Mojo.Event.stopListening(this.controller.get("content"), Mojo.Event.tap, this.openDetail)
     },
     
     activate: function($super, event){
@@ -92,9 +101,9 @@ var RepoAssistant = Class.create(Assistant, {
         $super(event)
     },
     
-    handleCommand: function($super,event){
-		$super(event)
-
+    handleCommand: function($super, event){
+        $super(event)
+        
         if (event.type == Mojo.Event.command) {
             switch (event.command) {
                 case 'do-refresh':
@@ -114,7 +123,7 @@ var RepoAssistant = Class.create(Assistant, {
     
     openItem: function($super, event){
         $super(event)
-		
+        
         $A(this.lists).each(function(item){
             if (item.model == this.event.model) {
                 switch (item.name) {
@@ -133,5 +142,18 @@ var RepoAssistant = Class.create(Assistant, {
             event: event,
             assistant: this
         })
+    },
+    
+    openDetail: function(event){
+//        Mojo.Log.info("openOwner")
+//        Mojo.Log.info(Mojo.Log.propertiesAsString(event.target.up(".palm-row")))
+		row = event.target.up(".palm-row")
+        switch (row.id) {
+            case 'owner-row':
+                title = row.down(".title")
+//        Mojo.Log.info(Mojo.Log.propertiesAsString(title))
+				Mojo.Controller.stageController.pushScene("user",title.innerText)
+                break;
+        }
     }
 })

@@ -2,7 +2,7 @@
     <tr>
         <td class="left palm-account-icon icon-user">
         <td class="label">
-            Details
+            #{item.login}
         </td>
         <td class="right">
         </td>
@@ -16,26 +16,6 @@
             </div>
             <div class="title left truncating-text">
                 #{item.name}
-            </div>
-        </div>
-    </div>
-    <div class="palm-row">
-        <div class="palm-row-wrapper">
-            <div class="label">
-                Login
-            </div>
-            <div class="title left truncating-text">
-                #{item.login}
-            </div>
-        </div>
-    </div>
-    <div class="palm-row">
-        <div class="palm-row-wrapper">
-            <div class="label">
-                E-Mail
-            </div>
-            <div class="title left truncating-text">
-                <a href="mailto:#{item.email}">#{item.email}</a>
             </div>
         </div>
     </div>
@@ -56,6 +36,16 @@
             </div>
             <div class="title left truncating-text">
                 #{item.location}
+            </div>
+        </div>
+    </div>
+    <div class="palm-row">
+        <div class="palm-row-wrapper">
+            <div class="label">
+                E-Mail
+            </div>
+            <div class="title left truncating-text">
+                <a href="mailto:#{item.email}">#{item.email}</a>
             </div>
         </div>
     </div>

@@ -1,8 +1,8 @@
 [
     {"source": "resources/vendors/admob.js"},
     {"source": "resources/utils.js"},
-    {"source": "resources/assistant.js"},
     {"source": "app/model.js"},
+    {"source": "app/assistant.js"},
     {"source": "app/stage-assistant.js"},
     {"source": "app/models/github.js"},
     {"source": "app/models/user.js"},
