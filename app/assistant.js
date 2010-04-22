@@ -69,7 +69,7 @@ var Assistant = Class.create({
         }, this)
     },
     activate: function(event){
-        if (true && this.controller.get("admob") != undefined) {
+        if (false && this.controller.get("admob") != undefined) {
             AdMob.ad.request({
                 onSuccess: (function(ad){
                     this.update()
