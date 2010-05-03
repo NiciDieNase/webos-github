@@ -38,7 +38,13 @@ var Model = Class.create({
     },
     
     update: function(options){
-        if (!this.loaded) {
+        if (this.loaded) {
+            if (options.onComplete != undefined) {
+                options.onComplete()
+                
+            }
+        }
+        else {
             this.refresh(options)
         }
     },
