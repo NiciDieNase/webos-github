@@ -2,7 +2,7 @@ WebOS-Github
 ===
 The (as far as I know) first Github app for WebOS (Palm Pre and Pixi) ever.
 
-Note, that this app will likely distributed as a paid app in palms app-shop, when its not under development anymore. Till then no package files will be provided by me.
+Note, that this app will likely distributed as a paid app in palms app-shop, when its not under development anymore.
 However, you can still download the source, build your own package, install it via QuickInstall and use it for free.
 
 Goals
