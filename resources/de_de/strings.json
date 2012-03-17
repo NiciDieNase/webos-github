@@ -1,7 +1,7 @@
 {
-	'Userinfo':'Benutzer',
-	'Back':'Zurück',
-	'Forward':'Vor',
+	"Userinfo":"Benutzer",
+	"Back":"Zurück",
+	"Forward":"Vor",
 	
 	"name":"Name",
 	"login":"Login",
@@ -9,7 +9,7 @@
 	"location":"Ort",
 	"company":"Unternehmen",
 	"blog":"Blog",
-	'created_at':'erstellt',
+	"created_at":"erstellt",
 	"public_gist_count":"#Gists",
 	"public_repo_count":"#Öffentl. Repos",
 	"total_private_repo_count":"#Private Repos",
